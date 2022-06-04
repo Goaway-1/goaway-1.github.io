@@ -41,9 +41,7 @@ author: Namaan
 copyright: "Unpublished Work (cleft) 2017-{currentYear} {author}"
 
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  This blog is a development blog by Namaan. I record this and that.
 
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://goaway-1.github.io" 
