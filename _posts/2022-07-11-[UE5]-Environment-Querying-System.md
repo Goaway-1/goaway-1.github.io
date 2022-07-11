@@ -23,13 +23,13 @@ tags: [UE5, UnrealEngine, C++]
   
   EQS의 기능을 다루기 위해서는 Environment Query를 생성해야하는데 이는 Artificial Intelligence/Environment Query에서 생성할 수 있다.
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/EQS/EQSAsset.png" height="300" title="EQSAsset">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQSAsset.png" height="300" title="EQSAsset">
 
   생성을 완료하면 아래 그림의 왼쪽과 같은 것을 볼 수 있는데, 이는 AI를 만들어봤다면 볼 수 있는 __Behavior Tree와__ 비슷하게 구성되는 것을 볼 수있다.
 
   먼저 SimpleGrid는 질문자(Querier)를 중심으로 반경 내에 Grid를 생성하며, Distance와 Trace는 각각 조건을 의미하는데 Distance는 반경 내의 Actor를 찾기 위함이고, Trace는 질문자의 시점에서 벗어나는 지점을 알기 위한 Task이다. 
   
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/EQS/EQS_Query.png" height="300" title="EQS_Query">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_Query.png" height="300" title="EQS_Query">
   
 ### EQSTestingPawn
 
@@ -39,9 +39,9 @@ tags: [UE5, UnrealEngine, C++]
 
   EQS_TestingPawn은 아래 그림과 같이 생성할 수 있고, EQS의 __Query Template에서__ 이전에 만든 __Environment Query를__ 연결하여 사용한다.
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/EQS/EQS_TestingPawn.png" height="300" title="EQS_TestingPawn">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_TestingPawn.png" height="300" title="EQS_TestingPawn">
   
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/EQS/EQS_TestingPawn_Query.png" height="300" title="EQS_TestingPawn_Query">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_TestingPawn_Query.png" height="300" title="EQS_TestingPawn_Query">
 
   |option|explanation|
   |:--:|:--|
@@ -60,7 +60,7 @@ tags: [UE5, UnrealEngine, C++]
 
   실시간으로 테스트를 진행해본 결과는 아래와 같으며, 질문자의 시점내에 있는 곳은 파란색으로 표현되고, 그렇지 않은 곳은 녹색으로 표시되는 것을 볼 수있다.
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/EQS/EQS_Example.gif" height="300" title="EQS_Example">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_Example.gif" height="300" title="EQS_Example">
 
   이처럼 EQS를 활용하여 AI가 환경요소에 따른 활동을 선택할 수 있으며, 멀티플레이의 GameMode에서도 활용될 수 있다.
 
