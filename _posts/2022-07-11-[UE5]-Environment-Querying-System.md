@@ -31,6 +31,8 @@ tags: [UE5, UnrealEngine, C++]
   
   <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_Query.png" height="300" title="EQS_Query">
   
+  이때 EQS의 기능을 따로 제작할 수 있는데 __EnvQueryContext_BlueprintBase를__ 사용한다. 이는 사전에 설정한 Grid내에서 사용자 액터를 찾아 반환하거나, 무언가에 대해 반환할때 사용한다.
+   
 ### EQSTestingPawn
 
   EQS가 실제로 하고 있는 역할에 대해서 확인을 돕는 특수한 Pawn 클래스로, 이전 작성한 Environment Query의 로직에 영향을 받는다.
