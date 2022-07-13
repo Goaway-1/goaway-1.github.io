@@ -23,13 +23,13 @@ tags: [UE5, UnrealEngine, C++]
   
   EQS의 기능을 다루기 위해서는 Environment Query를 생성해야하는데 이는 Artificial Intelligence/Environment Query에서 생성할 수 있다.
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQSAsset.png" height="300" title="EQSAsset">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQSAsset.png" height="350" title="EQSAsset">
 
   생성을 완료하면 아래 그림의 왼쪽과 같은 것을 볼 수 있는데, 이는 AI를 만들어봤다면 볼 수 있는 __Behavior Tree와__ 비슷하게 구성되는 것을 볼 수있다.
 
   먼저 SimpleGrid는 질문자(Querier)를 중심으로 반경 내에 Grid를 생성하며, Distance와 Trace는 각각 조건을 의미하는데 Distance는 반경 내의 Actor를 찾기 위함이고, Trace는 질문자의 시점에서 벗어나는 지점을 알기 위한 Task이다. 
   
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_Query.png" height="300" title="EQS_Query">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_Query.png" height="350" title="EQS_Query">
   
   이때 EQS의 기능을 따로 제작할 수 있는데 __EnvQueryContext_BlueprintBase를__ 사용한다. 이는 사전에 설정한 Grid내에서 사용자 액터를 찾아 반환하거나, 무언가에 대해 반환할때 사용한다.
    
@@ -41,9 +41,9 @@ tags: [UE5, UnrealEngine, C++]
 
   EQS_TestingPawn은 아래 그림과 같이 생성할 수 있고, EQS의 __Query Template에서__ 이전에 만든 __Environment Query를__ 연결하여 사용한다.
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_TestingPawn.png" height="300" title="EQS_TestingPawn">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_TestingPawn.png" height="350" title="EQS_TestingPawn">
   
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_TestingPawn_Query.png" height="300" title="EQS_TestingPawn_Query">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_TestingPawn_Query.png" height="350" title="EQS_TestingPawn_Query">
 
   |option|explanation|
   |:--:|:--|
@@ -62,14 +62,15 @@ tags: [UE5, UnrealEngine, C++]
 
   실시간으로 테스트를 진행해본 결과는 아래와 같으며, 질문자의 시점내에 있는 곳은 파란색으로 표현되고, 그렇지 않은 곳은 녹색으로 표시되는 것을 볼 수있다.
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_Example.gif" height="300" title="EQS_Example">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_Example.gif" height="350" title="EQS_Example">
 
   이처럼 EQS를 활용하여 AI가 환경요소에 따른 활동을 선택할 수 있으며, 멀티플레이의 GameMode에서도 활용될 수 있다.
 
+___
 
 ## 추가 예시
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_Example2.gif" height="300" title="EQS_Example2">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_Example2.gif" height="350" title="EQS_Example2">
 
   이번에는 위 영상과 같이 실제로 AI가 사용자를 찾아 총을 발사하려고 할때의 최적 위치를 찾는 EQS를 만들어보려고한다. 이때 조건은 아래와 같다.
 
@@ -79,35 +80,35 @@ tags: [UE5, UnrealEngine, C++]
 
   > AI 주변 범위 지정
   
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_1.png" height="300" title="EQS_1S">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_1.png" height="350" title="EQS_1S">
     
-    - Point:Donut을 사용하여 AI 주변에 일정 범위의 원형을 생성하며, 각 원형으로 보이는 곳은 포인트로 추후 캐릭터가 이동할 위치를 의미한다.
-    - 위 그림과 같이 구성할 필요는 없고, 사용자에 맞게 범위, 포인트의 개수등을 설정해준다. 
-    - 이때 AI는 Navigation을 활용하기 때문에 Projection Data/Trace Mode를 Navigation으로 설정하여 주었다.
+  - Point:Donut을 사용하여 AI 주변에 일정 범위의 원형을 생성하며, 각 원형으로 보이는 곳은 포인트로 추후 캐릭터가 이동할 위치를 의미한다.
+  - 위 그림과 같이 구성할 필요는 없고, 사용자에 맞게 범위, 포인트의 개수등을 설정해준다. 
+  - 이때 AI는 Navigation을 활용하기 때문에 Projection Data/Trace Mode를 Navigation으로 설정하여 주었다.
 
   > 거리에 따른 점수 부여
   
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_2.png" height="300" title="EQS_2">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_2.png" height="350" title="EQS_2">
     
-    - AI로부터 가까운 거리에 대해 높은 점수를 부여받은 것을 볼 수 있다.
-    - Distance를 사용하여 최소거리에 대해 높은 점수를 부여하였으며, FilterType은 Mimimum으로, Scoring Factor는 -2로 지정해주었다.
+  - AI로부터 가까운 거리에 대해 높은 점수를 부여받은 것을 볼 수 있다.
+  - Distance를 사용하여 최소거리에 대해 높은 점수를 부여하였으며, FilterType은 Mimimum으로, Scoring Factor는 -2로 지정해주었다.
 
   > Player와의 시야에 따른 점수 부여
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_3.png" height="300" title="EQS_3">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_3.png" height="350" title="EQS_3">
     
-    - AI가 Player로부터 시야에 벗어난 경우에 높은 점수를 부여받은 것을 볼 수 있다.
-    - Trace를 사용하여 Player로부터 시야에 벗어난 경우에 높은 점수를 부여하였으며, 이때 Context는 Player들을 반환한다. 아래 그림과 같다.
+  - AI가 Player로부터 시야에 벗어난 경우에 높은 점수를 부여받은 것을 볼 수 있다.
+  - Trace를 사용하여 Player로부터 시야에 벗어난 경우에 높은 점수를 부여하였으며, 이때 Context는 Player들을 반환한다. 아래 그림과 같다.
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/AllPlayerFind.png" height="300" title="AllPlayerFind">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/AllPlayerFind.png" height="200" title="AllPlayerFind">
   
   > Player와의 시야(높이)에 따른 점수 부여
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_4.png" height="300" title="EQS_4">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/EQS_4.png" height="350" title="EQS_4">
     
     - AI가 Player로부터 시야에 보이는 경우에 높은 점수를 부여받은 것을 볼 수 있다. 단 낮은 벽과 같이 AI를 일정 부분 가려야한다.
     - Trace를 사용하여 Player로부터 시야에 보이는 경우에 높은 점수를 부여하였으며, 이때 높이를 지정해야하기 때문에 Item(벽), Context(Player)의 Z-Offset을 100으로 설정해주었다.
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/FindMoveTo.png" height="300" title="FindMoveTo">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/EQS/FindMoveTo.png" height="350" title="FindMoveTo">
   
   그 결과 EQS는 위 그림과 같이 구성된다.
