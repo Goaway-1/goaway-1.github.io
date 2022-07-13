@@ -13,7 +13,7 @@ tags: [UE5, UnrealEngine, C++]
   
   EQS 쿼리는 AI 캐릭터에게 공격하기 위한 시야를 제공하는 최적의 위치, 가장 가까운 상태 또는 탄약 픽업 또는 가장 가까운 커버 포인트(다른 가능성 중)를 찾도록 지시하는 데 사용할 수 있습니다. 
 
-  ※ 다만 아직 실험단계의 기능이기 때문에 출시 제품에 사용하는 것은 권장하지 않는다. [원본 링크](#https://docs.unrealengine.com/4.27/ko/InteractiveExperiences/ArtificialIntelligence/EQS)
+  ※ 다만 아직 실험단계의 기능이기 때문에 출시 제품에 사용하는 것은 권장하지 않는다. [원본 링크](https://docs.unrealengine.com/4.27/ko/InteractiveExperiences/ArtificialIntelligence/EQS)
 
 ## EQS의 사용
   
