@@ -184,11 +184,11 @@ pre {
  */
 .wrapper {
   max-width: $content-width;
-  margin: auto;
-  //padding-right: $spacing-unit;
-  //padding-left: $spacing-unit;
-  padding-right: 15px;
-  padding-left: 15px;
+  margin: 30px;
+  padding-right: $spacing-unit;
+  padding-left: $spacing-unit;
+  //padding-right: 15px;
+  //padding-left: 15px;
   @extend %clearfix;
 }
 
