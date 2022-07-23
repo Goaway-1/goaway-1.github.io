@@ -127,6 +127,118 @@ tags: [Effective_C++, C++]
 
   - 단순 상수는 #define이 아닌 "const 객체","enum"을 우선 사용하고, 매크로 함수는 "인라인 함수"를 사용한다.
 
+## 항목 3 : 낌새만 보이면 const를 들이대 보자!
+
+### __const의 대표적 예시__
+
+1. 클래스 밖에서는 전역/네임스페이스 유효범위의 상수를 선언
+2. 파일, 함수, 블록 유효범위에서 static으로 선언한 객체에 사용 가능
+3. 클래스 내부에서는 정적/비정적 데이터 멤버 모두 상수 선언이 가능
+4. 포인터 자체 or 포인터가 가르키는 데이터를 상수로 지정 가능
+    ```c++
+    const char * p;         //상수 데이터 
+    char * const p;         //상수 포인터
+    ```
+5. STL의 반복자(iterator) 사용시
+  - 반복자는 자신이 가리키는 대상이 아닌 것을 가르키는 것도 가능하고, 대상 자체에 대해서도 변경이 가능하다.
+  - 하지만 변경을 불가능하게 하기 위해서 "const_iterator"를 사용한다.
+    ```c++
+    //이전
+    const vector<int>::iterator it = vec.begin();
+    *it = 10;     // 가능
+    it++;         // it는 상수이기에 불가능
+    ```
+    ```c++
+    //이후
+    vector<int>::const_iterator it = vec.begin();
+    *it = 10;     // *it는 상수이기에 불가능
+    it++;         // 가능
+    ```
+6. 함수 선언
+  - 가장 강력한 용도로 사용되며, 반환 값/매개변수/멤버 함수 앞에 사용한다. 심지어는 함수 전체에도 선언하여 사용한다.
+  - 이를 통해 기본 제공 타입과의 쓸데없는 비호환성을 파하는 것과 같은 에러가 감소하는데 예시는 아래와 같다.
+
+    ```c++
+    class A {};
+    const A operator *(const A &a, const A &b);
+
+    //Error
+    A a,b,c;
+    (a * b) = c;
+    if(a * b = c);
+    ```
+### __멤버 함수가 상수 함수일때의 의미__
+|개념|의미|
+|:--:|:--|
+|__비트 수준 상수성 (물리적)__|정적 멤버를 제외한 어떤 데이터 멤버도 건들이지 않으며, 즉 객체를 구성하는 비트를 바꾸지 않는다.|
+|__논리적 상수성__|비트 수준 상수성을 보완하는 개념으로 일부 몇 비트는 바꿀 수 있되, 사용자가 인지하지 못한다면 상관없다.|
+
+> 비트 수준 상수성 
+  - '제대로 const'로 동작하지 않는데도 검사를 통과하는 경우가 발생한다.
+  - 아래와 같은 경우로 부적절하지만 비트수준 상수성이 있어서 허용된 경우이다. 이는 pText의 내용을 수정할 수 있는 큰 문제를 야기할 수 있다.
+    ```c++
+    char& operator[](size_t t) const {
+      return pText[t];                  
+    }
+
+    //ERROR
+    const A a("Hello");
+    char *pc = &a[0];
+    *pc = 'J';            //"Jello"로 값이 변한다.   
+    ```
+
+> 논리적 상수성
+  - 위의 문제를 보오나하기 위한 개념으로, 일부 몇 비트는 바꿀 수 있다.
+  - 아래와 같이 const로 선언된 상수 함수(length())가 있다고 가정할때, 이는 textLenght, lengthIsValid라는 변수에 대해서 값을 대입하고 있는 오류를 발생시킨다.
+    ```cpp
+    private:
+      char *pText;
+      size_t textlength;
+      bool lengthIsValid;
+    public:
+      size_t length() const;
+
+    //length()
+    if(!lengthIsValid){
+      textLength = strlen(pText);   //ERROR
+      lengthIsValid = true;         //ERROR
+    }
+    ```
+  
+  - 이를 해결 하기 위해서는 단순히 __mutable을__ 사용하여 해결하면 되는데, 이는 비정적 데이터 멤버를 비트수준 상수성의 족쇄에서 풀어준다.
+    ```cpp
+    private:
+      char *pText;
+      mutable size_t textlength;    //해결
+      mutable bool lengthIsValid;   //해결
+    ```
+
+### 상수/비상수 멤버 함수에서 코드 중복 배제하기
+
+c++은 오버로딩을 지원하기 떄문에 만약 동일한 코드 내용인데 각각 상수와 비상수로 선언되어 있다면 이 코드 중복을 배제하기 위한 방안이 존재한다.
+
+캐스팅이 필요하긴 하지만 안전성을 유지하고, 코드 중복을 피하는 방법은 operator[]가 __상수 버전을 호출하도록 구현하는 것이다.__
+
+```cpp
+//상수 함수
+const char& operator[](size_t postion) const { return text[postion]; }
+
+//비상수 함수
+char& operator[](size_t postion) {
+  // op[]의 반환 타입에 캐스팅하여 const 제거
+  return const_cast<char &>(                
+    // *this의 타입에 const를 붙이고, op[]의 상수 버전을 호출
+    static_cast<const A&>(*this)[postion]
+  );
+}
+```
+
+### __잊지 말자__
+
+  - const를 붙여 선언하면 컴파일러가 에러를 잡아내는데 도움을 주며, 굉장히 많은 곳에 붙을 수 있다.
+  - 컴파일러 쪽에서는 비트수준 상수성을 지켜야 하지만, 개발자는 논리적인 상수성을 사용하여 프로그래밍해야한다.
+  - 상수/비상수 멤버 함수가 기능적으로 똑같게 구현되어 있는 경우에는 코드 중복을 피하기 위해서 비상수 버전이 상수 버전을 호출하도록 한다.
+
 ## 출처
   ※ Effective C++ 책의 내용을 개인적으로 요악한 것입니다.
   책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다.
