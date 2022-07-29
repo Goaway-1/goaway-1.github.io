@@ -1,0 +1,1916 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" rel="self" type="application/atom+xml" /><link href="https://goaway-1.github.io/jekyll-theme-yat/" rel="alternate" type="text/html" /><updated>2022-07-29T01:42:15+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/feed.xml</id><title type="html">Namaan 개발일지</title><subtitle>This blog is a development blog by Namaan. I record this and that.</subtitle><author><name>Namaan</name></author><entry><title type="html">코딩테스트 | 삼각 달팽이</title><link href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/28/%EC%BD%94%ED%85%8C-%EC%82%BC%EA%B0%81-%EB%8B%AC%ED%8C%BD%EC%9D%B4.html" rel="alternate" type="text/html" title="코딩테스트 | 삼각 달팽이" /><published>2022-07-28T00:00:00+00:00</published><updated>2022-07-28T00:00:00+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/28/%5B%EC%BD%94%ED%85%8C%5D-%EC%82%BC%EA%B0%81-%EB%8B%AC%ED%8C%BD%EC%9D%B4</id><content type="html" xml:base="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/28/%EC%BD%94%ED%85%8C-%EC%82%BC%EA%B0%81-%EB%8B%AC%ED%8C%BD%EC%9D%B4.html"><![CDATA[<h2 id="문제">문제</h2>
+
+<p>정수 n이 매개변수로 주어집니다. 다음 그림과 같이 밑변의 길이와 높이가 n인 삼각형에서 맨 위 꼭짓점부터 반시계 방향으로 달팽이 채우기를 진행한 후, 첫 행부터 마지막 행까지 모두 순서대로 합친 새로운 배열을 return 하도록 solution 함수를 완성해주세요.</p>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>n은 1 이상 1,000 이하입니다.</li>
+</ul>
+
+<h2 id="입출력-예시">입출력 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">N</th>
+      <th style="text-align: center">result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">[1,2,9,3,10,8,4,5,6,7]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">[1,2,12,3,13,11,4,14,15,10,5,6,7,8,9]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">6</td>
+      <td style="text-align: center">[1,2,15,3,16,14,4,17,21,13,5,18,19,20,12,6,7,8,9,10,11]</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<h3 id="나의-풀이방식">나의 풀이방식</h3>
+
+<p>초기에는 반복문을 통해 하나씩 추가하고 싶지 않고, 특정 알고리즘(계산식)을 통한 해결방법을 구상했는데 마음대로 되지 않아서 포기했다.</p>
+
+<p>이 계산 진행 방식은 아래와 같은 순서를 계속 반복한다.</p>
+
+<ol>
+  <li>아래로 내려가는 경우</li>
+  <li>오른쪽으로 움직이는 경우</li>
+  <li>위쪽으로 올라가는 경우</li>
+</ol>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">answer</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">arr</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">));</span>
+    <span class="kt">int</span> <span class="n">maxCnt</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>                <span class="c1">//max는 종료 조건..!</span>
+    <span class="kt">int</span> <span class="n">top</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">left</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">=</span> <span class="n">n</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="c1">//방향</span>
+    <span class="n">string</span> <span class="n">WayToGo</span> <span class="o">=</span> <span class="s">"Down"</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">maxCnt</span> <span class="o">&gt;=</span> <span class="n">cnt</span><span class="p">){</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">WayToGo</span> <span class="o">==</span> <span class="s">"Down"</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">top</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">bottom</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">left</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnt</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">top</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">left</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">WayToGo</span> <span class="o">=</span> <span class="s">"Right"</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">WayToGo</span> <span class="o">==</span> <span class="s">"Right"</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">left</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">bottom</span> <span class="o">-</span> <span class="n">right</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">arr</span><span class="p">[</span><span class="n">bottom</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnt</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">bottom</span><span class="o">--</span><span class="p">;</span>
+        <span class="n">WayToGo</span> <span class="o">=</span> <span class="s">"Up"</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">WayToGo</span> <span class="o">==</span> <span class="s">"Up"</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">bottom</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">top</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="n">right</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnt</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">right</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">top</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">WayToGo</span> <span class="o">=</span> <span class="s">"Down"</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">i</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="n">answer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="다른이의-풀이방식">다른이의 풀이방식</h3>
+
+<p>동일하나 조금 더 직관적인 풀이 방식</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kt">int</span> <span class="n">arr</span><span class="p">[</span><span class="mi">1000</span><span class="p">][</span><span class="mi">1000</span><span class="p">];</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">answer</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">p</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="n">arr</span><span class="p">[</span><span class="o">++</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span><span class="p">;</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="n">arr</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="o">++</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span><span class="p">;</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="n">arr</span><span class="p">[</span><span class="o">--</span><span class="n">x</span><span class="p">][</span><span class="o">--</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span><span class="p">;</span>
+        <span class="n">k</span><span class="o">++</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">p</span><span class="o">--</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">i</span><span class="p">;</span>  <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="n">answer</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>
+<ul>
+  <li>바보.</li>
+</ul>]]></content><author><name>Namaan</name></author><category term="CodingTest" /><category term="CodingTest" /><category term="C++" /><summary type="html"><![CDATA[문제]]></summary></entry><entry><title type="html">코딩테스트 | 배달</title><link href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/26/%EC%BD%94%ED%85%8C-%EB%B0%B0%EB%8B%AC.html" rel="alternate" type="text/html" title="코딩테스트 | 배달" /><published>2022-07-26T00:00:00+00:00</published><updated>2022-07-26T00:00:00+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/26/%5B%EC%BD%94%ED%85%8C%5D-%EB%B0%B0%EB%8B%AC</id><content type="html" xml:base="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/26/%EC%BD%94%ED%85%8C-%EB%B0%B0%EB%8B%AC.html"><![CDATA[<h2 id="문제">문제</h2>
+
+<p>N개의 마을로 이루어진 나라가 있습니다. 이 나라의 각 마을에는 1부터 N까지의 번호가 각각 하나씩 부여되어 있습니다. 각 마을은 양방향으로 통행할 수 있는 도로로 연결되어 있는데, 서로 다른 마을 간에 이동할 때는 이 도로를 지나야 합니다. 도로를 지날 때 걸리는 시간은 도로별로 다릅니다. 현재 1번 마을에 있는 음식점에서 각 마을로 음식 배달을 하려고 합니다. 각 마을로부터 음식 주문을 받으려고 하는데, N개의 마을 중에서 K 시간 이하로 배달이 가능한 마을에서만 주문을 받으려고 합니다. 다음은 N = 5, K = 3인 경우의 예시입니다.</p>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/delivery.png" height="250" title="delivery" /></p>
+
+<p>위 그림에서 1번 마을에 있는 음식점은 [1, 2, 4, 5] 번 마을까지는 3 이하의 시간에 배달할 수 있습니다. 그러나 3번 마을까지는 3시간 이내로 배달할 수 있는 경로가 없으므로 3번 마을에서는 주문을 받지 않습니다. 따라서 1번 마을에 있는 음식점이 배달 주문을 받을 수 있는 마을은 4개가 됩니다.</p>
+
+<p>마을의 개수 N, 각 마을을 연결하는 도로의 정보 road, 음식 배달이 가능한 시간 K가 매개변수로 주어질 때, 음식 주문을 받을 수 있는 마을의 개수를 return 하도록 solution 함수를 완성해주세요.</p>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>마을의 개수 N은 1 이상 50 이하의 자연수입니다.</li>
+  <li>road의 길이(도로 정보의 개수)는 1 이상 2,000 이하입니다.</li>
+  <li>road의 각 원소는 마을을 연결하고 있는 각 도로의 정보를 나타냅니다.</li>
+  <li>road는 길이가 3인 배열이며, 순서대로 (a, b, c)를 나타냅니다.
+    <ul>
+      <li>a, b(1 ≤ a, b ≤ N, a != b)는 도로가 연결하는 두 마을의 번호이며, c(1 ≤ c ≤ 10,000, c는 자연수)는 도로를 지나는데 걸리는 시간입니다.</li>
+      <li>두 마을 a, b를 연결하는 도로는 여러 개가 있을 수 있습니다.</li>
+      <li>한 도로의 정보가 여러 번 중복해서 주어지지 않습니다.</li>
+    </ul>
+  </li>
+  <li>K는 음식 배달이 가능한 시간을 나타내며, 1 이상 500,000 이하입니다.</li>
+  <li>임의의 두 마을간에 항상 이동 가능한 경로가 존재합니다.</li>
+  <li>1번 마을에 있는 음식점이 K 이하의 시간에 배달이 가능한 마을의 개수를 return 하면 됩니다.</li>
+</ul>
+
+<h2 id="입출력-예시">입출력 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">N</th>
+      <th style="text-align: center">road</th>
+      <th style="text-align: center">K</th>
+      <th style="text-align: center">result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">[[1,2,1],[2,3,3],[5,2,2],[1,4,2],[5,3,1],[5,4,2]]</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">6</td>
+      <td style="text-align: center">[[1,2,1],[1,3,2],[2,3,2],[3,4,3],[3,5,2],[3,5,3],[5,6,1]]</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">4</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<p>BFS를 활용한 풀이로 stack을 사용하였다. 그냥 일반 BFS의 문제 해결 방식과 다름없다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;stack&gt;</span><span class="cp">
+</span>  <span class="kt">int</span> <span class="nf">solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">road</span><span class="p">,</span> <span class="kt">int</span> <span class="n">K</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">answer</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">arr</span><span class="p">[</span><span class="mi">51</span><span class="p">];</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">checkArr</span><span class="p">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">S</span><span class="p">;</span>
+    
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">road</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">arr</span><span class="p">[</span><span class="n">road</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]].</span><span class="n">push_back</span><span class="p">(</span><span class="n">make_pair</span><span class="p">(</span><span class="n">road</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">road</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]));</span>
+      <span class="n">arr</span><span class="p">[</span><span class="n">road</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]].</span><span class="n">push_back</span><span class="p">(</span><span class="n">make_pair</span><span class="p">(</span><span class="n">road</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">road</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]));</span>
+    <span class="p">}</span>
+
+    <span class="n">S</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">checkArr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">S</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">From</span> <span class="o">=</span> <span class="n">S</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+      <span class="n">S</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">arr</span><span class="p">[</span><span class="n">From</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">city</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">From</span><span class="p">][</span><span class="n">i</span><span class="p">].</span><span class="n">first</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">time</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">From</span><span class="p">][</span><span class="n">i</span><span class="p">].</span><span class="n">second</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">checkArr</span><span class="p">[</span><span class="n">city</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">||</span> <span class="n">checkArr</span><span class="p">[</span><span class="n">city</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">time</span> <span class="o">+</span> <span class="n">checkArr</span><span class="p">[</span><span class="n">From</span><span class="p">])</span> <span class="p">{</span>
+          <span class="n">S</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">city</span><span class="p">);</span>
+          <span class="n">checkArr</span><span class="p">[</span><span class="n">city</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span> <span class="o">+</span> <span class="n">checkArr</span><span class="p">[</span><span class="n">From</span><span class="p">];</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">checkArr</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">K</span> <span class="o">&gt;=</span> <span class="n">checkArr</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="n">answer</span><span class="o">++</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>
+<ul>
+  <li>다른 이들은 “우선 순위 큐”를 사용하였는데 더 짧은 간선이 존재하면 그 곳을 먼저 탐색하는 방식이다.
+    <ul>
+      <li>이것이 다익스트라 방식이다.</li>
+      <li>이 방식을 사용하면 더 효율적으로 처리가 가능하다.</li>
+    </ul>
+  </li>
+</ul>]]></content><author><name>Namaan</name></author><category term="CodingTest" /><category term="CodingTest" /><category term="C++" /><summary type="html"><![CDATA[문제]]></summary></entry><entry><title type="html">Effective C++ | 2장</title><link href="https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/07/25/EffectiveC++-Effective-C++-2%EC%9E%A5.html" rel="alternate" type="text/html" title="Effective C++ | 2장" /><published>2022-07-25T00:00:00+00:00</published><updated>2022-07-25T00:00:00+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/07/25/%5BEffectiveC++%5D-Effective-C++-2%EC%9E%A5</id><content type="html" xml:base="https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/07/25/EffectiveC++-Effective-C++-2%EC%9E%A5.html"><![CDATA[<h2 id="항목-5--c가-은근슬쩍-만들어-호출해-버리는-함수들에-촉각을-세우자">항목 5 : c++가 은근슬쩍 만들어 호출해 버리는 함수들에 촉각을 세우자</h2>
+
+<p>기본 생성자, 복사 생성자, 복사 대입 연산자, 소멸자는 직접 개발자가 선언해 놓지 않으면, 컴파일러가 스스로 기본형으로 선언한다.</p>
+
+<p>이때 예를들어 Object 클래스 내에, 멤버 변수가 각각 <strong>참조자, 상수로</strong> 선언되어있고, 개발자가 복사 생성자를 선언하지 않아 컴파일러가 기본형으로 선언되었다면 오류가 발생한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//header</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">Object</span><span class="p">{</span>
+<span class="nl">private:</span>
+  <span class="n">string</span> <span class="o">&amp;</span><span class="n">nameValue</span><span class="p">;</span>
+  <span class="k">const</span> <span class="n">T</span> <span class="n">objectValue</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//cpp</span>
+<span class="n">Object</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">p</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">Object</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">s</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="mi">4</span><span class="p">);</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">s</span><span class="p">;</span>    <span class="c1">//ERROR</span>
+</code></pre></div></div>
+
+<p>그 이유는 c++의 참조자는 원래 자신이 참조하고 있는 것과 다른 객체를 참조할 수 없기 때문이다. 또한 상수 객체의 경우도 마찬가지이다.</p>
+
+<p>그렇기 때문에 참조자나 상수가 있는 클래스의 경우에는 <strong>함수를</strong> 컴파일러에게 의존하지 않고, 개발자가 직접 선언해두는 것이 좋다.</p>
+
+<h3 id="잊지-말자">잊지 말자</h3>
+
+<ul>
+  <li>컴파일러는 경우에 따라 클래스에 대해 기본 생성자, 복사 생성자, 복사 대입 연산자, 소멸자를 암시적으로 만들어 놓을 수 있다.</li>
+</ul>
+
+<h2 id="항목-6--컴파일러가-만들어낸-함수가-필요-없으면-사용을-금해-버리자">항목 6 : 컴파일러가 만들어낸 함수가 필요 없으면 사용을 금해 버리자</h2>
+
+<p><strong>항목 5에서</strong> 컴파일러가 자동으로 만들어낸 함수에 대해서 사용을 금지하고 싶다면 딱 2가지만 진행하면 된다.</p>
+
+<ol>
+  <li>별도의 기본 클래스에 금지하고 싶은 기본 생성 함수를 public 멤버가 아닌 private 멤버로 전환</li>
+  <li>기본 클래스로 부터 새로운 클래스를 파생시킨다.</li>
+</ol>
+
+<p>즉, A라는 클래스가 있을때 “복사 생성자”의 사용을 금지하고 싶다면, 별도의 기본 클래스에 “복사 생성자”를 private의 멤버로 넣어두고 구현은 하지 않는다. 그리고 이 기본 클래스에서 A라는 클래스를 파생시키는 것이다.</p>
+
+<p>이때 기본 클래스는 복사의 방지만을 맡는다는 특별한 의미를 가지게 된다. 이렇게 되면 <strong>A 객체의 복사를 외부함수나 프렌드 함수에서 시도할때 호출하지 못하도록 막는다.</strong></p>
+
+<h3 id="잊지-말자-1">잊지 말자</h3>
+
+<ul>
+  <li>컴파일러에서 자동으로 제공하는 기능을 허용치 않으려면, 대응되는 멤버 함수를 private으로 선언한 후에 구현은 하지 않은 채로 둔다.</li>
+</ul>
+
+<h2 id="항목-7--다형성을-가진-기본-클래스에서는-소멸자를-반드시-가상-소멸자로-선언하자">항목 7 : 다형성을 가진 기본 클래스에서는 소멸자를 반드시 가상 소멸자로 선언하자</h2>
+
+<p>만약 객체에 대한 포인터를 반환하는 용도로 <strong>팩토리 함수를</strong> 만든다고 가정해보자</p>
+
+<blockquote>
+  <p>팩토리 함수 : 새로 파생된 클래스 객체에 대해 기본 클래스 포인터를 반환하는 함수</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Class</span> <span class="n">A</span><span class="p">{</span>
+  <span class="n">A</span><span class="p">();</span>
+  <span class="o">~</span><span class="n">A</span><span class="p">()</span><span class="o">:</span>
+
+  <span class="n">A</span><span class="o">*</span> <span class="n">GetA</span><span class="p">();</span>    <span class="c1">//팩토리 함수</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">B</span> <span class="o">:</span> <span class="k">public</span> <span class="n">A</span> <span class="p">{};</span>
+<span class="k">class</span> <span class="nc">C</span> <span class="o">:</span> <span class="k">public</span> <span class="n">A</span> <span class="p">{};</span>
+</code></pre></div></div>
+
+<p>이때 팩토리 함수의 규약을 따라간다면, GetA()에서 반환되는 객체는 힙에 있기 때문에 메모리 누출을 막기 위해서 해당 객체를 적절히 삭제해야한다. 하지만 이때 3가지의 문제가 발생하게 된다.</p>
+
+<ol>
+  <li>이때 반환되는 포인터가 파생 클래스 객체에 대한 포인터</li>
+  <li>포인터가 가르키는 객체 삭제 시 기본 클래스 포인터를 통해 삭제</li>
+  <li>기본 클래스의 소멸자가 비가상 소멸자</li>
+</ol>
+
+<p>C++은 기본 클래스 포인터를 통해 파생 클래스의 객체가 삭제될 시 기본 클래스에 <strong>비가상 소멸자가</strong> 있다면 동작하지 않는다. 즉, 기본 클래스만 삭제되는 “부분 소멸”이 이루어진다는 것을 의미한다.</p>
+
+<p>이를 해결하기 위한 방법은 단순히 <strong>기본 클래스의 비가상 소멸자를 가상 소멸자로</strong> 바꾸는 것이다.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Class</span> <span class="n">A</span><span class="p">{</span>
+  <span class="n">A</span><span class="p">();</span>
+  <span class="k">virtual</span> <span class="o">~</span><span class="n">A</span><span class="p">()</span><span class="o">:</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="가상-소멸자의-남용">가상 소멸자의 남용</h3>
+
+<blockquote>
+  <p>가상 함수를 가진 클래스가 아닌데 가상 소멸자를 사용하는 경우</p>
+</blockquote>
+
+<p>가상 소멸자를 항상 사용해서는 안된다. 조건에 맞게 사용해야하는데 위와 같이 가상 함수가 없는데 가상 소멸자를 사용하면 효율성이 떨어지는데 예시는 아래와 같다.</p>
+
+<p>만약 64비트의 자료가 있는 클래스의 소멸자가 가상 소멸자라면, 가상이기 때문에 실행 중에 어떤 가상함수를 호출해야하는지 정보가 필요하기 때문에 추가로 자료구조가 들어간다. 이는 vptr, vtbl로 각각 가상 함수 테이블 포인터, 가상 함수 테이블을 의미한다. 이 때문에 클래스가 64비트 레지스터에 들어가지 못하고, 다른 언어로 선언된 자료구조와의 호환성에도 영향을 미친다.</p>
+
+<p>그렇기 때문에 가상 소멸자는 클래스에 가상함수가 1개 이상 존재하는 경우에서 사용해야한다.</p>
+
+<h3 id="순수-가상-소멸자">순수 가상 소멸자</h3>
+
+<blockquote>
+  <p>어떤 클래스를 추상 클래스로 만들고 싶은데, 마땅히 순수 가상 함수를 넣을 곳이 없는 경우</p>
+</blockquote>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="k">virtual</span> <span class="o">~</span><span class="n">A</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">//선언</span>
+<span class="p">}</span>
+
+<span class="n">A</span><span class="o">::~</span><span class="n">A</span><span class="p">()</span> <span class="p">{}</span>    <span class="c1">//정의</span>
+</code></pre></div></div>
+
+<p>위와 같이 단순히 순수 가상 소멸자를 선언하고, 그에 대한 정의를 해준다.</p>
+
+<h3 id="잊지-말자-2">잊지 말자</h3>
+
+<ul>
+  <li>다형성을 갖는 기본 클래스에는 반드시 가상 소멸자를 선언해야한다.</li>
+  <li>기본 클래스로 설계되지 않았거나 다형을 갖지 않는 클래스에는 가상 소멸자를 선언하지 말아야한다.</li>
+</ul>
+
+<h2 id="항목-8--예외가-소멸자를-떠나지-못하도록-붙들어-놓자">항목 8 : 예외가 소멸자를 떠나지 못하도록 붙들어 놓자</h2>
+
+<blockquote>
+  <p>소멸자로부터 예외가 발생하는 경우는 개발자가 막아야 한다.</p>
+</blockquote>
+
+<p>만약 예외를 던지고 실패할 수 있는 코드를 소멸자에 넣어야된다고 가정하자. 아래와 같은 경우 블록의 범위를 벗어나면 자동으로 소멸자(~B)가 호출되는데, 이때 예외가 발생했다면, 아무런 처리를 하지 않는다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="kt">void</span> <span class="n">close</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="k">class</span> <span class="nc">B</span><span class="p">{</span>
+  <span class="o">~</span><span class="n">B</span><span class="p">{</span><span class="n">A</span><span class="p">.</span><span class="n">close</span><span class="p">();}</span>    <span class="c1">//실패할 수 있음</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>이를 해결하기 위해서는 쉽게 2가지 방법이 존재한다.</p>
+
+<ol>
+  <li>프로그램을 종료한다.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">B</span><span class="o">::~</span><span class="n">B</span><span class="p">(){</span>
+   <span class="k">try</span><span class="p">{</span><span class="n">A</span><span class="p">.</span><span class="n">close</span><span class="p">();}</span>
+   <span class="k">catch</span><span class="p">(...){</span><span class="n">std</span><span class="o">::</span><span class="n">abort</span><span class="p">();}</span><span class="c1">//강제 종료</span>
+ <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>예외를 삼켜 버린다.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">B</span><span class="o">::~</span><span class="n">B</span><span class="p">(){</span>
+   <span class="k">try</span><span class="p">{</span><span class="n">A</span><span class="p">.</span><span class="n">close</span><span class="p">();}</span>
+   <span class="k">catch</span><span class="p">(...){</span> <span class="n">log</span> <span class="p">}</span> <span class="c1">//로그만 띄움</span>
+ <span class="p">}</span>
+</code></pre></div>    </div>
+    <ul>
+      <li>이는 정보만 알려주며, 지속적으로 프로그램이 진행되기 위해서는 신뢰성 있게 실행을 지속할 수 있어야한다.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>위 두가지 방법은 각각 장단점이 있지만, 딱히 좋지는 않다. <strong><em>대신 사용자가 컨트롤을 하는 방법이 있다.</em></strong></p>
+
+<p>이는 close()메서드를 사용자가 직접 호출하도록하고, 소멸자에서는 사용자의 컨트롤에 따라 위험이 발생할 수 있는 close()메서드를 실행하거나 실행하지 않도록 한다.
+그렇게 되면 소멸자가 아닌 다른 함수에서 예외처리가 비롯되기 때문에 <strong>사용자에게 기회를 주고 처리하는 것이다.</strong></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">B</span><span class="p">{</span>
+  <span class="kt">void</span> <span class="n">close</span><span class="p">(){</span>
+    <span class="n">A</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="n">closed</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="o">~</span><span class="n">B</span><span class="p">(){</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">closed</span><span class="p">){</span>
+      <span class="k">try</span> <span class="p">{</span><span class="n">A</span><span class="p">.</span><span class="n">close</span><span class="p">();}</span>
+      <span class="k">catch</span><span class="p">(...)</span> <span class="p">{</span><span class="c1">//로그 또는 종료}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="잊지-말자-3">잊지 말자</h3>
+
+<ul>
+  <li>소멸자에서는 예외가 빠져나가면 안된다. 만약 그럴 가능성이 있다면 소멸자에서 모두 받아내고, 끝내거나 삼켜 버려야한다.</li>
+  <li>어떤 클래스의 연산이 진행되다가 예외에 대해 사용자가 반응해야 할 필요가 있다면, 해당 연산을 제공하는 함수는 반드시 소멸자가 아닌 함수이어야 한다.</li>
+</ul>
+
+<h2 id="항목-9--객체-생성-및-소멸-과정-중에는-절대로-가상-함수를-호출하지-말자">항목 9 : 객체 생성 및 소멸 과정 중에는 절대로 가상 함수를 호출하지 말자</h2>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="n">A</span><span class="p">();</span>
+  <span class="k">virtual</span> <span class="kt">void</span> <span class="n">getA</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="n">A</span><span class="o">::</span><span class="n">A</span><span class="p">(){</span> <span class="n">getA</span><span class="p">();</span> <span class="p">}</span>
+<span class="k">class</span> <span class="nc">B</span> <span class="o">::</span> <span class="k">public</span> <span class="n">A</span> <span class="p">{</span><span class="o">~~</span><span class="p">};</span>
+
+<span class="c1">//ERROR</span>
+<span class="n">B</span> <span class="n">b</span><span class="p">;</span>    <span class="c1">//생성자에 가상함수를 호출하기에</span>
+</code></pre></div></div>
+
+<p>위와 같은 경우 기본 클래스의 생성자가 호출될 때에 가상함수는 파생 클래스쪽으로 내려가지 않기 때문에 컴파일러가 에러를 뿜을 것이다. 이렇듯 어떤 객체의 초기화되지 않은 영역을 건드리는 것은 위험하며, 생성자 뿐만 아니라 소멸자도 포함된다.</p>
+
+<p>또 다른 중요한 점은 파생 클래스 객체의 기본 클래스 부분이 생성되는 동안은, 그 객체의 타입은 바로 <strong>기본 클래스라는 점이다.</strong></p>
+
+<p>이를 해결하기 위한 대처방법은 바로, “가상함수를 비가상 함수로 바꾸고, 파생 클래스의 생성자들로 하여금 필요한 로그 정보를 기본 클래스의 생성자로 넘여야 한다는 것이다.”</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="k">explicit</span> <span class="n">A</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">logInfo</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="n">logA</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">logInfo</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">A</span><span class="o">::</span><span class="n">A</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">logInfo</span><span class="p">){</span> <span class="n">logA</span><span class="p">(</span><span class="n">logInfo</span><span class="p">);</span> <span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">B</span> <span class="o">::</span> <span class="k">public</span> <span class="n">A</span><span class="p">{</span>
+  <span class="c1">// 로그 정보를 기본 클래스 생성자로 넘김</span>
+  <span class="n">B</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span> <span class="o">:</span> <span class="n">A</span><span class="p">(</span><span class="n">createLogString</span><span class="p">(</span><span class="n">parameters</span><span class="p">))</span> <span class="p">{</span><span class="o">~~</span><span class="p">}</span>
+
+  <span class="c1">// 정적멤버 : 기본 클래스 생성자로 넘길값을 생성하는 용도</span>
+  <span class="k">static</span> <span class="n">string</span> <span class="n">createLogString</span><span class="p">(</span><span class="n">parameters</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>위 예시처럼 필요한 초기화 정보를 파생 클래스 쪽에서 기본 클래스 생성자로 “올려”주도록 설정하여 부족한 부분을 역으로 채울 수 있다는 것이다. 여기서 createlogString()메서드는 기본 클래스 생성 쪽으로 넘길 값을 생성한느 용도로 쓰이는 도우미 함수이다. 단순히 안쓰는게 짱인듯 하다.</p>
+
+<h3 id="잊지-말자-4">잊지 말자</h3>
+
+<ul>
+  <li>생성자/소멸자 안에서 가상 함수를 호출하지 마세요. 가상 함수여도 클래스의 파생 클래스 쪽으로는 내려가지 않는다.</li>
+</ul>
+
+<h2 id="항목-10--대입-연산자는-this의-참조자를-반환하자">항목 10 : 대입 연산자는 *this의 참조자를 반환하자</h2>
+
+<p>C++에서 대입 연산은 여러 개가 사슬처럼 엮일 수도 있고, 우측 연관 연산이다. 여기서 우측 연관이란 오른쪽의 값이 모두 왼쪽으로 대입된다는 것이다.</p>
+
+<p>그렇기 때문에 대입 연산자가 좌변 인자에 대한 참조자를 반환하도록 구현해야한다. 이미 구현되어 있지만 사용자가 직접 만드는 클래스에 대해서는 이 관례를 지켜야한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="n">A</span> <span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">A</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;}</span>
+  <span class="n">A</span> <span class="o">&amp;</span> <span class="k">operator</span><span class="o">+=</span><span class="p">(</span><span class="k">const</span> <span class="n">A</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="잊지-말자-5">잊지 말자</h3>
+
+<ul>
+  <li>대입 연산자는 *this의 참조자를 반환하도록 만들자.</li>
+</ul>
+
+<h2 id="항목-11--operator-에서는-자기대입에-대한-처리가-빠지지-않도록-하자">항목 11 : operator =에서는 자기대입에 대한 처리가 빠지지 않도록 하자</h2>
+
+<p>자기 대입 : 객체가 자기 자신에 대해 대입 연산자를 적용하는 것</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//자기 대입의 예시</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
+<span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="o">*</span><span class="n">pa</span> <span class="o">=</span> <span class="o">*</span><span class="n">pb</span><span class="p">;</span>      <span class="c1">//같은 객체를 참조하는 경우..</span>
+</code></pre></div></div>
+
+<p>여러 곳에서 하나의 객체를 참조하려는 상태, 즉 “중복참조”때문에 자기대입이 발생한다. 이 자기 대입에 대해 발생하지 않도록 처리해야한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">A</span><span class="p">{</span><span class="o">~~</span><span class="p">};</span>
+<span class="k">class</span> <span class="nc">B</span><span class="p">{</span>
+  <span class="n">A</span> <span class="o">*</span><span class="n">a</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">B</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">B</span><span class="o">&amp;</span> <span class="n">rs</span><span class="p">){</span>
+  <span class="k">delete</span> <span class="n">a</span><span class="p">;</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="k">new</span> <span class="n">A</span><span class="p">(</span><span class="o">*</span><span class="n">rs</span><span class="p">.</span><span class="n">a</span><span class="p">);</span>
+  <span class="k">return</span> <span class="o">*</span><span class="k">this</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>위는 자기 참조에 대한 가능성이 존재하는 예시이다. 만약 연산자의 대상이 같은 객체라면 delete 연산자가 *this 객체의 비트맵에만 적용되는 것이 아니라 rs의 객체까지 적용되어 버린다. 그렇기 때문에 기존 포인터 객체가 삭제될 수 있다.</p>
+
+<p>이를 해결하기 위한 방법에는 3가지가 존재한다.</p>
+
+<blockquote>
+  <ol>
+    <li>일치성 검사를 통해 자기대입을 점검</li>
+  </ol>
+</blockquote>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">B</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">B</span><span class="o">&amp;</span> <span class="n">rs</span><span class="p">){</span>
+  <span class="k">if</span><span class="p">(</span><span class="k">this</span> <span class="o">==</span> <span class="o">&amp;</span><span class="n">rs</span><span class="p">)</span> <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span> <span class="c1">//일치성 검사</span>
+  <span class="k">delete</span> <span class="n">a</span><span class="p">;</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="k">new</span> <span class="n">A</span><span class="p">(</span><span class="o">*</span><span class="n">rs</span><span class="p">.</span><span class="n">a</span><span class="p">);</span>
+  <span class="k">return</span> <span class="o">*</span><span class="k">this</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>두 객체가 같은지 비교하여 자기대입의 경우라면 그냥 왼쪽 객체를 반환하는 방식이다. 이는 예외가 발생할 수 있는데 바로 “new A()”이다. <strong>만약 이 부분에서 예외 발생(메모리 부족, 복사 생성자 예외) 시 B객체는 삭제된 A를 가리키는 포인터를 가지고 남게 된다.</strong></p>
+
+<blockquote>
+  <ol>
+    <li>무작정 삭제하지 말고, 포인터가 가르키는 객체를 복사한 직후에 삭제</li>
+  </ol>
+</blockquote>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">B</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">B</span><span class="o">&amp;</span> <span class="n">rs</span><span class="p">){</span>
+  <span class="n">A</span> <span class="o">*</span><span class="n">pa</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>          <span class="c1">//원래 객체 저장</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="k">new</span> <span class="n">A</span><span class="p">(</span><span class="o">*</span><span class="n">rs</span><span class="p">.</span><span class="n">a</span><span class="p">);</span>
+  <span class="k">delete</span> <span class="n">pa</span><span class="p">;</span>
+  <span class="k">return</span> <span class="o">*</span><span class="k">this</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>이는 ‘new A’에서 예외가 발생하더라도 a는 변경되지 않은 상태가 유지되기 때문에 예외에서 안전하다. 가장 효과적인 방법은 아니나 동작에는 이상이 없다.</p>
+
+<blockquote>
+  <ol>
+    <li>복사 후 맞바꾸기</li>
+  </ol>
+</blockquote>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">B</span><span class="p">{</span>
+  <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">B</span><span class="o">&amp;</span> <span class="n">rs</span><span class="p">);</span> <span class="c1">//*this와 rs의 데이터를 교환</span>
+<span class="p">}</span>
+<span class="n">B</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">B</span><span class="o">&amp;</span> <span class="n">rs</span><span class="p">){</span>   
+  <span class="n">B</span> <span class="n">tmp</span><span class="p">(</span><span class="n">rs</span><span class="p">);</span>
+  <span class="n">swap</span><span class="p">(</span><span class="n">tmp</span><span class="p">);</span>
+  <span class="k">return</span> <span class="o">*</span><span class="k">this</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>이는 가장 자주 쓰이는 방식으로 추후에 더 자세히 설명된다.</p>
+
+<h3 id="잊지-말자-6">잊지 말자</h3>
+
+<ul>
+  <li>operator=를 구현할때, 어떤 객체가 자신에 대입되는 경우를 제대로 처리하도록 만들자. 원본과 복사 대상의 객체 주소를 비교해도 되고, 문장의 순서를 적절히 조정, 복사 후 맞바꾸기 기법을 사용해도된다.</li>
+  <li>두 개 이상의 객체에 대해 동작하는 함수가 있다면, 넘겨지는 객체들이 사실 같은 객체인 경우에 정확하게 동작하는지 확인하자.</li>
+</ul>
+
+<h2 id="항목-12--객체의-모든-부분을-빠짐없이-복사하자">항목 12 : 객체의 모든 부분을 빠짐없이 복사하자</h2>
+
+<p>복사 함수에는 복사 생성자와 복사 대입 연산자로 나뉘는데, 이 복사 함수는 컴파일러가 자동으로 생성하기도 하지만 사용자가 선언 및 정의하는 경우가 있다. 컴파일러가 자동으로 만들어주는 복사 함수는 객체가 가지고 있는 데이터를 빠짐없이 복사하지만 사용자의 경우 놓칠 수 있다.</p>
+
+<p>딱 2가지만 생각하며 구상하면 되는데, 먼저 클래스의 모든 멤버를 처리한다는 것과 파생클래스의 복사 함수에서 기본 클래스의 복사 함수를 호출하면 된다.</p>
+
+<blockquote>
+  <ol>
+    <li>클래스의 모든 멤버를 처리하자.</li>
+  </ol>
+</blockquote>
+
+<p>이는 정말 단순하게 클래스의 모든 멤버를 처리하면 된다는 뜻이고, 새롭게 데이터 멤버를 추가했다면 추가한 데이터 멤버 또한 처리되도록 복사 함수를 다시 작성해야한다는 것이다.</p>
+
+<blockquote>
+  <ol>
+    <li>파생 클래스의 복사 함수에서 기본 클래스의 복사 함수를 호출하자.</li>
+  </ol>
+</blockquote>
+
+<p>파생 클래스의 복사 함수에서는 파생 클래스의 데이터 멤버함수에만 접근할 수 있기 때문에(대부분 기본 클래스의 데이터는 private), 파생 클래스의 복사 함수에서는 복사가 불가능하다. 그렇기 때문에 기본 클래스의 복사 함수를 호출하기만 하면된다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">B</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="o">~~</span><span class="p">){</span>
+  <span class="n">A</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="o">~~</span><span class="p">);</span>
+  <span class="o">~~~</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="잊지-말자-7">잊지 말자</h3>
+
+<ul>
+  <li>객체 복사 함수는 주어진 객체의 모든 데이터 멤버 및 모든 기본 클래스 부분을 빠뜨리지 말고 복사해야 한다.</li>
+  <li>클래스의 복사 함수 두 개를 구현할 때, 한쪽을 이용해서 다른 쪽을 구현하려는 시도는 하지말라. 대신 공통된 동작을 제3의 함수에다 분리해 놓고 양쪽에서 이것을 호출하게 만들어서 해결합니다.</li>
+</ul>
+
+<h2 id="출처">출처</h2>
+<p>※ Effective C++ 책의 내용을 개인적으로 요악한 것입니다.
+  책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다.</p>
+<ul>
+  <li>지음 : 스콧 마이어스</li>
+  <li>옮김 : 곽용재</li>
+  <li>출판 : Addison Wesley</li>
+</ul>]]></content><author><name>Namaan</name></author><category term="Effective_C++" /><category term="Effective_C++" /><category term="C++" /><summary type="html"><![CDATA[항목 5 : c++가 은근슬쩍 만들어 호출해 버리는 함수들에 촉각을 세우자 기본 생성자, 복사 생성자, 복사 대입 연산자, 소멸자는 직접 개발자가 선언해 놓지 않으면, 컴파일러가 스스로 기본형으로 선언한다. 이때 예를들어 Object 클래스 내에, 멤버 변수가 각각 참조자, 상수로 선언되어있고, 개발자가 복사 생성자를 선언하지 않아 컴파일러가 기본형으로 선언되었다면 오류가 발생한다. //header template &lt;class T&gt; class Object{ private: string &amp;nameValue; const T objectValue; } //cpp Object&lt;int&gt; p(a,2); Object&lt;int&gt; s(b,4); p = s; //ERROR 그 이유는 c++의 참조자는 원래 자신이 참조하고 있는 것과 다른 객체를 참조할 수 없기 때문이다. 또한 상수 객체의 경우도 마찬가지이다. 그렇기 때문에 참조자나 상수가 있는 클래스의 경우에는 함수를 컴파일러에게 의존하지 않고, 개발자가 직접 선언해두는 것이 좋다. 잊지 말자 컴파일러는 경우에 따라 클래스에 대해 기본 생성자, 복사 생성자, 복사 대입 연산자, 소멸자를 암시적으로 만들어 놓을 수 있다. 항목 6 : 컴파일러가 만들어낸 함수가 필요 없으면 사용을 금해 버리자 항목 5에서 컴파일러가 자동으로 만들어낸 함수에 대해서 사용을 금지하고 싶다면 딱 2가지만 진행하면 된다. 별도의 기본 클래스에 금지하고 싶은 기본 생성 함수를 public 멤버가 아닌 private 멤버로 전환 기본 클래스로 부터 새로운 클래스를 파생시킨다. 즉, A라는 클래스가 있을때 “복사 생성자”의 사용을 금지하고 싶다면, 별도의 기본 클래스에 “복사 생성자”를 private의 멤버로 넣어두고 구현은 하지 않는다. 그리고 이 기본 클래스에서 A라는 클래스를 파생시키는 것이다. 이때 기본 클래스는 복사의 방지만을 맡는다는 특별한 의미를 가지게 된다. 이렇게 되면 A 객체의 복사를 외부함수나 프렌드 함수에서 시도할때 호출하지 못하도록 막는다. 잊지 말자 컴파일러에서 자동으로 제공하는 기능을 허용치 않으려면, 대응되는 멤버 함수를 private으로 선언한 후에 구현은 하지 않은 채로 둔다. 항목 7 : 다형성을 가진 기본 클래스에서는 소멸자를 반드시 가상 소멸자로 선언하자 만약 객체에 대한 포인터를 반환하는 용도로 팩토리 함수를 만든다고 가정해보자 팩토리 함수 : 새로 파생된 클래스 객체에 대해 기본 클래스 포인터를 반환하는 함수 Class A{ A(); ~A(): A* GetA(); //팩토리 함수 } class B : public A {}; class C : public A {}; 이때 팩토리 함수의 규약을 따라간다면, GetA()에서 반환되는 객체는 힙에 있기 때문에 메모리 누출을 막기 위해서 해당 객체를 적절히 삭제해야한다. 하지만 이때 3가지의 문제가 발생하게 된다. 이때 반환되는 포인터가 파생 클래스 객체에 대한 포인터 포인터가 가르키는 객체 삭제 시 기본 클래스 포인터를 통해 삭제 기본 클래스의 소멸자가 비가상 소멸자 C++은 기본 클래스 포인터를 통해 파생 클래스의 객체가 삭제될 시 기본 클래스에 비가상 소멸자가 있다면 동작하지 않는다. 즉, 기본 클래스만 삭제되는 “부분 소멸”이 이루어진다는 것을 의미한다. 이를 해결하기 위한 방법은 단순히 기본 클래스의 비가상 소멸자를 가상 소멸자로 바꾸는 것이다. Class A{ A(); virtual ~A(): } 가상 소멸자의 남용 가상 함수를 가진 클래스가 아닌데 가상 소멸자를 사용하는 경우 가상 소멸자를 항상 사용해서는 안된다. 조건에 맞게 사용해야하는데 위와 같이 가상 함수가 없는데 가상 소멸자를 사용하면 효율성이 떨어지는데 예시는 아래와 같다. 만약 64비트의 자료가 있는 클래스의 소멸자가 가상 소멸자라면, 가상이기 때문에 실행 중에 어떤 가상함수를 호출해야하는지 정보가 필요하기 때문에 추가로 자료구조가 들어간다. 이는 vptr, vtbl로 각각 가상 함수 테이블 포인터, 가상 함수 테이블을 의미한다. 이 때문에 클래스가 64비트 레지스터에 들어가지 못하고, 다른 언어로 선언된 자료구조와의 호환성에도 영향을 미친다. 그렇기 때문에 가상 소멸자는 클래스에 가상함수가 1개 이상 존재하는 경우에서 사용해야한다. 순수 가상 소멸자 어떤 클래스를 추상 클래스로 만들고 싶은데, 마땅히 순수 가상 함수를 넣을 곳이 없는 경우 class A{ virtual ~A() = 0; //선언 } A::~A() {} //정의 위와 같이 단순히 순수 가상 소멸자를 선언하고, 그에 대한 정의를 해준다. 잊지 말자 다형성을 갖는 기본 클래스에는 반드시 가상 소멸자를 선언해야한다. 기본 클래스로 설계되지 않았거나 다형을 갖지 않는 클래스에는 가상 소멸자를 선언하지 말아야한다. 항목 8 : 예외가 소멸자를 떠나지 못하도록 붙들어 놓자 소멸자로부터 예외가 발생하는 경우는 개발자가 막아야 한다. 만약 예외를 던지고 실패할 수 있는 코드를 소멸자에 넣어야된다고 가정하자. 아래와 같은 경우 블록의 범위를 벗어나면 자동으로 소멸자(~B)가 호출되는데, 이때 예외가 발생했다면, 아무런 처리를 하지 않는다. class A{ void close(); } class B{ ~B{A.close();} //실패할 수 있음 } 이를 해결하기 위해서는 쉽게 2가지 방법이 존재한다. 프로그램을 종료한다. B::~B(){ try{A.close();} catch(...){std::abort();}//강제 종료 } 예외를 삼켜 버린다. B::~B(){ try{A.close();} catch(...){ log } //로그만 띄움 } 이는 정보만 알려주며, 지속적으로 프로그램이 진행되기 위해서는 신뢰성 있게 실행을 지속할 수 있어야한다. 위 두가지 방법은 각각 장단점이 있지만, 딱히 좋지는 않다. 대신 사용자가 컨트롤을 하는 방법이 있다. 이는 close()메서드를 사용자가 직접 호출하도록하고, 소멸자에서는 사용자의 컨트롤에 따라 위험이 발생할 수 있는 close()메서드를 실행하거나 실행하지 않도록 한다. 그렇게 되면 소멸자가 아닌 다른 함수에서 예외처리가 비롯되기 때문에 사용자에게 기회를 주고 처리하는 것이다. class B{ void close(){ A.close(); closed = true; } ~B(){ if(!closed){ try {A.close();} catch(...) {//로그 또는 종료} } } } 잊지 말자 소멸자에서는 예외가 빠져나가면 안된다. 만약 그럴 가능성이 있다면 소멸자에서 모두 받아내고, 끝내거나 삼켜 버려야한다. 어떤 클래스의 연산이 진행되다가 예외에 대해 사용자가 반응해야 할 필요가 있다면, 해당 연산을 제공하는 함수는 반드시 소멸자가 아닌 함수이어야 한다. 항목 9 : 객체 생성 및 소멸 과정 중에는 절대로 가상 함수를 호출하지 말자 class A{ A(); virtual void getA(); } A::A(){ getA(); } class B :: public A {~~}; //ERROR B b; //생성자에 가상함수를 호출하기에 위와 같은 경우 기본 클래스의 생성자가 호출될 때에 가상함수는 파생 클래스쪽으로 내려가지 않기 때문에 컴파일러가 에러를 뿜을 것이다. 이렇듯 어떤 객체의 초기화되지 않은 영역을 건드리는 것은 위험하며, 생성자 뿐만 아니라 소멸자도 포함된다. 또 다른 중요한 점은 파생 클래스 객체의 기본 클래스 부분이 생성되는 동안은, 그 객체의 타입은 바로 기본 클래스라는 점이다. 이를 해결하기 위한 대처방법은 바로, “가상함수를 비가상 함수로 바꾸고, 파생 클래스의 생성자들로 하여금 필요한 로그 정보를 기본 클래스의 생성자로 넘여야 한다는 것이다.” class A{ explicit A(const string&amp; logInfo); void logA(const string&amp; logInfo) const; } A::A(const string&amp; logInfo){ logA(logInfo); } class B :: public A{ // 로그 정보를 기본 클래스 생성자로 넘김 B(parameters) : A(createLogString(parameters)) {~~} // 정적멤버 : 기본 클래스 생성자로 넘길값을 생성하는 용도 static string createLogString(parameters); } 위 예시처럼 필요한 초기화 정보를 파생 클래스 쪽에서 기본 클래스 생성자로 “올려”주도록 설정하여 부족한 부분을 역으로 채울 수 있다는 것이다. 여기서 createlogString()메서드는 기본 클래스 생성 쪽으로 넘길 값을 생성한느 용도로 쓰이는 도우미 함수이다. 단순히 안쓰는게 짱인듯 하다. 잊지 말자 생성자/소멸자 안에서 가상 함수를 호출하지 마세요. 가상 함수여도 클래스의 파생 클래스 쪽으로는 내려가지 않는다. 항목 10 : 대입 연산자는 *this의 참조자를 반환하자 C++에서 대입 연산은 여러 개가 사슬처럼 엮일 수도 있고, 우측 연관 연산이다. 여기서 우측 연관이란 오른쪽의 값이 모두 왼쪽으로 대입된다는 것이다. 그렇기 때문에 대입 연산자가 좌변 인자에 대한 참조자를 반환하도록 구현해야한다. 이미 구현되어 있지만 사용자가 직접 만드는 클래스에 대해서는 이 관례를 지켜야한다. class A{ A &amp; operator=(const A&amp; rhs) {return *this;} A &amp; operator+=(const A&amp; rhs) {return *this;} } 잊지 말자 대입 연산자는 *this의 참조자를 반환하도록 만들자. 항목 11 : operator =에서는 자기대입에 대한 처리가 빠지지 않도록 하자 자기 대입 : 객체가 자기 자신에 대해 대입 연산자를 적용하는 것 //자기 대입의 예시 a = a; a[i] = a[j]; *pa = *pb; //같은 객체를 참조하는 경우.. 여러 곳에서 하나의 객체를 참조하려는 상태, 즉 “중복참조”때문에 자기대입이 발생한다. 이 자기 대입에 대해 발생하지 않도록 처리해야한다. class A{~~}; class B{ A *a; } B::operator=(const B&amp; rs){ delete a; a = new A(*rs.a); return *this } 위는 자기 참조에 대한 가능성이 존재하는 예시이다. 만약 연산자의 대상이 같은 객체라면 delete 연산자가 *this 객체의 비트맵에만 적용되는 것이 아니라 rs의 객체까지 적용되어 버린다. 그렇기 때문에 기존 포인터 객체가 삭제될 수 있다. 이를 해결하기 위한 방법에는 3가지가 존재한다. 일치성 검사를 통해 자기대입을 점검 B::operator=(const B&amp; rs){ if(this == &amp;rs) return *this; //일치성 검사 delete a; a = new A(*rs.a); return *this } 두 객체가 같은지 비교하여 자기대입의 경우라면 그냥 왼쪽 객체를 반환하는 방식이다. 이는 예외가 발생할 수 있는데 바로 “new A()”이다. 만약 이 부분에서 예외 발생(메모리 부족, 복사 생성자 예외) 시 B객체는 삭제된 A를 가리키는 포인터를 가지고 남게 된다. 무작정 삭제하지 말고, 포인터가 가르키는 객체를 복사한 직후에 삭제 B::operator=(const B&amp; rs){ A *pa = a; //원래 객체 저장 a = new A(*rs.a); delete pa; return *this } 이는 ‘new A’에서 예외가 발생하더라도 a는 변경되지 않은 상태가 유지되기 때문에 예외에서 안전하다. 가장 효과적인 방법은 아니나 동작에는 이상이 없다. 복사 후 맞바꾸기 class B{ void swap(B&amp; rs); //*this와 rs의 데이터를 교환 } B::operator=(const B&amp; rs){ B tmp(rs); swap(tmp); return *this } 이는 가장 자주 쓰이는 방식으로 추후에 더 자세히 설명된다. 잊지 말자 operator=를 구현할때, 어떤 객체가 자신에 대입되는 경우를 제대로 처리하도록 만들자. 원본과 복사 대상의 객체 주소를 비교해도 되고, 문장의 순서를 적절히 조정, 복사 후 맞바꾸기 기법을 사용해도된다. 두 개 이상의 객체에 대해 동작하는 함수가 있다면, 넘겨지는 객체들이 사실 같은 객체인 경우에 정확하게 동작하는지 확인하자. 항목 12 : 객체의 모든 부분을 빠짐없이 복사하자 복사 함수에는 복사 생성자와 복사 대입 연산자로 나뉘는데, 이 복사 함수는 컴파일러가 자동으로 생성하기도 하지만 사용자가 선언 및 정의하는 경우가 있다. 컴파일러가 자동으로 만들어주는 복사 함수는 객체가 가지고 있는 데이터를 빠짐없이 복사하지만 사용자의 경우 놓칠 수 있다. 딱 2가지만 생각하며 구상하면 되는데, 먼저 클래스의 모든 멤버를 처리한다는 것과 파생클래스의 복사 함수에서 기본 클래스의 복사 함수를 호출하면 된다. 클래스의 모든 멤버를 처리하자. 이는 정말 단순하게 클래스의 모든 멤버를 처리하면 된다는 뜻이고, 새롭게 데이터 멤버를 추가했다면 추가한 데이터 멤버 또한 처리되도록 복사 함수를 다시 작성해야한다는 것이다. 파생 클래스의 복사 함수에서 기본 클래스의 복사 함수를 호출하자. 파생 클래스의 복사 함수에서는 파생 클래스의 데이터 멤버함수에만 접근할 수 있기 때문에(대부분 기본 클래스의 데이터는 private), 파생 클래스의 복사 함수에서는 복사가 불가능하다. 그렇기 때문에 기본 클래스의 복사 함수를 호출하기만 하면된다. B::operator=(~~){ A::operator=(~~); ~~~ } 잊지 말자 객체 복사 함수는 주어진 객체의 모든 데이터 멤버 및 모든 기본 클래스 부분을 빠뜨리지 말고 복사해야 한다. 클래스의 복사 함수 두 개를 구현할 때, 한쪽을 이용해서 다른 쪽을 구현하려는 시도는 하지말라. 대신 공통된 동작을 제3의 함수에다 분리해 놓고 양쪽에서 이것을 호출하게 만들어서 해결합니다. 출처 ※ Effective C++ 책의 내용을 개인적으로 요악한 것입니다. 책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다. 지음 : 스콧 마이어스 옮김 : 곽용재 출판 : Addison Wesley]]></summary></entry><entry><title type="html">코딩테스트 | 파일명 정렬</title><link href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/25/%EC%BD%94%ED%85%8C-%ED%8C%8C%EC%9D%BC%EB%AA%85-%EC%A0%95%EB%A0%AC.html" rel="alternate" type="text/html" title="코딩테스트 | 파일명 정렬" /><published>2022-07-25T00:00:00+00:00</published><updated>2022-07-25T00:00:00+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/25/%5B%EC%BD%94%ED%85%8C%5D-%ED%8C%8C%EC%9D%BC%EB%AA%85-%EC%A0%95%EB%A0%AC</id><content type="html" xml:base="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/25/%EC%BD%94%ED%85%8C-%ED%8C%8C%EC%9D%BC%EB%AA%85-%EC%A0%95%EB%A0%AC.html"><![CDATA[<h2 id="문제">문제</h2>
+
+<p>세 차례의 코딩 테스트와 두 차례의 면접이라는 기나긴 블라인드 공채를 무사히 통과해 카카오에 입사한 무지는 파일 저장소 서버 관리를 맡게 되었다.</p>
+
+<p>저장소 서버에는 프로그램의 과거 버전을 모두 담고 있어, 이름 순으로 정렬된 파일 목록은 보기가 불편했다. 파일을 이름 순으로 정렬하면 나중에 만들어진 ver-10.zip이 ver-9.zip보다 먼저 표시되기 때문이다.</p>
+
+<p>버전 번호 외에도 숫자가 포함된 파일 목록은 여러 면에서 관리하기 불편했다. 예컨대 파일 목록이 [“img12.png”, “img10.png”, “img2.png”, “img1.png”]일 경우, 일반적인 정렬은 [“img1.png”, “img10.png”, “img12.png”, “img2.png”] 순이 되지만, 숫자 순으로 정렬된 [“img1.png”, “img2.png”, “img10.png”, img12.png”] 순이 훨씬 자연스럽다.</p>
+
+<p>무지는 단순한 문자 코드 순이 아닌, 파일명에 포함된 숫자를 반영한 정렬 기능을 저장소 관리 프로그램에 구현하기로 했다.</p>
+
+<p>소스 파일 저장소에 저장된 파일명은 100 글자 이내로, 영문 대소문자, 숫자, 공백(“ “), 마침표(“.”), 빼기 부호(“-“)만으로 이루어져 있다. 파일명은 영문자로 시작하며, 숫자를 하나 이상 포함하고 있다.</p>
+
+<p>파일명은 크게 HEAD, NUMBER, TAIL의 세 부분으로 구성된다.</p>
+
+<ul>
+  <li>HEAD는 숫자가 아닌 문자로 이루어져 있으며, 최소한 한 글자 이상이다.</li>
+  <li>NUMBER는 한 글자에서 최대 다섯 글자 사이의 연속된 숫자로 이루어져 있으며, 앞쪽에 0이 올 수 있다. 0부터 99999 사이의 숫자로, 00000이나 0101 등도 가능하다.</li>
+  <li>TAIL은 그 나머지 부분으로, 여기에는 숫자가 다시 나타날 수도 있으며, 아무 글자도 없을 수 있다.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">파일명</th>
+      <th style="text-align: center">Head</th>
+      <th style="text-align: center">Number</th>
+      <th style="text-align: center">Tail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">foo9.txt</td>
+      <td style="text-align: center">foo</td>
+      <td style="text-align: center">9</td>
+      <td style="text-align: center">.txt</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">foo010bar020.zip</td>
+      <td style="text-align: center">foo</td>
+      <td style="text-align: center">010</td>
+      <td style="text-align: center">bar020.zip</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">F-15</td>
+      <td style="text-align: center">F-</td>
+      <td style="text-align: center">15</td>
+      <td style="text-align: center">(빈 문자열)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>파일명을 세 부분으로 나눈 후, 다음 기준에 따라 파일명을 정렬한다.</p>
+
+<ul>
+  <li>파일명은 우선 HEAD 부분을 기준으로 사전 순으로 정렬한다. 이때, 문자열 비교 시 대소문자 구분을 하지 않는다. MUZI와 muzi, MuZi는 정렬 시에 같은 순서로 취급된다.</li>
+  <li>파일명의 HEAD 부분이 대소문자 차이 외에는 같을 경우, NUMBER의 숫자 순으로 정렬한다. 9 &lt; 10 &lt; 0011 &lt; 012 &lt; 13 &lt; 014 순으로 정렬된다. 숫자 앞의 0은 무시되며, 012와 12는 정렬 시에 같은 같은 값으로 처리된다.</li>
+  <li>두 파일의 HEAD 부분과, NUMBER의 숫자도 같을 경우, 원래 입력에 주어진 순서를 유지한다. MUZI01.zip과 muzi1.png가 입력으로 들어오면, 정렬 후에도 입력 시 주어진 두 파일의 순서가 바뀌어서는 안 된다.</li>
+</ul>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>입력으로 배열 files가 주어진다.
+    <ul>
+      <li>files는 1000 개 이하의 파일명을 포함하는 문자열 배열이다.</li>
+      <li>각 파일명은 100 글자 이하 길이로, 영문 대소문자, 숫자, 공백(“ “), 마침표(“.”), 빼기 부호(“-“)만으로 이루어져 있다. 파일명은 영문자로 시작하며, 숫자를 하나 이상 포함하고 있다.</li>
+      <li>중복된 파일명은 없으나, 대소문자나 숫자 앞부분의 0 차이가 있는 경우는 함께 주어질 수 있다. (muzi1.txt, MUZI1.txt, muzi001.txt, muzi1.TXT는 함께 입력으로 주어질 수 있다.)</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="입출력-예시">입출력 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">files</th>
+      <th style="text-align: center">result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">["img12.png", "img10.png", "img02.png", "img1.png", "IMG01.GIF", "img2.JPG"]</td>
+      <td style="text-align: center">["img1.png", "IMG01.GIF", "img02.png", "img2.JPG", "img10.png", "img12.png"]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">["F-5 Freedom Fighter", "B-50 Superfortress", "A-10 Thunderbolt II", "F-14 Tomcat"]</td>
+      <td style="text-align: center">["A-10 Thunderbolt II", "B-50 Superfortress", "F-5 Freedom Fighter", "F-14 Tomcat"]</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<p>Head, Number, Tail중 Tail의 정보는 어떠한 결과에도 관여하지 않기 때문에, files에서 Head와 Number의 값만을 도출하고 <strong>“vector&lt;pair&lt; string, pair&lt;string, int»&gt;”에</strong> 저장한다. 이때 string은 본래의 문자, pair의 string은 Head, pair의 int는 Number를 의미한다. 이때 Head는 대소문자의 구별이 없어야 하기 때문에 모두 대문자로 처리하였다.</p>
+
+<p>이때 만약 숫자가 마지막 까지 숫자인 경우를 대비하여 처리해주었고, 다음은 sort처리이다. 본인은 sort에서 많은 애를 먹었는데, sort는 불안하기 때문에 <strong>stable_sort로</strong> 바꾸어서 사용하란다.</p>
+
+<p>그 이유는 stable_sort는 하나의 요소에 의해서 정렬하였을때, 다른 요소들의 정렬 순서도 정렬 전과 같이 그대로 유지 될 수 있도록해주기 때문이다.</p>
+
+<blockquote>
+  <p>즉, 크기가 같은 원소들의 상대적인 위치가 변화하지 않는 정렬을 의미한다.</p>
+</blockquote>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kt">bool</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">first</span> <span class="o">==</span> <span class="n">b</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">first</span><span class="p">)</span> <span class="o">?</span> <span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">second</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">second</span> <span class="o">:</span> <span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">first</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">bool</span> <span class="nf">isNumber</span><span class="p">(</span><span class="kt">char</span> <span class="n">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="o">&gt;=</span> <span class="sc">'0'</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="sc">'9'</span><span class="p">)</span> <span class="o">?</span> <span class="nb">true</span> <span class="o">:</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">solution</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">files</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">answer</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span> <span class="n">string</span><span class="p">,</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;&gt;</span> <span class="n">v</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">cut</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">files</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">check</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="n">string</span> <span class="n">head</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+      <span class="n">string</span> <span class="n">number</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">isNumber</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span> <span class="p">{</span>
+          <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">h</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="n">h</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">;</span><span class="n">h</span><span class="o">++</span><span class="p">)</span><span class="n">head</span> <span class="o">+=</span> <span class="n">toupper</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">h</span><span class="p">]);</span>
+          <span class="n">cut</span> <span class="o">=</span> <span class="n">j</span><span class="p">;</span>
+          <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isNumber</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span> <span class="p">{</span>
+          <span class="n">number</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="n">cut</span><span class="p">,</span> <span class="n">j</span> <span class="o">-</span> <span class="n">cut</span><span class="p">);</span>
+          <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      
+      <span class="c1">//끝까지 숫자인 경우</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">number</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="n">number</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="n">cut</span><span class="p">);</span>
+
+      <span class="n">v</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span> <span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">],{</span><span class="n">head</span><span class="p">,</span> <span class="n">stoi</span><span class="p">(</span><span class="n">number</span><span class="p">)}</span> <span class="p">});</span>
+    <span class="p">}</span>
+    <span class="n">stable_sort</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">compare</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">v</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">k</span><span class="p">)</span> <span class="n">answer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">first</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>]]></content><author><name>Namaan</name></author><category term="CodingTest" /><category term="CodingTest" /><category term="C++" /><summary type="html"><![CDATA[문제]]></summary></entry><entry><title type="html">코딩테스트 | 모음사전</title><link href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EB%AA%A8%EC%9D%8C%EC%82%AC%EC%A0%84.html" rel="alternate" type="text/html" title="코딩테스트 | 모음사전" /><published>2022-07-24T00:00:00+00:00</published><updated>2022-07-24T00:00:00+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/24/%5B%EC%BD%94%ED%85%8C%5D-%EB%AA%A8%EC%9D%8C%EC%82%AC%EC%A0%84</id><content type="html" xml:base="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EB%AA%A8%EC%9D%8C%EC%82%AC%EC%A0%84.html"><![CDATA[<h2 id="문제">문제</h2>
+
+<p>사전에 알파벳 모음 ‘A’, ‘E’, ‘I’, ‘O’, ‘U’만을 사용하여 만들 수 있는, 길이 5 이하의 모든 단어가 수록되어 있습니다. 사전에서 첫 번째 단어는 “A”이고, 그다음은 “AA”이며, 마지막 단어는 “UUUUU”입니다.</p>
+
+<p>단어 하나 word가 매개변수로 주어질 때, 이 단어가 사전에서 몇 번째 단어인지 return 하도록 solution 함수를 완성해주세요.</p>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>word의 길이는 1 이상 5 이하입니다.</li>
+  <li>word는 알파벳 대문자 ‘A’, ‘E’, ‘I’, ‘O’, ‘U’로만 이루어져 있습니다.</li>
+</ul>
+
+<h2 id="입출력-예시">입출력 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">word</th>
+      <th style="text-align: center">result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">"AAAAE"</td>
+      <td style="text-align: center">6</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">"AAAE"</td>
+      <td style="text-align: center">10</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">"I"</td>
+      <td style="text-align: center">1563</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">"EIO"</td>
+      <td style="text-align: center">1189</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<p>DFS 풀이의 정석이 아닌가 생각해본다. curStr이라는 문자열에 알파벳을 추가/삭제를 반복하여 answer의 값을 도출한다.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span> <span class="n">alpha</span> <span class="o">=</span> <span class="p">{</span> <span class="sc">'A'</span><span class="p">,</span><span class="sc">'E'</span><span class="p">,</span><span class="sc">'I'</span><span class="p">,</span><span class="sc">'O'</span><span class="p">,</span><span class="sc">'U'</span> <span class="p">};</span>
+  <span class="kt">int</span> <span class="n">answer</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="kt">void</span> <span class="nf">DFS</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">word</span><span class="p">,</span> <span class="n">string</span> <span class="n">curStr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">answer</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">word</span> <span class="o">==</span> <span class="n">curStr</span><span class="p">)</span> <span class="n">answer</span> <span class="o">=</span> <span class="n">cnt</span><span class="p">;</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">curStr</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">alpha</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span> 
+        <span class="k">if</span> <span class="p">(</span><span class="n">answer</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+        <span class="n">cnt</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">DFS</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">curStr</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="kt">int</span> <span class="nf">solution</span><span class="p">(</span><span class="n">string</span> <span class="n">word</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">DFS</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="s">""</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>
+<ul>
+  <li>만약 word가 배열로 주어지고, result의 결과 또한 배열로 출력되야 한다면, 많은 시간을 잡아먹을 것으로 예상된다. 이때 푸는 방법은 아래와 같다.</li>
+</ul>
+
+<ol>
+  <li>word에서 사전상 가장 나중에 나오는 단어까지 DFS를 반복하며 이 과정에서 나오는 모든 단어는 unordered_map에 저장한다.</li>
+  <li>계산이 완료되면, map에서 맞는 단어를 찾아 결과를 반환한다.</li>
+</ol>]]></content><author><name>Namaan</name></author><category term="CodingTest" /><category term="CodingTest" /><category term="C++" /><summary type="html"><![CDATA[문제]]></summary></entry><entry><title type="html">코딩테스트 | 캐시</title><link href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EC%BA%90%EC%8B%9C.html" rel="alternate" type="text/html" title="코딩테스트 | 캐시" /><published>2022-07-24T00:00:00+00:00</published><updated>2022-07-24T00:00:00+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/24/%5B%EC%BD%94%ED%85%8C%5D-%EC%BA%90%EC%8B%9C</id><content type="html" xml:base="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EC%BA%90%EC%8B%9C.html"><![CDATA[<h2 id="문제">문제</h2>
+
+<p>지도개발팀에서 근무하는 제이지는 지도에서 도시 이름을 검색하면 해당 도시와 관련된 맛집 게시물들을 데이터베이스에서 읽어 보여주는 서비스를 개발하고 있다.</p>
+
+<p>이 프로그램의 테스팅 업무를 담당하고 있는 어피치는 서비스를 오픈하기 전 각 로직에 대한 성능 측정을 수행하였는데, 제이지가 작성한 부분 중 데이터베이스에서 게시물을 가져오는 부분의 실행시간이 너무 오래 걸린다는 것을 알게 되었다.</p>
+
+<p>어피치는 제이지에게 해당 로직을 개선하라고 닦달하기 시작하였고, 제이지는 DB 캐시를 적용하여 성능 개선을 시도하고 있지만 캐시 크기를 얼마로 해야 효율적인지 몰라 난감한 상황이다.</p>
+
+<p>어피치에게 시달리는 제이지를 도와, DB 캐시를 적용할 때 캐시 크기에 따른 실행시간 측정 프로그램을 작성하시오.</p>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>캐시 크기(cacheSize)와 도시이름 배열(cities)을 입력받는다.</li>
+  <li>cacheSize는 정수이며, 범위는 0 ≦ cacheSize ≦ 30 이다.</li>
+  <li>cities는 도시 이름으로 이뤄진 문자열 배열로, 최대 도시 수는 100,000개이다.</li>
+  <li>각 도시 이름은 공백, 숫자, 특수문자 등이 없는 영문자로 구성되며, 대소문자 구분을 하지 않는다. 도시 이름은 최대 20자로 이루어져 있다.</li>
+  <li>캐시 교체 알고리즘은 LRU(Least Recently Used)를 사용한다.</li>
+  <li>cache hit일 경우 실행시간은 1이다.</li>
+  <li>cache miss일 경우 실행시간은 5이다.</li>
+</ul>
+
+<h2 id="입출력-예시">입출력 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">캐시크기(cacheSize)</th>
+      <th>도시이름(cities)</th>
+      <th>실행시간</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td>["Jeju", "Pangyo", "Seoul", "NewYork", "LA", "Jeju", "Pangyo", "Seoul", "NewYork", "LA"]</td>
+      <td>50</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td>["Jeju", "Pangyo", "Seoul", "Jeju", "Pangyo", "Seoul", "Jeju", "Pangyo", "Seoul"]</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td>["Jeju", "Pangyo", "Seoul", "NewYork", "LA", "SanFrancisco", "Seoul", "Rome", "Paris", "Jeju", "NewYork", "Rome"]</td>
+      <td>60</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0</td>
+      <td>["Jeju", "Pangyo", "Seoul", "NewYork", "LA"]</td>
+      <td>25</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<h3 id="나의-풀이방식">나의 풀이방식</h3>
+
+<p>먼저 도시의 이름은 대소문자를 구분하지 않는다는 조건이 있었기 때문에 도시의 이름을 toBigger()라는 메서드를 사용하여, 모두 대문자로 처리해주었다.</p>
+
+<p>문제의 해결 방식은 단순하다. map에는 현재 queue에 저장된 도시가 무엇이 있는지 나타내며, 이 queue는 cache를 의미한다.</p>
+
+<ol>
+  <li>cache에 있는 도시라면 그 도시를 제외한 나머지를 다시 cache에 넣고, 그 도시를 마지막으로 삽입한다. (+1)</li>
+  <li>그렇지 않다면 cache의 공간이 남아있는지 확인한다.
+    - 남아 있다면 단순히 cache에 추가하고 (+5)
+    - 공간이 없다면 cache의 최상단(front)를 제거하고 추가한다. (+5)</li>
+</ol>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;algorithm&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;queue&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;unordered_map&gt;</span><span class="cp">
+</span>
+  <span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+  <span class="n">string</span> <span class="nf">toBigger</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">string</span> <span class="n">answer</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">str</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">answer</span> <span class="o">+=</span> <span class="n">toupper</span><span class="p">(</span><span class="n">str</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kt">int</span> <span class="nf">solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">cacheSize</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">cities</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">answer</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">M</span><span class="p">;</span>
+    <span class="n">queue</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">Q</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">cacheSize</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">return</span> <span class="n">cities</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">cities</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">string</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">toBigger</span><span class="p">(</span><span class="n">cities</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+      
+      <span class="c1">// Q에 있는 단어라면 queue의 가장 뒤로 뺀다.</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">M</span><span class="p">[</span><span class="n">tmp</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">queue</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">tmpQ</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">Q</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">Q</span><span class="p">.</span><span class="n">front</span><span class="p">()</span> <span class="o">!=</span> <span class="n">tmp</span><span class="p">)</span> <span class="n">tmpQ</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">Q</span><span class="p">.</span><span class="n">front</span><span class="p">());</span>
+          <span class="n">Q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="n">tmpQ</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">tmp</span><span class="p">);</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">tmpQ</span><span class="p">;</span>
+        <span class="n">answer</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Q의 크기를 넘어간다면 최상단을 제거한다.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">Q</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="n">cacheSize</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">M</span><span class="p">[</span><span class="n">Q</span><span class="p">.</span><span class="n">front</span><span class="p">()]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">Q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+        <span class="p">}</span>
+
+        <span class="n">M</span><span class="p">[</span><span class="n">tmp</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">Q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">tmp</span><span class="p">);</span>
+        <span class="n">answer</span> <span class="o">+=</span> <span class="mi">5</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="다른이의-풀이방식">다른이의 풀이방식</h3>
+
+<p>비슷한 방식이지만 map을 사용하지 않고, 매번 iterator를 사용하여 비교하였다.</p>
+
+<p>또한 queue 대신 vector를 사용하였고, 중간에 껴있는 도시에 대해 “erase”를 하기 위해서 사용한듯 하다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;algorithm&gt;</span><span class="cp">
+</span>
+  <span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="nf">solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">cacheSize</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">cities</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="n">vector</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">q</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">duration</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">vector</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">cities</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">cities</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">it</span><span class="o">++</span><span class="p">){</span>
+      <span class="c1">//소문자화</span>
+      <span class="n">transform</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">begin</span><span class="p">(),</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">end</span><span class="p">(),</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">begin</span><span class="p">(),</span> <span class="o">::</span><span class="n">tolower</span><span class="p">);</span>
+
+      <span class="c1">//현재 Q에 있는지 판단</span>
+      <span class="kt">bool</span> <span class="n">flag</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+      <span class="k">for</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">itt</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">itt</span> <span class="o">!=</span> <span class="n">q</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">itt</span><span class="o">++</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">itt</span> <span class="o">==</span> <span class="o">*</span><span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">flag</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+          <span class="n">duration</span> <span class="o">+=</span><span class="mi">1</span><span class="p">;</span>
+          <span class="n">q</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">itt</span><span class="p">);</span>
+          <span class="n">q</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="o">*</span><span class="n">it</span><span class="p">);</span>
+          <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">flag</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">duration</span> <span class="o">+=</span><span class="mi">5</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">cacheSize</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">q</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">cacheSize</span><span class="p">)</span> <span class="n">q</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">q</span><span class="p">.</span><span class="n">begin</span><span class="p">());</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">q</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">cacheSize</span><span class="p">)</span> <span class="n">q</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="o">*</span><span class="n">it</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">duration</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>
+<ul>
+  <li>map을 사용하였기 때문에 메모리적인 측면에서 비효율적이지 않나 생각이 든다.</li>
+  <li>근데 생각해보면 코딩테스트 중에 저장공간은 체점요소에 없나?</li>
+</ul>]]></content><author><name>Namaan</name></author><category term="CodingTest" /><category term="CodingTest" /><category term="C++" /><summary type="html"><![CDATA[문제]]></summary></entry><entry><title type="html">Effective C++ | 1장</title><link href="https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/07/19/EffectiveC++-Effective-C++-1%EC%9E%A5.html" rel="alternate" type="text/html" title="Effective C++ | 1장" /><published>2022-07-19T00:00:00+00:00</published><updated>2022-07-19T00:00:00+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/07/19/%5BEffectiveC++%5D-Effective-C++-1%EC%9E%A5</id><content type="html" xml:base="https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/07/19/EffectiveC++-Effective-C++-1%EC%9E%A5.html"><![CDATA[<h2 id="항목-1--c를-언어들의-연합체로-바라보자">항목 1 : c++를 언어들의 연합체로 바라보자.</h2>
+
+<p>c++은 <strong>“C, 객체지향의 C++, 템플릿의 C++, STL”과</strong> 같이 4가지 언어들의 기능을 모두 포함하고 있는데, 이 언어 중 어떤 기능을 사용하냐에 따라 프로그램의 규칙이 달라진다.</p>
+
+<p>만약 예를들어 “값 전달”과 “참조 전달” 중 한가지 전달방법을 선택할때 언어에 따라 효과적인 전달방법이 있으며 아래와 같다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">기능</th>
+      <th style="text-align: center">전달</th>
+      <th style="text-align: center">이유</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">C</td>
+      <td style="text-align: center">값 전달</td>
+      <td style="text-align: center">형식적인 이유</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">객체지향의 C++</td>
+      <td style="text-align: center">참조 전달</td>
+      <td style="text-align: center">생성자/소멸자 개념이 생겼기에</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">템플릿의 C++</td>
+      <td style="text-align: center">참조 전달</td>
+      <td style="text-align: center">객체 타입조차 알 수 없기에</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">STL</td>
+      <td style="text-align: center">값 전달</td>
+      <td style="text-align: center">C의 포인터를 본떠 만든 것이기에</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="잊지-말자">잊지 말자</h3>
+
+<ul>
+  <li>C++은 경우에 따라 효과적인 프로그래밍 규칙이 달라진다. 이때 경우는 위에서 설명하는 4가지 언어를 의미한다.</li>
+</ul>
+
+<h2 id="항목-2--define을-쓰려거든-const-enum-inline을-떠올리자">항목 2 : #define을 쓰려거든 const, enum, inline을 떠올리자.</h2>
+
+<h3 id="매크로"><strong>매크로</strong></h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#define A 1.6
+</span></code></pre></div></div>
+
+<p>매크로(선행처리자)로 위에서 선언된 A는 “기호식 이름”처럼 보이지만, 컴파일러에게 넘어가기 전에 선행처리자가 상수로 변환하기 때문에 A라는 이름은 “기호 테이블”에 들어가지 않는다.</p>
+
+<p><strong>※ 문제점 :</strong></p>
+
+<p>이는 에러발생 시, A는 “기호식 이름”으로 표시되지 않고 “상수”로 표시되기 때문에 혼란을 야기한다. 특히 다른 개발자가 매크로를 선언했을때는 오류를 찾을 수가 없다. 또한 선행처리자가 A를 찾아 모두 상수로 바꾸기 때문에 메모리 사용측면에서 비효율적이다.</p>
+
+<p><strong>※ 해결방법 :</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">const</span> <span class="kt">double</span> <span class="n">A</span> <span class="o">=</span> <span class="mf">1.6</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>이를 해결하기 위해서는 매크로 대신 <strong>“상수”를</strong> 사용하는 것이다. 이는 기호 테이블에 들어가기 때문에 컴파일러에 표시되며, 여러번 쓰여도 사본은 1개만 생성되기 때문에 메모리 점유도 효율적이다.</p>
+
+<p><strong>※ 주의사항 :</strong></p>
+
+<blockquote>
+  <p>상수  포인터를 정의하는 경우</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="n">A</span> <span class="o">=</span> <span class="s">"~~"</span><span class="p">;</span>   <span class="c1">//구시대적</span>
+  <span class="k">const</span> <span class="n">string</span> <span class="nf">A</span><span class="p">(</span><span class="s">"~~"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<ul>
+  <li>위와 같이 포인터와 포인터가 가르키는 대상까지 const로 선언해야 되며, C언어의 구시대적 char*보다는 string 방식을 쓰는 것을 추천한다.</li>
+</ul>
+
+<blockquote>
+  <p>클래스 멤버로 상수를 정의하는 경우</p>
+</blockquote>
+
+<p>이는 즉 클래스 상수를 공유하는 “정적(Static)”멤버를 만들때를 의미하며, 이때 해결 방법은 2가지가 존재한다.</p>
+
+<p>※ 1번 방안</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//header</span>
+  <span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="nl">private:</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">tmp</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>   <span class="c1">//정의가 아닌 선언</span>
+    <span class="kt">int</span> <span class="n">score</span><span class="p">[</span><span class="n">tmp</span><span class="p">];</span>
+  <span class="p">};</span>
+  <span class="c1">//cpp</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">A</span><span class="o">::</span><span class="n">tmp</span><span class="p">;</span>             <span class="c1">//클래스 상수의 주소를 요구할때</span>
+</code></pre></div></div>
+<p>이때 tmp는 선언시 초기화되며, 클래스 상수의 주소를 요구할 시, cpp에 정의해준다.</p>
+
+<p>하지만 구 컴파일러의 경우 선언시점에 초기값 선언이 옳지 않다고 판단하게 될 수 있는데, 이는 아래와 같이 초기값을 정의 시점으로 옮겨서 해결한다.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//header</span>
+  <span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="nl">private:</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">tmp</span><span class="p">;</span>           <span class="c1">//정의</span>
+  <span class="p">};</span>
+  <span class="c1">//cpp</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">A</span><span class="o">::</span><span class="n">tmp</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>             <span class="c1">//선언</span>
+</code></pre></div></div>
+
+<p>※ 2번 방안</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//header</span>
+  <span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="nl">private:</span>
+    <span class="k">enum</span> <span class="p">{</span><span class="n">tmp</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;}</span>
+    <span class="kt">int</span> <span class="n">score</span><span class="p">[</span><span class="n">tmp</span><span class="p">];</span>
+  <span class="p">};</span>
+</code></pre></div></div>
+<p>이는 만약 클래스 컴파일 도중 클래스의 상수값을 요구할때 <strong>나열자(enum)을</strong> 사용하여 해결한다.</p>
+
+<p>이 나열자를 사용하면 수많은 장점이 존재하는데, 첫 번째로 선언한 정수 상수를 다른 개발자가 주소를 얻거나 참조하려할때 자물쇠역할을한다. 이를 통해서 접근을 제한한다.</p>
+
+<p>두 번째로 1번 방안에서 const는 컴파일러의 오류로 혹시 모르는 메모리가 할당될 가능성이 있지만 나열자는 그런 가능성이 존재하지 않는다.</p>
+
+<p>세 번재로 많은 개발자들이 이 방식을 사용하고 있으며, 이는 템플릿 메타프로그래밍의 핵심이다.</p>
+
+<p>때문에 enum을 사용하는 것을 추천한다.</p>
+
+<h3 id="매크로-함수"><strong>매크로 함수</strong></h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//매크로</span>
+  <span class="cp">#define A(a,b) f((a) &gt; (b) ? (a) : (b)
+</span>
+  <span class="c1">//오류</span>
+  <span class="n">A</span><span class="p">(</span><span class="o">++</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>위와 같이 매크로 함수가 존재할때, ++a는 b와의 관계에 따라 2번 증가하거나 1번 증가하는 괴현상이 발생한다.</p>
+
+<p><strong>※ 해결방법 :</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+  <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">A</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">){</span>
+    <span class="n">f</span><span class="p">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span> <span class="o">?</span> <span class="n">a</span> <span class="o">:</span> <span class="n">b</span><span class="p">)</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<p>위와같이 인라인함수에 대한 템플릿으로 구현한다. 이는 진짜 함수이기 때문에 유효범위와 접근규칙을 준수한다.</p>
+
+<h3 id="잊지-말자-1">잊지 말자</h3>
+
+<ul>
+  <li>단순 상수는 #define이 아닌 “const 객체”,”enum”을 우선 사용하고, 매크로 함수는 “인라인 함수”를 사용한다.</li>
+</ul>
+
+<h2 id="항목-3--낌새만-보이면-const를-들이대-보자">항목 3 : 낌새만 보이면 const를 들이대 보자!</h2>
+
+<h3 id="const의-대표적-예시"><strong>const의 대표적 예시</strong></h3>
+
+<ol>
+  <li>클래스 밖에서는 전역/네임스페이스 유효범위의 상수를 선언</li>
+  <li>파일, 함수, 블록 유효범위에서 static으로 선언한 객체에 사용 가능</li>
+  <li>클래스 내부에서는 정적/비정적 데이터 멤버 모두 상수 선언이 가능</li>
+  <li>포인터 자체 or 포인터가 가르키는 데이터를 상수로 지정 가능
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">p</span><span class="p">;</span>         <span class="c1">//상수 데이터 </span>
+ <span class="kt">char</span> <span class="o">*</span> <span class="k">const</span> <span class="n">p</span><span class="p">;</span>         <span class="c1">//상수 포인터</span>
+</code></pre></div>    </div>
+  </li>
+  <li>STL의 반복자(iterator) 사용시
+    <ul>
+      <li>반복자는 자신이 가리키는 대상이 아닌 것을 가르키는 것도 가능하고, 대상 자체에 대해서도 변경이 가능하다.</li>
+      <li>하지만 변경을 불가능하게 하기 위해서 “const_iterator”를 사용한다.
+        <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">//이전</span>
+ <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">vec</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+ <span class="o">*</span><span class="n">it</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>     <span class="c1">// 가능</span>
+ <span class="n">it</span><span class="o">++</span><span class="p">;</span>         <span class="c1">// it는 상수이기에 불가능</span>
+</code></pre></div>        </div>
+        <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">//이후</span>
+ <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">vec</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+ <span class="o">*</span><span class="n">it</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>     <span class="c1">// *it는 상수이기에 불가능</span>
+ <span class="n">it</span><span class="o">++</span><span class="p">;</span>         <span class="c1">// 가능</span>
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+  <li>함수 선언
+    <ul>
+      <li>가장 강력한 용도로 사용되며, 반환 값/매개변수/멤버 함수 앞에 사용한다. 심지어는 함수 전체에도 선언하여 사용한다.</li>
+      <li>이를 통해 기본 제공 타입과의 쓸데없는 비호환성을 파하는 것과 같은 에러가 감소하는데 예시는 아래와 같다.</li>
+    </ul>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">class</span> <span class="nc">A</span> <span class="p">{};</span>
+ <span class="k">const</span> <span class="n">A</span> <span class="k">operator</span> <span class="o">*</span><span class="p">(</span><span class="k">const</span> <span class="n">A</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">A</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">);</span>
+
+ <span class="c1">//Error</span>
+ <span class="n">A</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">;</span>
+ <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>
+ <span class="k">if</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">=</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="멤버-함수가-상수-함수일때의-의미"><strong>멤버 함수가 상수 함수일때의 의미</strong></h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">개념</th>
+      <th style="text-align: left">의미</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">__비트 수준 상수성 (물리적)__</td>
+      <td style="text-align: left">정적 멤버를 제외한 어떤 데이터 멤버도 건들이지 않으며, 즉 객체를 구성하는 비트를 바꾸지 않는다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">__논리적 상수성__</td>
+      <td style="text-align: left">비트 수준 상수성을 보완하는 개념으로 일부 몇 비트는 바꿀 수 있되, 사용자가 인지하지 못한다면 상관없다.</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>비트 수준 상수성</p>
+  <ul>
+    <li>‘제대로 const’로 동작하지 않는데도 검사를 통과하는 경우가 발생한다.</li>
+    <li>아래와 같은 경우로 부적절하지만 비트수준 상수성이 있어서 허용된 경우이다. 이는 pText의 내용을 수정할 수 있는 큰 문제를 야기할 수 있다.</li>
+  </ul>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>```c++
+char&amp; operator[](size_t t) const {
+  return pText[t];                  
+}
+
+//ERROR
+const A a("Hello");
+char *pc = &amp;a[0];
+*pc = 'J';            //"Jello"로 값이 변한다.   
+```
+</code></pre></div></div>
+
+<blockquote>
+  <p>논리적 상수성</p>
+  <ul>
+    <li>위의 문제를 보오나하기 위한 개념으로, 일부 몇 비트는 바꿀 수 있다.</li>
+    <li>아래와 같이 const로 선언된 상수 함수(length())가 있다고 가정할때, 이는 textLenght, lengthIsValid라는 변수에 대해서 값을 대입하고 있는 오류를 발생시킨다.</li>
+  </ul>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>```cpp
+private:
+  char *pText;
+  size_t textlength;
+  bool lengthIsValid;
+public:
+  size_t length() const;
+
+//length()
+if(!lengthIsValid){
+  textLength = strlen(pText);   //ERROR
+  lengthIsValid = true;         //ERROR
+}
+```
+</code></pre></div></div>
+
+<ul>
+  <li>이를 해결 하기 위해서는 단순히 <strong>mutable을</strong> 사용하여 해결하면 되는데, 이는 비정적 데이터 멤버를 비트수준 상수성의 족쇄에서 풀어준다.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">private:</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">pText</span><span class="p">;</span>
+  <span class="k">mutable</span> <span class="kt">size_t</span> <span class="n">textlength</span><span class="p">;</span>    <span class="c1">//해결</span>
+  <span class="k">mutable</span> <span class="kt">bool</span> <span class="n">lengthIsValid</span><span class="p">;</span>   <span class="c1">//해결</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="상수비상수-멤버-함수에서-코드-중복-배제하기">상수/비상수 멤버 함수에서 코드 중복 배제하기</h3>
+
+<p>c++은 오버로딩을 지원하기 떄문에 만약 동일한 코드 내용인데 각각 상수와 비상수로 선언되어 있다면 이 코드 중복을 배제하기 위한 방안이 존재한다.</p>
+
+<p>캐스팅이 필요하긴 하지만 안전성을 유지하고, 코드 중복을 피하는 방법은 operator[]가 <strong>상수 버전을 호출하도록 구현하는 것이다.</strong></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//상수 함수</span>
+<span class="k">const</span> <span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="kt">size_t</span> <span class="n">postion</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">postion</span><span class="p">];</span> <span class="p">}</span>
+
+<span class="c1">//비상수 함수</span>
+<span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="kt">size_t</span> <span class="n">postion</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// op[]의 반환 타입에 캐스팅하여 const 제거</span>
+  <span class="k">return</span> <span class="k">const_cast</span><span class="o">&lt;</span><span class="kt">char</span> <span class="o">&amp;&gt;</span><span class="p">(</span>                
+    <span class="c1">// *this의 타입에 const를 붙이고, op[]의 상수 버전을 호출</span>
+    <span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">A</span><span class="o">&amp;&gt;</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">postion</span><span class="p">]</span>
+  <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="잊지-말자-2"><strong>잊지 말자</strong></h3>
+
+<ul>
+  <li>const를 붙여 선언하면 컴파일러가 에러를 잡아내는데 도움을 주며, 굉장히 많은 곳에 붙을 수 있다.</li>
+  <li>컴파일러 쪽에서는 비트수준 상수성을 지켜야 하지만, 개발자는 논리적인 상수성을 사용하여 프로그래밍해야한다.</li>
+  <li>상수/비상수 멤버 함수가 기능적으로 똑같게 구현되어 있는 경우에는 코드 중복을 피하기 위해서 비상수 버전이 상수 버전을 호출하도록 한다.</li>
+</ul>
+
+<h2 id="항목-4--객체를-사용하기-전에는-반드시-초기화하자">항목 4 : 객체를 사용하기 전에는 반드시 초기화하자!</h2>
+
+<p>초기화를 하지 않으면 무작위로 비트 값을 읽어들이기 때문에 많은 문제가 발생한다.</p>
+
+<p>비멤버 객체의 경우 직접 초기화를 진행하지만 멤버 객체의 경우 생성자를 통해 초기화를 진행한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//대입</span>
+<span class="n">A</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">){</span>
+  <span class="n">q</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
+  <span class="n">w</span> <span class="o">=</span> <span class="n">b</span><span class="p">;</span>
+  <span class="n">e</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//초기화 (멤버 초기화 리스트)</span>
+<span class="n">A</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="o">:</span><span class="n">q</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="n">w</span><span class="p">(</span><span class="n">b</span><span class="p">),</span><span class="n">e</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<p>위 코드의 경우 각각 대입과 초기화를 의미하는데, <strong>대입은</strong> 기본 생성자 -&gt; 복사 대입 연산자의 순서로 총 2번 이루어지지만, <strong>초기화는</strong> 복사 생성자 1번만 이루어진다. 그렇기 때문에 초기화가 더욱 효과적이다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 기본 생성자로 구현된 멤버 초기화 리스트</span>
+<span class="n">A</span><span class="p">()</span> <span class="o">:</span> <span class="n">q</span><span class="p">(),</span> <span class="n">w</span><span class="p">(),</span> <span class="n">e</span><span class="p">()</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<p>기본 생성자로만 구현하고 싶더라도 <strong>멤버 초기화 리스트를</strong> 사용하는데, 이는 만약 어떤 멤버가 초기화 리스트에서 제외된 경우에는 기본 제공 타입이 되기 때문에 초기화가 되지 않을 수도 있다.</p>
+
+<p>또한 상수, 참조자가 데이터 멤버인 경우에도 사용하는데, 이 데이터 멤버에는 대입 자체가 불가능하기 때문이다.</p>
+
+<p>그렇기에 기본적으로 <strong>멤버 초기화 리스트를</strong> 사용하는 것이 좋다.</p>
+
+<p>너무 코드가 지겹고 더럽게 느껴진다면, 대입으로 초기화가 가능한 데이터 멤버들을 리스트에서 빼내어 별도의 함수로 옮겨 이를 생성자에서 호출하는 방법이 있다. 이는 초기값을 파일이나 데이터베이스에서 읽는 경우 유용하다.</p>
+
+<h3 id="비지역-정적-객체의-초기화">비지역 정적 객체의 초기화</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">개념</th>
+      <th>의미</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">비지역 정적 객체</td>
+      <td>전역 객체, 클래스/함수 내, 파일 유효범위 밖의 static 객체,네임스페이스 유효범위 객체</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">개별 번역 단위</td>
+      <td>컴파일을 통해 하나의 목적 파일을 만드는 바탕이 되는 소스 코드</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>비지역 정적 객체의 초기화 순서는 개별 번역 단위에서 지정되는데 이는 초기화 시 큰 문제를 야기할 수 있다.</p>
+
+<p>예를 들어 2개의 컴파일된 소스 파일에 비지역 정적 객체가 1개 이상 존재하고, 한쪽에서 초기화를 진행할 때 다른쪽의 비지역 정적 객체를 사용하는데 초기화가 진행되어 있지 않다면 컴파일의 에러가 발생한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//1번 소스파일</span>
+<span class="k">class</span> <span class="nc">FileSystem</span> <span class="p">{</span> <span class="o">~~</span> <span class="p">}</span>
+<span class="k">extern</span> <span class="n">FileSystem</span> <span class="n">tfs</span><span class="p">;</span>    <span class="c1">//비지역 정적 객체</span>
+
+<span class="c1">//2번 소스파일</span>
+<span class="k">class</span> <span class="nc">Directory</span> <span class="p">{</span> 
+  <span class="n">Directory</span><span class="p">()</span> <span class="p">{</span> <span class="n">a</span> <span class="o">=</span> <span class="n">tfs</span><span class="p">;</span> <span class="p">}</span>    <span class="c1">//ERROR</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>이 문제를 해결하기 위해서는 비지역 정적 객체를 하나씩 맡는 함수를 준비하고, 이 안에 각 객체를 넣어 사용자 측면에서 비지역 정적 객체를 직접 참조하지 않고, 함수를 호출하는 것을 대신한다.</p>
+
+<p>이때 비지역 정적 객체는 정적 객체로 바뀌며, 해당 객체 생성/소멸을 불가능하게 하여 비용이 안생기도록 처리한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//1번 소스파일</span>
+<span class="k">class</span> <span class="nc">FileSystem</span> <span class="p">{</span> <span class="o">~~</span> <span class="p">}</span>
+<span class="n">FileSystem</span> <span class="nf">tfs</span><span class="p">(){</span>
+  <span class="k">static</span> <span class="n">FileSystem</span> <span class="n">fs</span><span class="p">;</span>
+  <span class="k">return</span> <span class="n">fs</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//2번 소스파일</span>
+<span class="k">class</span> <span class="nc">Directory</span> <span class="p">{</span> 
+  <span class="n">Directory</span><span class="p">()</span> <span class="p">{</span> <span class="n">a</span> <span class="o">=</span> <span class="n">tfs</span><span class="p">;</span> <span class="p">}</span>    
+<span class="p">}</span>
+
+<span class="n">Directory</span> <span class="o">&amp;</span><span class="n">tempDir</span><span class="p">(){</span>
+  <span class="k">static</span> <span class="n">Directory</span> <span class="n">td</span><span class="p">;</span>
+  <span class="k">return</span> <span class="n">td</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>즉, 정적 객체 자체를 직접 사용하지 않고 그 객체에 대한 참조라를 반환하는 함수를 사용한다.</p>
+
+<p>하지만 이는 내부적으로 정적 객체를 사용하기 때문에 다중스레드 환경에서는 동작에 문제가 생기는데, 이는 다중스레드 돌입전, 참조자 반환 함수를 손으로 호출하면 경쟁상황이 생기지 않는다.</p>
+
+<h3 id="잊지-말자-3"><strong>잊지 말자</strong></h3>
+<ul>
+  <li>기본제공 타입의 객체는 직접 손으로 초기화한다.</li>
+  <li>생성자에서는 대입문을 사용하지 않고, “멤버 초기화 리스트”를 사용하고, 각 데이터 멤버가 선언된 순서와 똑같이 나열하자.</li>
+  <li>여러 번역 단위에 있는 비지역 정적 객체들의 초기화 순서 문제는 피해야하기에 비지역 정적 객체를 지역 정적 객체로 바꾸자</li>
+</ul>
+
+<h2 id="출처">출처</h2>
+<p>※ Effective C++ 책의 내용을 개인적으로 요악한 것입니다.
+  책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다.</p>
+<ul>
+  <li>지음 : 스콧 마이어스</li>
+  <li>옮김 : 곽용재</li>
+  <li>출판 : Addison Wesley</li>
+</ul>]]></content><author><name>Namaan</name></author><category term="Effective_C++" /><category term="Effective_C++" /><category term="C++" /><summary type="html"><![CDATA[항목 1 : c++를 언어들의 연합체로 바라보자.]]></summary></entry><entry><title type="html">코딩테스트 | 양궁 대회</title><link href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/19/%EC%BD%94%ED%85%8C-%EC%88%9C%EC%9C%84-%EA%B2%80%EC%83%89.html" rel="alternate" type="text/html" title="코딩테스트 | 양궁 대회" /><published>2022-07-19T00:00:00+00:00</published><updated>2022-07-19T00:00:00+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/19/%5B%EC%BD%94%ED%85%8C%5D-%EC%88%9C%EC%9C%84-%EA%B2%80%EC%83%89</id><content type="html" xml:base="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/19/%EC%BD%94%ED%85%8C-%EC%88%9C%EC%9C%84-%EA%B2%80%EC%83%89.html"><![CDATA[<h2 id="문제">문제</h2>
+<p>카카오는 하반기 경력 개발자 공개채용을 진행 중에 있으며 현재 지원서 접수와 코딩테스트가 종료되었습니다. 이번 채용에서 지원자는 지원서 작성 시 아래와 같이 4가지 항목을 반드시 선택하도록 하였습니다.</p>
+
+<ul>
+  <li>코딩테스트 참여 개발언어 항목에 cpp, java, python 중 하나를 선택해야 합니다.</li>
+  <li>지원 직군 항목에 backend와 frontend 중 하나를 선택해야 합니다.</li>
+  <li>지원 경력구분 항목에 junior와 senior 중 하나를 선택해야 합니다.</li>
+  <li>선호하는 소울푸드로 chicken과 pizza 중 하나를 선택해야 합니다.</li>
+</ul>
+
+<p>인재영입팀에 근무하고 있는 니니즈는 코딩테스트 결과를 분석하여 채용에 참여한 개발팀들에 제공하기 위해 지원자들의 지원 조건을 선택하면 해당 조건에 맞는 지원자가 몇 명인 지 쉽게 알 수 있는 도구를 만들고 있습니다.</p>
+
+<p>예를 들어, 개발팀에서 궁금해하는 문의사항은 다음과 같은 형태가 될 수 있습니다.</p>
+
+<p>코딩테스트에 java로 참여했으며, backend 직군을 선택했고, junior 경력이면서, 소울푸드로 pizza를 선택한 사람 중 코딩테스트 점수를 50점 이상 받은 지원자는 몇 명인가?</p>
+
+<p>물론 이 외에도 각 개발팀의 상황에 따라 아래와 같이 다양한 형태의 문의가 있을 수 있습니다.</p>
+
+<ul>
+  <li>코딩테스트에 python으로 참여했으며, frontend 직군을 선택했고, senior 경력이면서, 소울푸드로 chicken을 선택한 사람 중 코딩테스트 점수를 100점 이상 받은 사람은 모두 몇 명인가?</li>
+  <li>코딩테스트에 cpp로 참여했으며, senior 경력이면서, 소울푸드로 pizza를 선택한 사람 중 코딩테스트 점수를 100점 이상 받은 사람은 모두 몇 명인가?</li>
+  <li>backend 직군을 선택했고, senior 경력이면서 코딩테스트 점수를 200점 이상 받은 사람은 모두 몇 명인가?</li>
+  <li>소울푸드로 chicken을 선택한 사람 중 코딩테스트 점수를 250점 이상 받은 사람은 모두 몇 명인가?</li>
+  <li>코딩테스트 점수를 150점 이상 받은 사람은 모두 몇 명인가?</li>
+</ul>
+
+<p>즉, 개발팀에서 궁금해하는 내용은 다음과 같은 형태를 갖습니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  * [조건]을 만족하는 사람 중 코딩테스트 점수를 X점 이상 받은 사람은 모두 몇 명인가?
+</code></pre></div></div>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>info 배열의 크기는 1 이상 50,000 이하입니다.</li>
+  <li>info 배열 각 원소의 값은 지원자가 지원서에 입력한 4가지 값과 코딩테스트 점수를 합친 “개발언어 직군 경력 소울푸드 점수” 형식입니다.
+    <ul>
+      <li>개발언어는 cpp, java, python 중 하나입니다.</li>
+      <li>직군은 backend, frontend 중 하나입니다.</li>
+      <li>경력은 junior, senior 중 하나입니다.</li>
+      <li>소울푸드는 chicken, pizza 중 하나입니다.</li>
+      <li>점수는 코딩테스트 점수를 의미하며, 1 이상 100,000 이하인 자연수입니다.</li>
+      <li>각 단어는 공백문자(스페이스 바) 하나로 구분되어 있습니다.</li>
+    </ul>
+  </li>
+  <li>query 배열의 크기는 1 이상 100,000 이하입니다.</li>
+  <li>query의 각 문자열은 “[조건] X” 형식입니다.
+    <ul>
+      <li>[조건]은 “개발언어 and 직군 and 경력 and 소울푸드” 형식의 문자열입니다.</li>
+      <li>언어는 cpp, java, python, - 중 하나입니다.</li>
+      <li>직군은 backend, frontend, - 중 하나입니다.</li>
+      <li>경력은 junior, senior, - 중 하나입니다.</li>
+      <li>소울푸드는 chicken, pizza, - 중 하나입니다.</li>
+      <li>’-‘ 표시는 해당 조건을 고려하지 않겠다는 의미입니다.</li>
+      <li>X는 코딩테스트 점수를 의미하며 조건을 만족하는 사람 중 X점 이상 받은 사람은 모두 몇 명인 지를 의미합니다.</li>
+      <li>각 단어는 공백문자(스페이스 바) 하나로 구분되어 있습니다.</li>
+      <li>예를 들면, “cpp and - and senior and pizza 500”은 “cpp로 코딩테스트를 봤으며, 경력은 senior 이면서 소울푸드로 pizza를 선택한 지원자 중 코딩테스트 점수를 500점 이상 받은 사람은 모두 몇 명인가?”를 의미합니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="입출력-예시">입출력 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">info</th>
+      <th style="text-align: center">query</th>
+      <th style="text-align: center">result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">["java backend junior pizza 150","python frontend senior chicken 210","python frontend senior chicken 150","cpp backend senior pizza 260","java backend junior chicken 80","python backend senior chicken 50"]</td>
+      <td style="text-align: center">["java and backend and junior and pizza 100","python and frontend and senior and chicken 200","cpp and - and senior and pizza 250","- and backend and senior and - 150","- and - and - and chicken 100","- and - and - and - 150"]</td>
+      <td style="text-align: center">[1,1,1,1,2,4]</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<h3 id="1번-풀이방식">1번 풀이방식</h3>
+
+<blockquote>
+  <p>효율성 만족 X</p>
+</blockquote>
+
+<p>무식하게 풀다가 깨달았다. query가 늘어나는 순간 시간복잡도는 아작난다고, 아니나 다른까 효율성에서 다 떨어졌다.</p>
+
+<p>일단 이렇게 무식하게 했다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">struct</span> <span class="nc">player</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">lang</span><span class="p">,</span> <span class="n">job</span><span class="p">,</span> <span class="n">career</span><span class="p">,</span><span class="n">food</span><span class="p">;</span>
+
+    <span class="n">player</span><span class="p">(</span><span class="kt">int</span> <span class="n">Pscore</span><span class="p">,</span> <span class="n">string</span> <span class="n">Plang</span><span class="p">,</span> <span class="n">string</span> <span class="n">Pjob</span><span class="p">,</span> <span class="n">string</span> <span class="n">Pcareer</span><span class="p">,</span> <span class="n">string</span> <span class="n">Pfood</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">score</span> <span class="o">=</span> <span class="n">Pscore</span><span class="p">;</span>
+      <span class="n">lang</span> <span class="o">=</span> <span class="n">Plang</span><span class="p">;</span>
+      <span class="n">job</span> <span class="o">=</span> <span class="n">Pjob</span><span class="p">;</span>
+      <span class="n">career</span> <span class="o">=</span> <span class="n">Pcareer</span><span class="p">;</span>
+      <span class="n">food</span> <span class="o">=</span> <span class="n">Pfood</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">bool</span> <span class="k">operator</span> <span class="o">&lt;</span> <span class="p">(</span><span class="k">const</span> <span class="n">player</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span><span class="k">const</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">.</span><span class="n">score</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">solution</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">info</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">answer</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">player</span><span class="o">&gt;</span> <span class="n">Pv</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">info</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">stringstream</span> <span class="n">stream</span><span class="p">;</span>
+      <span class="n">stream</span><span class="p">.</span><span class="n">str</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+      <span class="n">string</span> <span class="n">num</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+
+      <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sco</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="n">string</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+
+      <span class="k">while</span><span class="p">(</span><span class="n">stream</span> <span class="o">&gt;&gt;</span> <span class="n">num</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">cnt</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="n">tmp</span><span class="p">[</span><span class="n">cnt</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span><span class="p">;</span>
+        <span class="k">else</span> <span class="n">sco</span> <span class="o">=</span> <span class="n">stoi</span><span class="p">(</span><span class="n">num</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">Pv</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">player</span><span class="p">(</span><span class="n">sco</span><span class="p">,</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">3</span><span class="p">]));</span>
+    <span class="p">}</span>
+
+    <span class="n">sort</span><span class="p">(</span><span class="n">Pv</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">Pv</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">query</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">stringstream</span> <span class="n">stream</span><span class="p">;</span>
+      <span class="n">stream</span><span class="p">.</span><span class="n">str</span><span class="p">(</span><span class="n">query</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+      <span class="n">string</span> <span class="n">num</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+      <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sco</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="n">string</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+
+      <span class="k">while</span> <span class="p">(</span><span class="n">stream</span> <span class="o">&gt;&gt;</span> <span class="n">num</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">num</span> <span class="o">==</span> <span class="s">"and"</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">cnt</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="n">tmp</span><span class="p">[</span><span class="n">cnt</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span><span class="p">;</span>
+        <span class="k">else</span> <span class="n">sco</span> <span class="o">=</span> <span class="n">stoi</span><span class="p">(</span><span class="n">num</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">player</span> <span class="n">P</span><span class="p">(</span><span class="n">sco</span><span class="p">,</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+
+      <span class="c1">//cal</span>
+      <span class="kt">int</span> <span class="n">account</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">Pv</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">score</span> <span class="o">&gt;</span> <span class="n">Pv</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">score</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">lang</span> <span class="o">!=</span> <span class="s">"-"</span> <span class="o">&amp;&amp;</span> <span class="n">Pv</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">lang</span> <span class="o">!=</span> <span class="n">P</span><span class="p">.</span><span class="n">lang</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">job</span> <span class="o">!=</span> <span class="s">"-"</span> <span class="o">&amp;&amp;</span> <span class="n">Pv</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">job</span> <span class="o">!=</span> <span class="n">P</span><span class="p">.</span><span class="n">job</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">career</span> <span class="o">!=</span> <span class="s">"-"</span> <span class="o">&amp;&amp;</span> <span class="n">Pv</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">career</span> <span class="o">!=</span> <span class="n">P</span><span class="p">.</span><span class="n">career</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">food</span> <span class="o">!=</span> <span class="s">"-"</span> <span class="o">&amp;&amp;</span> <span class="n">Pv</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">food</span> <span class="o">!=</span> <span class="n">P</span><span class="p">.</span><span class="n">food</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="n">account</span><span class="o">++</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">answer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">account</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="2번-풀이방식">2번 풀이방식</h3>
+
+<p>Map을 사용해서 나올 수 있는 경우의 수를 넣어놓고, 탐색하는게 query의 수에 영향을 받는 것보다 빠르다고 생각했다. 만약 “java backend junior pizza 150”를 map에 넣는다면 __map&lt;string, vector<int>&gt;의__ 구조이며, 아래와 같다.</int></p>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/Search_Ranking.png" height="300" title="Search_Ranking" /></p>
+
+<p>이렇게 가능한 경우의 수가 모든 가능성에 들어가며, query에서는 하나씩 다 검사해볼 필요없이 map에 맞는 것에 들어가서 vector<int>를 탐색하면된다. 이때 탐색은
+  "lower_bound"이라는 이진탐색을 사용하여 v에서 score보다 같거나 큰 숫자가 몇 번째에 있는지를 탐색한다.</int></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;unordered_map&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;sstream&gt;</span><span class="cp">
+</span>  <span class="n">unordered_map</span> <span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">M</span><span class="p">;</span>
+
+  <span class="kt">void</span> <span class="nf">Cal</span><span class="p">(</span><span class="n">string</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">int</span> <span class="n">score</span><span class="p">){</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">16</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">string</span> <span class="n">str</span><span class="o">=</span><span class="s">""</span><span class="p">;</span>
+      <span class="kt">int</span> <span class="n">num</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+
+      <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">3</span><span class="p">;</span> <span class="n">j</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">--</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">num</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="n">str</span> <span class="o">=</span> <span class="s">"-"</span> <span class="o">+</span> <span class="n">str</span><span class="p">;</span>
+        <span class="k">else</span> <span class="n">str</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">str</span><span class="p">;</span>
+        <span class="n">num</span> <span class="o">/=</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">M</span><span class="p">[</span><span class="n">str</span><span class="p">].</span><span class="n">push_back</span><span class="p">(</span><span class="n">score</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">solution</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">info</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">answer</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">s</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">str</span><span class="o">=</span><span class="s">""</span><span class="p">;</span>
+    
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">info</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">stringstream</span> <span class="n">stream</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+      <span class="n">stream</span> <span class="o">&gt;&gt;</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">str</span><span class="p">;</span>
+      <span class="n">Cal</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">stoi</span><span class="p">(</span><span class="n">str</span><span class="p">));</span>
+    <span class="p">}</span>
+    
+    <span class="k">for</span><span class="p">(</span><span class="k">auto</span> <span class="n">itr</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">itr</span><span class="o">!=</span><span class="n">M</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">itr</span><span class="o">++</span><span class="p">)</span> <span class="n">sort</span><span class="p">(</span><span class="n">itr</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">itr</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+    
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">query</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">stringstream</span> <span class="n">stream</span><span class="p">(</span><span class="n">query</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+      <span class="n">stream</span> <span class="o">&gt;&gt;</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">str</span> <span class="o">&gt;&gt;</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">str</span> <span class="o">&gt;&gt;</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">str</span> <span class="o">&gt;&gt;</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">str</span><span class="p">;</span>
+      <span class="kt">int</span> <span class="n">score</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">stoi</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+        
+      <span class="n">vector</span> <span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]];</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">!=</span><span class="mi">0</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">lower_bound</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">score</span><span class="p">)</span> <span class="o">-</span> <span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+        <span class="n">answer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="n">idx</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="n">answer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="다른이의-풀이방식">다른이의 풀이방식</h3>
+
+<p>비슷한데??</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">const</span> <span class="n">string</span> <span class="n">ALL</span> <span class="o">=</span> <span class="s">"-"</span><span class="p">;</span>
+  <span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">map</span><span class="p">;</span>
+
+  <span class="kt">void</span> <span class="nf">insert</span><span class="p">(</span><span class="n">string</span><span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="kt">int</span> <span class="n">mask</span><span class="p">,</span> <span class="kt">int</span> <span class="n">point</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">string</span> <span class="n">s</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">s</span> <span class="o">+=</span> <span class="p">(</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">))</span> <span class="o">?</span> <span class="n">ALL</span> <span class="o">:</span> <span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+      <span class="n">map</span><span class="p">[</span><span class="n">s</span><span class="p">].</span><span class="n">push_back</span><span class="p">(</span><span class="n">point</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">solution</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">info</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">answer</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">key</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">tmp</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">point</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">inf</span> <span class="o">:</span> <span class="n">info</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">istringstream</span> <span class="n">iss</span><span class="p">(</span><span class="n">inf</span><span class="p">);</span>
+      <span class="n">iss</span> <span class="o">&gt;&gt;</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">key</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">point</span><span class="p">;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">16</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">insert</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">point</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">m</span> <span class="o">:</span> <span class="n">map</span><span class="p">)</span> <span class="n">sort</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">m</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">que</span> <span class="o">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">istringstream</span> <span class="n">iss</span><span class="p">(</span><span class="n">que</span><span class="p">);</span>
+      <span class="n">iss</span> <span class="o">&gt;&gt;</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">tmp</span> <span class="o">&gt;&gt;</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">tmp</span> <span class="o">&gt;&gt;</span> <span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">tmp</span> <span class="o">&gt;&gt;</span> <span class="n">key</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">point</span><span class="p">;</span>
+      <span class="n">string</span> <span class="n">s</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">key</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">v</span> <span class="o">=</span> <span class="n">map</span><span class="p">[</span><span class="n">s</span><span class="p">];</span>
+      <span class="n">answer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">end</span><span class="p">()</span> <span class="o">-</span> <span class="n">lower_bound</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">point</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>]]></content><author><name>Namaan</name></author><category term="CodingTest" /><category term="CodingTest" /><category term="C++" /><summary type="html"><![CDATA[문제 카카오는 하반기 경력 개발자 공개채용을 진행 중에 있으며 현재 지원서 접수와 코딩테스트가 종료되었습니다. 이번 채용에서 지원자는 지원서 작성 시 아래와 같이 4가지 항목을 반드시 선택하도록 하였습니다.]]></summary></entry><entry><title type="html">코딩테스트 | 양궁 대회</title><link href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/18/%EC%BD%94%ED%85%8C-%EC%96%91%EA%B6%81-%EB%8C%80%ED%9A%8C.html" rel="alternate" type="text/html" title="코딩테스트 | 양궁 대회" /><published>2022-07-18T00:00:00+00:00</published><updated>2022-07-18T00:00:00+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/18/%5B%EC%BD%94%ED%85%8C%5D-%EC%96%91%EA%B6%81-%EB%8C%80%ED%9A%8C</id><content type="html" xml:base="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/18/%EC%BD%94%ED%85%8C-%EC%96%91%EA%B6%81-%EB%8C%80%ED%9A%8C.html"><![CDATA[<h2 id="문제">문제</h2>
+
+<p>카카오배 양궁대회가 열렸습니다.
+  라이언은 저번 카카오배 양궁대회 우승자이고 이번 대회에도 결승전까지 올라왔습니다. 결승전 상대는 어피치입니다.
+  카카오배 양궁대회 운영위원회는 한 선수의 연속 우승보다는 다양한 선수들이 양궁대회에서 우승하기를 원합니다. 따라서, 양궁대회 운영위원회는 결승전 규칙을 전 대회 우승자인 라이언에게 불리하게 다음과 같이 정했습니다.</p>
+
+<ul>
+  <li>어피치가 화살 n발을 다 쏜 후에 라이언이 화살 n발을 쏩니다.</li>
+  <li>과녁판은 아래 사진처럼 생겼으며 가장 작은 원의 과녁 점수는 10점이고 가장 큰 원의 바깥쪽은 과녁 점수가 0점입니다.
+    <ul>
+      <li>만약, k(k는 1~10사이의 자연수)점을 어피치가 a발을 맞혔고 라이언이 b발을 맞혔을 경우 더 많은 화살을 k점에 맞힌 선수가 k 점을 가져갑니다. 단, a = b일 경우는 어피치가 k점을 가져갑니다. k점을 여러 발 맞혀도 k점 보다 많은 점수를 가져가는 게 아니고 k점만 가져가는 것을 유의하세요. 또한 a = b = 0 인 경우, 즉, 라이언과 어피치 모두 k점에 단 하나의 화살도 맞히지 못한 경우는 어느 누구도 k점을 가져가지 않습니다.
+        <ul>
+          <li>예를 들어, 어피치가 10점을 2발 맞혔고 라이언도 10점을 2발 맞혔을 경우 어피치가 10점을 가져갑니다.</li>
+          <li>다른 예로, 어피치가 10점을 0발 맞혔고 라이언이 10점을 2발 맞혔을 경우 라이언이 10점을 가져갑니다.</li>
+        </ul>
+      </li>
+      <li>모든 과녁 점수에 대하여 각 선수의 최종 점수를 계산합니다.</li>
+    </ul>
+  </li>
+  <li>최종 점수가 더 높은 선수를 우승자로 결정합니다. 단, 최종 점수가 같을 경우 어피치를 우승자로 결정합니다.</li>
+</ul>
+
+<p>현재 상황은 어피치가 화살 n발을 다 쏜 후이고 라이언이 화살을 쏠 차례입니다.
+  라이언은 어피치를 가장 큰 점수 차이로 이기기 위해서 n발의 화살을 어떤 과녁 점수에 맞혀야 하는지를 구하려고 합니다.</p>
+
+<p>화살의 개수를 담은 자연수 n, 어피치가 맞힌 과녁 점수의 개수를 10점부터 0점까지 순서대로 담은 정수 배열 info가 매개변수로 주어집니다. 이때, 라이언이 가장 큰 점수 차이로 우승하기 위해 n발의 화살을 어떤 과녁 점수에 맞혀야 하는지를 10점부터 0점까지 순서대로 정수 배열에 담아 return 하도록 solution 함수를 완성해 주세요. 만약, 라이언이 우승할 수 없는 경우(무조건 지거나 비기는 경우)는 [-1]을 return 해주세요.</p>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>1 ≤ n ≤ 10</li>
+  <li>info의 길이 = 11
+    <ul>
+      <li>0 ≤ info의 원소 ≤ n</li>
+      <li>info의 원소 총합 = n</li>
+      <li>info의 i번째 원소는 과녁의 10 - i 점을 맞힌 화살 개수입니다. ( i는 0~10 사이의 정수입니다.)</li>
+    </ul>
+  </li>
+  <li>라이언이 우승할 방법이 있는 경우, return 할 정수 배열의 길이는 11입니다.
+    <ul>
+      <li>0 ≤ return할 정수 배열의 원소 ≤ n</li>
+      <li>return할 정수 배열의 원소 총합 = n (꼭 n발을 다 쏴야 합니다.)</li>
+      <li>return할 정수 배열의 i번째 원소는 과녁의 10 - i 점을 맞힌 화살 개수입니다. ( i는 0~10 사이의 정수입니다.)</li>
+      <li>라이언이 가장 큰 점수 차이로 우승할 수 있는 방법이 여러 가지 일 경우, 가장 낮은 점수를 더 많이 맞힌 경우를 return 해주세요.
+        <ul>
+          <li>가장 낮은 점수를 맞힌 개수가 같을 경우 계속해서 그다음으로 낮은 점수를 더 많이 맞힌 경우를 return 해주세요.</li>
+          <li>예를 들어, [2,3,1,0,0,0,0,1,3,0,0]과 [2,1,0,2,0,0,0,2,3,0,0]를 비교하면 [2,1,0,2,0,0,0,2,3,0,0]를 return 해야 합니다.</li>
+          <li>다른 예로, [0,0,2,3,4,1,0,0,0,0,0]과 [9,0,0,0,0,0,0,0,1,0,0]를 비교하면[9,0,0,0,0,0,0,0,1,0,0]를 return 해야 합니다.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>라이언이 우승할 방법이 없는 경우, return 할 정수 배열의 길이는 1입니다.
+    <ul>
+      <li>라이언이 어떻게 화살을 쏘든 라이언의 점수가 어피치의 점수보다 낮거나 같으면 [-1]을 return 해야 합니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="입출력-예시">입출력 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">n</th>
+      <th style="text-align: center">info</th>
+      <th style="text-align: center">result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">[2,1,1,1,0,0,0,0,0,0,0]</td>
+      <td style="text-align: center">[0,2,2,0,1,0,0,0,0,0,0]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">[1,0,0,0,0,0,0,0,0,0,0]</td>
+      <td style="text-align: center">[-1]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">9</td>
+      <td style="text-align: center">[0,0,1,2,0,1,1,1,1,1,1]</td>
+      <td style="text-align: center">[1,1,2,0,1,2,2,0,0,0,0]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">[0,0,0,0,0,0,0,0,3,4,3]</td>
+      <td style="text-align: center">[1,1,1,1,1,1,1,1,0,0,2]</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<h3 id="나의-풀이방식">나의 풀이방식</h3>
+
+<blockquote>
+  <p>8, 18번 만족 X <strong>(해결)</strong></p>
+</blockquote>
+
+<p>이 풀이 방식은 먼저 틀렸으며, DFS와 Check문을 사용하였다.</p>
+
+<p>어느 DFS와 비슷한 구조이며, 예외처리 중 같은 최대 값이 나왔을때의 알고리즘을 제대로 구현하지 못한 것으로 예상된다. (하긴했음)</p>
+
+<p>구현은 했고, 테스트 테이스도 맞췄는데 이유를 알 수 없지만 적어둔다.</p>
+
+<ul>
+  <li>수정 : 기존 최대 값이 적혀 있는 answer배열이 큰 경우를 고려하지 않았기에 문제가 발생했다. (중원 쪽쪾)</li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kt">int</span> <span class="n">ch</span><span class="p">[</span><span class="mi">11</span><span class="p">];</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">arr</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span> <span class="o">-</span><span class="mi">1</span> <span class="p">};</span>
+  <span class="kt">int</span> <span class="n">maxScore</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="kt">void</span> <span class="nf">DFS</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">int</span> <span class="n">index</span> <span class="p">,</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">info</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">Score</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">arr</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">info</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="n">Score</span> <span class="o">+=</span> <span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">info</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">?</span> <span class="p">(</span><span class="mi">10</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="o">-</span><span class="p">(</span><span class="mi">10</span> <span class="o">-</span> <span class="n">i</span><span class="p">);</span>
+      <span class="p">}</span>
+
+      <span class="c1">// 최대값 찾기와 예외처리</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">maxScore</span> <span class="o">&lt;</span> <span class="n">Score</span> <span class="o">&amp;&amp;</span> <span class="n">Score</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">maxScore</span> <span class="o">=</span> <span class="n">Score</span><span class="p">;</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="n">arr</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">maxScore</span> <span class="o">==</span> <span class="n">Score</span> <span class="o">&amp;&amp;</span> <span class="n">Score</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>   
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">arr</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">answer</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="p">{</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="n">arr</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">answer</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>    <span class="c1">//수정된 부분 </span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">index</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="n">info</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="p">{</span>
+          <span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+          <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+
+          <span class="n">DFS</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">info</span><span class="p">);</span>
+
+          <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+          <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+
+          <span class="n">DFS</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">info</span><span class="p">);</span>
+
+          <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">info</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">DFS</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">info</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="다른의-풀이방식">다른의 풀이방식</h3>
+
+<p>아니 나랑 로직은 비슷한데 왜 나만 틀려? 도와줘 응애@</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="n">ans</span><span class="p">;</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="mi">11</span><span class="p">];</span>
+  <span class="kt">int</span> <span class="n">r</span><span class="p">[</span><span class="mi">11</span><span class="p">];</span>
+  <span class="kt">void</span> <span class="nf">solve</span><span class="p">(</span><span class="kt">int</span> <span class="n">cnt</span><span class="p">,</span> <span class="kt">int</span> <span class="n">idx</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">cnt</span> <span class="o">==</span> <span class="n">N</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">asum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="kt">int</span> <span class="n">rsum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="n">rsum</span> <span class="o">+=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="k">else</span> <span class="n">asum</span> <span class="o">+=</span> <span class="n">i</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">ans</span> <span class="o">&lt;</span> <span class="n">rsum</span><span class="o">-</span><span class="n">asum</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="n">rsum</span><span class="o">-</span><span class="n">asum</span><span class="p">;</span>
+        <span class="n">answer</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="n">answer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">idx</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="p">{</span>
+        <span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">solve</span><span class="p">(</span><span class="n">cnt</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+        <span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">--</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">info</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="n">a</span><span class="p">[</span><span class="mi">10</span><span class="o">-</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="n">solve</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">answer</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="n">answer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>
+<ul>
+  <li>진짜 나 자체가 개선점인듯</li>
+</ul>]]></content><author><name>Namaan</name></author><category term="CodingTest" /><category term="CodingTest" /><category term="C++" /><summary type="html"><![CDATA[문제]]></summary></entry><entry><title type="html">코딩테스트 | 2 x n 타일링</title><link href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/17/%EC%BD%94%ED%85%8C-2-x-n-%ED%83%80%EC%9D%BC%EB%A7%81.html" rel="alternate" type="text/html" title="코딩테스트 | 2 x n 타일링" /><published>2022-07-17T00:00:00+00:00</published><updated>2022-07-17T00:00:00+00:00</updated><id>https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/17/%5B%EC%BD%94%ED%85%8C%5D-2-x-n-%ED%83%80%EC%9D%BC%EB%A7%81</id><content type="html" xml:base="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/17/%EC%BD%94%ED%85%8C-2-x-n-%ED%83%80%EC%9D%BC%EB%A7%81.html"><![CDATA[<h2 id="문제">문제</h2>
+
+<p>가로 길이가 2이고 세로의 길이가 1인 직사각형모양의 타일이 있습니다. 이 직사각형 타일을 이용하여 세로의 길이가 2이고 가로의 길이가 n인 바닥을 가득 채우려고 합니다. 타일을 채울 때는 다음과 같이 2가지 방법이 있습니다.</p>
+
+<ul>
+  <li>타일을 가로로 배치 하는 경우</li>
+  <li>타일을 세로로 배치 하는 경우</li>
+</ul>
+
+<p>예를들어서 n이 7인 직사각형은 다음과 같이 채울 수 있습니다.</p>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/tileing.png" height="250" title="tileing" /></p>
+
+<p>직사각형의 가로의 길이 n이 매개변수로 주어질 때, 이 직사각형을 채우는 방법의 수를 return 하는 solution 함수를 완성해주세요.</p>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>가로의 길이 n은 60,000이하의 자연수 입니다.</li>
+  <li>경우의 수가 많아 질 수 있으므로, 경우의 수를 1,000,000,007으로 나눈 나머지를 return해주세요.</li>
+</ul>
+
+<h2 id="입출력-예시">입출력 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">n</th>
+      <th style="text-align: center">result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">8</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<p>관상이 피보나치 수열이여서 단순히 피보나치를 사용하여 해결했다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kt">int</span> <span class="nf">solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">answer</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">arr</span><span class="p">(</span><span class="mi">60001</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    
+    <span class="n">arr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">arr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">3</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="mi">1000000007</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="k">return</span> <span class="n">arr</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>
+<ul>
+  <li>배열을 사용하지 않았다면, 메모리 효율도 나올 듯 싶다. 대신 삽입삭제 시간은 더욱 늘었겠지? 아래와 같다.</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kt">int</span> <span class="n">pre1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pre2</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+
+  <span class="k">if</span><span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="k">return</span> <span class="mi">2</span><span class="p">;</span>
+  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">3</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+    <span class="kt">int</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">pre1</span><span class="p">;</span>
+    <span class="n">pre1</span> <span class="o">=</span> <span class="n">pre2</span><span class="p">;</span>
+    <span class="n">pre2</span> <span class="o">=</span> <span class="n">pre1</span> <span class="o">+</span> <span class="n">tmp</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">pre2</span><span class="p">;</span>
+</code></pre></div></div>]]></content><author><name>Namaan</name></author><category term="CodingTest" /><category term="CodingTest" /><category term="C++" /><summary type="html"><![CDATA[문제]]></summary></entry></feed>

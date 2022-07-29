@@ -1,0 +1,1 @@
+Sitemap: https://goaway-1.github.io/jekyll-theme-yat/sitemap.xml

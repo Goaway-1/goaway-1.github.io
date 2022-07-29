@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>코딩테스트 키패드 누르기 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.2.2">
+<meta property="og:title" content="코딩테스트 키패드 누르기">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="문제 스마트폰 전화 키패드의 각 칸에 다음과 같이 숫자들이 적혀 있습니다. 이 전화 키패드에서 왼손과 오른손의 엄지손가락만을 이용해서 숫자만을 입력하려고 합니다. 맨 처음 왼손 엄지손가락은 * 키패드에 오른손 엄지손가락은 # 키패드 위치에서 시작하며, 엄지손가락을 사용하는 규칙은 다음과 같습니다. 엄지손가락은 상하좌우 4가지 방향으로만 이동할 수 있으며 키패드 이동 한 칸은 거리로 1에 해당합니다. 왼쪽 열의 3개의 숫자 1, 4, 7을 입력할 때는 왼손 엄지손가락을 사용합니다. 오른쪽 열의 3개의 숫자 3, 6, 9를 입력할 때는 오른손 엄지손가락을 사용합니다. 가운데 열의 4개의 숫자 2, 5, 8, 0을 입력할 때는 두 엄지손가락의 현재 키패드의 위치에서 더 가까운 엄지손가락을 사용합니다. 4-1. 만약 두 엄지손가락의 거리가 같다면, 오른손잡이는 오른손 엄지손가락, 왼손잡이는 왼손 엄지손가락을 사용합니다. 순서대로 누를 번호가 담긴 배열 numbers, 왼손잡이인지 오른손잡이인 지를 나타내는 문자열 hand가 매개변수로 주어질 때, 각 번호를 누른 엄지손가락이 왼손인 지 오른손인 지를 나타내는 연속된 문자열 형태로 return 하도록 solution 함수를 완성해주세요. 조건 numbers 배열의 크기는 1 이상 1,000 이하입니다. numbers 배열 원소의 값은 0 이상 9 이하인 정수입니다. hand는 “left” 또는 “right” 입니다. “left”는 왼손잡이, “right”는 오른손잡이를 의미합니다. 왼손 엄지손가락을 사용한 경우는 L, 오른손 엄지손가락을 사용한 경우는 R을 순서대로 이어붙여 문자열 형태로 return 해주세요. 입출력 예시 numbers hand result [1, 3, 4, 5, 8, 2, 1, 4, 5, 9, 5] “right” “LRLLLRLLRRL” [7, 0, 8, 2, 8, 3, 1, 5, 7, 6, 2] “left” “LRLLRRLLLRR” [1, 2, 3, 4, 5, 6, 7, 8, 9, 0] “right” “LLRLLRLLRL” 풀이방식 나의 풀이방식 위 그림과 같이 키패드를 x축, y축으로 구분하여 각 번호에 대한 좌표를 map에 저장하였는데, 이는 추후 거리를 측정하기 위함이다. 이때 “*“과 “#”은 추후 누르지 않기 때문에 추가하지 않았다. pos에는 순서대로 왼손/오른손에 대한 좌표가 담겨있으며, 초기에는 왼손은 (3,0), 오른손은 (3,2)에 위치하는 것을 확인할 수 있다. 손가락의 이동시 1,4,7번은 무조건 왼손으로, 3,6,9번은 오른손으로 입력하고, 각 손의 위치를 Map을 참고하여 번호의 위치로 이동시켰다. 그리고 2,5,8,0인 경우에는 왼손/오른손의 좌표로 부터 원하는 키패드의 좌표까지의 거리를 계산하여 더 가까운 손으로 위치를 이동하였다. 이때 Map과 Pos를 사용한다. 만약 두 거리가 같다면 hand에 맞는 손을 이동하였다. #include &lt;map&gt; string cal(vector&lt;pair&lt;int,int&gt;&gt; &amp;pos, int isLeft, int x, int y) { pos[isLeft] = make_pair(x, y); return (isLeft == 0) ? &quot;L&quot; : &quot;R&quot;; } string solution(vector&lt;int&gt; numbers, string hand) { string answer = &quot;&quot;; map&lt;int, pair&lt;int,int&gt; &gt; M; // Button pos vector&lt;pair&lt;int,int&gt;&gt; pos; // left &amp; right pos pos.push_back(make_pair(3, 0)); pos.push_back(make_pair(3, 2)); // insert Map pos M.insert({0, make_pair(3, 1)}); int tmp = 1; for (int i = 0; i &lt; 3; i++){ for (int j = 0; j &lt; 3; j++) M.insert({ tmp++,make_pair(i,j) }); } // @TODO : check and calculate for (int i = 0; i &lt; numbers.size(); i++){ int LorR = 0; const int x = M[numbers[i]].first; const int y = M[numbers[i]].second; if (numbers[i] % 3 == 1) LorR = 0; else if (numbers[i] % 3 == 0 &amp;&amp; numbers[i] != 0) LorR = 1; else { // center const int posL = abs(pos[0].first - x) + abs(pos[0].second - y); const int posR = abs(pos[1].first - x) + abs(pos[1].second - y); if (posL &gt; posR) LorR = 1; else if (posL &lt; posR) LorR = 0; else LorR = (hand == &quot;right&quot;) ? 1 : 0; } answer += cal(pos, LorR, x, y); } return answer; } 타인의 풀이방식 나는 번호간의 거리를 측정하기 위해서 x,y좌표를 사용하였는데, 이는 특정한 로직을 사용하여 거리를 측정하였다. 이해는 안되는데 볼 사람은 참고… #include &lt;math.h&gt; string solution(vector&lt;int&gt; numbers, string hand) { string answer = &quot;&quot;; int curr_L = 10; int curr_R = 12; for(int i = 0; i &lt; numbers.size(); i++) { if(numbers[i] % 3 == 1) { answer += &quot;L&quot;; curr_L = numbers[i]; } else if(numbers[i] % 3 == 0 &amp;&amp; numbers[i] != 0) { answer += &quot;R&quot;; curr_R = numbers[i]; } else { int tmp = numbers[i]; if(numbers[i] == 0) tmp = 11; int dist_L, dist_R; // 왼손으로 부터의 거리 if(curr_L % 3 == 1) dist_L = abs(tmp - curr_L - 1) / 3 + 1; else dist_L = abs(tmp - curr_L) / 3; // 오른손으로 부터의 거리 if(curr_R % 3 == 0) dist_R= abs(tmp - curr_R + 1) / 3 + 1; else dist_R = abs(tmp - curr_R) / 3; if(dist_L == dist_R) { if(hand[0] == 'l') { answer += &quot;L&quot;; curr_L = tmp; } else { answer += &quot;R&quot;; curr_R = tmp; } } else { if(dist_L &lt; dist_R) { answer += &quot;L&quot;; curr_L = tmp; } else { answer += &quot;R&quot;; curr_R = tmp; } } } } return answer; } 개선점 깔끔하게 잘 구성한듯하다.">
+<meta property="og:description" content="문제 스마트폰 전화 키패드의 각 칸에 다음과 같이 숫자들이 적혀 있습니다. 이 전화 키패드에서 왼손과 오른손의 엄지손가락만을 이용해서 숫자만을 입력하려고 합니다. 맨 처음 왼손 엄지손가락은 * 키패드에 오른손 엄지손가락은 # 키패드 위치에서 시작하며, 엄지손가락을 사용하는 규칙은 다음과 같습니다. 엄지손가락은 상하좌우 4가지 방향으로만 이동할 수 있으며 키패드 이동 한 칸은 거리로 1에 해당합니다. 왼쪽 열의 3개의 숫자 1, 4, 7을 입력할 때는 왼손 엄지손가락을 사용합니다. 오른쪽 열의 3개의 숫자 3, 6, 9를 입력할 때는 오른손 엄지손가락을 사용합니다. 가운데 열의 4개의 숫자 2, 5, 8, 0을 입력할 때는 두 엄지손가락의 현재 키패드의 위치에서 더 가까운 엄지손가락을 사용합니다. 4-1. 만약 두 엄지손가락의 거리가 같다면, 오른손잡이는 오른손 엄지손가락, 왼손잡이는 왼손 엄지손가락을 사용합니다. 순서대로 누를 번호가 담긴 배열 numbers, 왼손잡이인지 오른손잡이인 지를 나타내는 문자열 hand가 매개변수로 주어질 때, 각 번호를 누른 엄지손가락이 왼손인 지 오른손인 지를 나타내는 연속된 문자열 형태로 return 하도록 solution 함수를 완성해주세요. 조건 numbers 배열의 크기는 1 이상 1,000 이하입니다. numbers 배열 원소의 값은 0 이상 9 이하인 정수입니다. hand는 “left” 또는 “right” 입니다. “left”는 왼손잡이, “right”는 오른손잡이를 의미합니다. 왼손 엄지손가락을 사용한 경우는 L, 오른손 엄지손가락을 사용한 경우는 R을 순서대로 이어붙여 문자열 형태로 return 해주세요. 입출력 예시 numbers hand result [1, 3, 4, 5, 8, 2, 1, 4, 5, 9, 5] “right” “LRLLLRLLRRL” [7, 0, 8, 2, 8, 3, 1, 5, 7, 6, 2] “left” “LRLLRRLLLRR” [1, 2, 3, 4, 5, 6, 7, 8, 9, 0] “right” “LLRLLRLLRL” 풀이방식 나의 풀이방식 위 그림과 같이 키패드를 x축, y축으로 구분하여 각 번호에 대한 좌표를 map에 저장하였는데, 이는 추후 거리를 측정하기 위함이다. 이때 “*“과 “#”은 추후 누르지 않기 때문에 추가하지 않았다. pos에는 순서대로 왼손/오른손에 대한 좌표가 담겨있으며, 초기에는 왼손은 (3,0), 오른손은 (3,2)에 위치하는 것을 확인할 수 있다. 손가락의 이동시 1,4,7번은 무조건 왼손으로, 3,6,9번은 오른손으로 입력하고, 각 손의 위치를 Map을 참고하여 번호의 위치로 이동시켰다. 그리고 2,5,8,0인 경우에는 왼손/오른손의 좌표로 부터 원하는 키패드의 좌표까지의 거리를 계산하여 더 가까운 손으로 위치를 이동하였다. 이때 Map과 Pos를 사용한다. 만약 두 거리가 같다면 hand에 맞는 손을 이동하였다. #include &lt;map&gt; string cal(vector&lt;pair&lt;int,int&gt;&gt; &amp;pos, int isLeft, int x, int y) { pos[isLeft] = make_pair(x, y); return (isLeft == 0) ? &quot;L&quot; : &quot;R&quot;; } string solution(vector&lt;int&gt; numbers, string hand) { string answer = &quot;&quot;; map&lt;int, pair&lt;int,int&gt; &gt; M; // Button pos vector&lt;pair&lt;int,int&gt;&gt; pos; // left &amp; right pos pos.push_back(make_pair(3, 0)); pos.push_back(make_pair(3, 2)); // insert Map pos M.insert({0, make_pair(3, 1)}); int tmp = 1; for (int i = 0; i &lt; 3; i++){ for (int j = 0; j &lt; 3; j++) M.insert({ tmp++,make_pair(i,j) }); } // @TODO : check and calculate for (int i = 0; i &lt; numbers.size(); i++){ int LorR = 0; const int x = M[numbers[i]].first; const int y = M[numbers[i]].second; if (numbers[i] % 3 == 1) LorR = 0; else if (numbers[i] % 3 == 0 &amp;&amp; numbers[i] != 0) LorR = 1; else { // center const int posL = abs(pos[0].first - x) + abs(pos[0].second - y); const int posR = abs(pos[1].first - x) + abs(pos[1].second - y); if (posL &gt; posR) LorR = 1; else if (posL &lt; posR) LorR = 0; else LorR = (hand == &quot;right&quot;) ? 1 : 0; } answer += cal(pos, LorR, x, y); } return answer; } 타인의 풀이방식 나는 번호간의 거리를 측정하기 위해서 x,y좌표를 사용하였는데, 이는 특정한 로직을 사용하여 거리를 측정하였다. 이해는 안되는데 볼 사람은 참고… #include &lt;math.h&gt; string solution(vector&lt;int&gt; numbers, string hand) { string answer = &quot;&quot;; int curr_L = 10; int curr_R = 12; for(int i = 0; i &lt; numbers.size(); i++) { if(numbers[i] % 3 == 1) { answer += &quot;L&quot;; curr_L = numbers[i]; } else if(numbers[i] % 3 == 0 &amp;&amp; numbers[i] != 0) { answer += &quot;R&quot;; curr_R = numbers[i]; } else { int tmp = numbers[i]; if(numbers[i] == 0) tmp = 11; int dist_L, dist_R; // 왼손으로 부터의 거리 if(curr_L % 3 == 1) dist_L = abs(tmp - curr_L - 1) / 3 + 1; else dist_L = abs(tmp - curr_L) / 3; // 오른손으로 부터의 거리 if(curr_R % 3 == 0) dist_R= abs(tmp - curr_R + 1) / 3 + 1; else dist_R = abs(tmp - curr_R) / 3; if(dist_L == dist_R) { if(hand[0] == 'l') { answer += &quot;L&quot;; curr_L = tmp; } else { answer += &quot;R&quot;; curr_R = tmp; } } else { if(dist_L &lt; dist_R) { answer += &quot;L&quot;; curr_L = tmp; } else { answer += &quot;R&quot;; curr_R = tmp; } } } } return answer; } 개선점 깔끔하게 잘 구성한듯하다.">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/12/%EC%BD%94%ED%85%8C-%ED%82%A4%ED%8C%A8%EB%93%9C-%EB%88%84%EB%A5%B4%EA%B8%B0.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/12/%EC%BD%94%ED%85%8C-%ED%82%A4%ED%8C%A8%EB%93%9C-%EB%88%84%EB%A5%B4%EA%B8%B0.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2022-07-12T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="코딩테스트 키패드 누르기">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2022-07-12T00:00:00+00:00","datePublished":"2022-07-12T00:00:00+00:00","description":"문제 스마트폰 전화 키패드의 각 칸에 다음과 같이 숫자들이 적혀 있습니다. 이 전화 키패드에서 왼손과 오른손의 엄지손가락만을 이용해서 숫자만을 입력하려고 합니다. 맨 처음 왼손 엄지손가락은 * 키패드에 오른손 엄지손가락은 # 키패드 위치에서 시작하며, 엄지손가락을 사용하는 규칙은 다음과 같습니다. 엄지손가락은 상하좌우 4가지 방향으로만 이동할 수 있으며 키패드 이동 한 칸은 거리로 1에 해당합니다. 왼쪽 열의 3개의 숫자 1, 4, 7을 입력할 때는 왼손 엄지손가락을 사용합니다. 오른쪽 열의 3개의 숫자 3, 6, 9를 입력할 때는 오른손 엄지손가락을 사용합니다. 가운데 열의 4개의 숫자 2, 5, 8, 0을 입력할 때는 두 엄지손가락의 현재 키패드의 위치에서 더 가까운 엄지손가락을 사용합니다. 4-1. 만약 두 엄지손가락의 거리가 같다면, 오른손잡이는 오른손 엄지손가락, 왼손잡이는 왼손 엄지손가락을 사용합니다. 순서대로 누를 번호가 담긴 배열 numbers, 왼손잡이인지 오른손잡이인 지를 나타내는 문자열 hand가 매개변수로 주어질 때, 각 번호를 누른 엄지손가락이 왼손인 지 오른손인 지를 나타내는 연속된 문자열 형태로 return 하도록 solution 함수를 완성해주세요. 조건 numbers 배열의 크기는 1 이상 1,000 이하입니다. numbers 배열 원소의 값은 0 이상 9 이하인 정수입니다. hand는 “left” 또는 “right” 입니다. “left”는 왼손잡이, “right”는 오른손잡이를 의미합니다. 왼손 엄지손가락을 사용한 경우는 L, 오른손 엄지손가락을 사용한 경우는 R을 순서대로 이어붙여 문자열 형태로 return 해주세요. 입출력 예시 numbers hand result [1, 3, 4, 5, 8, 2, 1, 4, 5, 9, 5] “right” “LRLLLRLLRRL” [7, 0, 8, 2, 8, 3, 1, 5, 7, 6, 2] “left” “LRLLRRLLLRR” [1, 2, 3, 4, 5, 6, 7, 8, 9, 0] “right” “LLRLLRLLRL” 풀이방식 나의 풀이방식 위 그림과 같이 키패드를 x축, y축으로 구분하여 각 번호에 대한 좌표를 map에 저장하였는데, 이는 추후 거리를 측정하기 위함이다. 이때 “*“과 “#”은 추후 누르지 않기 때문에 추가하지 않았다. pos에는 순서대로 왼손/오른손에 대한 좌표가 담겨있으며, 초기에는 왼손은 (3,0), 오른손은 (3,2)에 위치하는 것을 확인할 수 있다. 손가락의 이동시 1,4,7번은 무조건 왼손으로, 3,6,9번은 오른손으로 입력하고, 각 손의 위치를 Map을 참고하여 번호의 위치로 이동시켰다. 그리고 2,5,8,0인 경우에는 왼손/오른손의 좌표로 부터 원하는 키패드의 좌표까지의 거리를 계산하여 더 가까운 손으로 위치를 이동하였다. 이때 Map과 Pos를 사용한다. 만약 두 거리가 같다면 hand에 맞는 손을 이동하였다. #include &lt;map&gt; string cal(vector&lt;pair&lt;int,int&gt;&gt; &amp;pos, int isLeft, int x, int y) { pos[isLeft] = make_pair(x, y); return (isLeft == 0) ? &quot;L&quot; : &quot;R&quot;; } string solution(vector&lt;int&gt; numbers, string hand) { string answer = &quot;&quot;; map&lt;int, pair&lt;int,int&gt; &gt; M; // Button pos vector&lt;pair&lt;int,int&gt;&gt; pos; // left &amp; right pos pos.push_back(make_pair(3, 0)); pos.push_back(make_pair(3, 2)); // insert Map pos M.insert({0, make_pair(3, 1)}); int tmp = 1; for (int i = 0; i &lt; 3; i++){ for (int j = 0; j &lt; 3; j++) M.insert({ tmp++,make_pair(i,j) }); } // @TODO : check and calculate for (int i = 0; i &lt; numbers.size(); i++){ int LorR = 0; const int x = M[numbers[i]].first; const int y = M[numbers[i]].second; if (numbers[i] % 3 == 1) LorR = 0; else if (numbers[i] % 3 == 0 &amp;&amp; numbers[i] != 0) LorR = 1; else { // center const int posL = abs(pos[0].first - x) + abs(pos[0].second - y); const int posR = abs(pos[1].first - x) + abs(pos[1].second - y); if (posL &gt; posR) LorR = 1; else if (posL &lt; posR) LorR = 0; else LorR = (hand == &quot;right&quot;) ? 1 : 0; } answer += cal(pos, LorR, x, y); } return answer; } 타인의 풀이방식 나는 번호간의 거리를 측정하기 위해서 x,y좌표를 사용하였는데, 이는 특정한 로직을 사용하여 거리를 측정하였다. 이해는 안되는데 볼 사람은 참고… #include &lt;math.h&gt; string solution(vector&lt;int&gt; numbers, string hand) { string answer = &quot;&quot;; int curr_L = 10; int curr_R = 12; for(int i = 0; i &lt; numbers.size(); i++) { if(numbers[i] % 3 == 1) { answer += &quot;L&quot;; curr_L = numbers[i]; } else if(numbers[i] % 3 == 0 &amp;&amp; numbers[i] != 0) { answer += &quot;R&quot;; curr_R = numbers[i]; } else { int tmp = numbers[i]; if(numbers[i] == 0) tmp = 11; int dist_L, dist_R; // 왼손으로 부터의 거리 if(curr_L % 3 == 1) dist_L = abs(tmp - curr_L - 1) / 3 + 1; else dist_L = abs(tmp - curr_L) / 3; // 오른손으로 부터의 거리 if(curr_R % 3 == 0) dist_R= abs(tmp - curr_R + 1) / 3 + 1; else dist_R = abs(tmp - curr_R) / 3; if(dist_L == dist_R) { if(hand[0] == &#39;l&#39;) { answer += &quot;L&quot;; curr_L = tmp; } else { answer += &quot;R&quot;; curr_R = tmp; } } else { if(dist_L &lt; dist_R) { answer += &quot;L&quot;; curr_L = tmp; } else { answer += &quot;R&quot;; curr_R = tmp; } } } } return answer; } 개선점 깔끔하게 잘 구성한듯하다.","headline":"코딩테스트 키패드 누르기","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/12/%EC%BD%94%ED%85%8C-%ED%82%A4%ED%8C%A8%EB%93%9C-%EB%88%84%EB%A5%B4%EA%B8%B0.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/12/%EC%BD%94%ED%85%8C-%ED%82%A4%ED%8C%A8%EB%93%9C-%EB%88%84%EB%A5%B4%EA%B8%B0.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">코딩테스트 | 키패드 누르기</h1>
+  <h2 class="post-subtitle">시뮬레이션</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2022-07-12T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Jul 12, 2022
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 9 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#CodingTest">#CodingTest</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#C++">#C++</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="문제">문제</h2>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/KeyPad_Input.png" height="300" title="KeyPad_Input"></p>
+
+<p>스마트폰 전화 키패드의 각 칸에 다음과 같이 숫자들이 적혀 있습니다. 이 전화 키패드에서 왼손과 오른손의 엄지손가락만을 이용해서 숫자만을 입력하려고 합니다.
+  맨 처음 왼손 엄지손가락은 * 키패드에 오른손 엄지손가락은 # 키패드 위치에서 시작하며, 엄지손가락을 사용하는 규칙은 다음과 같습니다.</p>
+
+<ul>
+  <li>엄지손가락은 상하좌우 4가지 방향으로만 이동할 수 있으며 키패드 이동 한 칸은 거리로 1에 해당합니다.</li>
+  <li>왼쪽 열의 3개의 숫자 1, 4, 7을 입력할 때는 왼손 엄지손가락을 사용합니다.</li>
+  <li>오른쪽 열의 3개의 숫자 3, 6, 9를 입력할 때는 오른손 엄지손가락을 사용합니다.</li>
+  <li>가운데 열의 4개의 숫자 2, 5, 8, 0을 입력할 때는 두 엄지손가락의 현재 키패드의 위치에서 더 가까운 엄지손가락을 사용합니다. 4-1. 만약 두 엄지손가락의 거리가 같다면, 오른손잡이는 오른손 엄지손가락, 왼손잡이는 왼손 엄지손가락을 사용합니다.</li>
+</ul>
+
+<p>순서대로 누를 번호가 담긴 배열 numbers, 왼손잡이인지 오른손잡이인 지를 나타내는 문자열 hand가 매개변수로 주어질 때, 각 번호를 누른 엄지손가락이 왼손인 지 오른손인 지를 나타내는 연속된 문자열 형태로 return 하도록 solution 함수를 완성해주세요.</p>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>numbers 배열의 크기는 1 이상 1,000 이하입니다.</li>
+  <li>numbers 배열 원소의 값은 0 이상 9 이하인 정수입니다.</li>
+  <li>hand는 “left” 또는 “right” 입니다.
+    <ul>
+      <li>“left”는 왼손잡이, “right”는 오른손잡이를 의미합니다.</li>
+    </ul>
+  </li>
+  <li>왼손 엄지손가락을 사용한 경우는 L, 오른손 엄지손가락을 사용한 경우는 R을 순서대로 이어붙여 문자열 형태로 return 해주세요.</li>
+</ul>
+
+<h2 id="입출력-예시">입출력 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">numbers</th>
+      <th style="text-align: center">hand</th>
+      <th style="text-align: center">result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">[1, 3, 4, 5, 8, 2, 1, 4, 5, 9, 5]</td>
+      <td style="text-align: center">“right”</td>
+      <td style="text-align: center">“LRLLLRLLRRL”</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">[7, 0, 8, 2, 8, 3, 1, 5, 7, 6, 2]</td>
+      <td style="text-align: center">“left”</td>
+      <td style="text-align: center">“LRLLRRLLLRR”</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">[1, 2, 3, 4, 5, 6, 7, 8, 9, 0]</td>
+      <td style="text-align: center">“right”</td>
+      <td style="text-align: center">“LLRLLRLLRL”</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<h3 id="나의-풀이방식">나의 풀이방식</h3>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/KeyPad_Input_Map.png" height="300" title="KeyPad_Input_Map"></p>
+
+<p>위 그림과 같이 키패드를 x축, y축으로 구분하여 각 번호에 대한 좌표를 <strong>map에</strong> 저장하였는데, 이는 추후 거리를 측정하기 위함이다. 이때 “*“과 “#”은 추후 누르지 않기 때문에 추가하지 않았다.</p>
+
+<p>pos에는 순서대로 왼손/오른손에 대한 좌표가 담겨있으며, 초기에는 왼손은 (3,0), 오른손은 (3,2)에 위치하는 것을 확인할 수 있다.</p>
+
+<p>손가락의 이동시 <strong>1,4,7번은 무조건 왼손으로, 3,6,9번은 오른손으로 입력하고, 각 손의 위치를 Map을 참고하여 번호의 위치로 이동시켰다.</strong> 그리고 2,5,8,0인 경우에는 왼손/오른손의 좌표로 부터 원하는 키패드의 좌표까지의 거리를 계산하여 더 가까운 손으로 위치를 이동하였다. <span style="color:orange;">이때 Map과 Pos를 사용한다. </span></p>
+
+<p>만약 두 거리가 같다면 hand에 맞는 손을 이동하였다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;map&gt;</span><span class="c1"> </span><span class="cp">
+</span>  <span class="n">string</span> <span class="nf">cal</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="o">&amp;</span><span class="n">pos</span><span class="p">,</span> <span class="kt">int</span> <span class="n">isLeft</span><span class="p">,</span> <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">pos</span><span class="p">[</span><span class="n">isLeft</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_pair</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">isLeft</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="s">"L"</span> <span class="o">:</span> <span class="s">"R"</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">string</span> <span class="nf">solution</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">string</span> <span class="n">hand</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">string</span> <span class="n">answer</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+    <span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">M</span><span class="p">;</span>       <span class="c1">// Button pos</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">pos</span><span class="p">;</span>        <span class="c1">// left &amp; right pos</span>
+    <span class="n">pos</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">make_pair</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span> 
+    <span class="n">pos</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">make_pair</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span> 
+
+    <span class="c1">// insert Map pos</span>
+    <span class="n">M</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span><span class="mi">0</span><span class="p">,</span> <span class="n">make_pair</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)});</span>   
+    <span class="kt">int</span> <span class="n">tmp</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="n">M</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span> <span class="n">tmp</span><span class="o">++</span><span class="p">,</span><span class="n">make_pair</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span> <span class="p">});</span>
+    <span class="p">}</span>
+
+    <span class="c1">// @TODO : check and calculate</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numbers</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="kt">int</span> <span class="n">LorR</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="k">const</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]].</span><span class="n">first</span><span class="p">;</span>
+      <span class="k">const</span> <span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]].</span><span class="n">second</span><span class="p">;</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="n">LorR</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>  <span class="n">LorR</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="k">else</span> <span class="p">{</span>  <span class="c1">// center</span>
+        <span class="k">const</span> <span class="kt">int</span> <span class="n">posL</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">first</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">abs</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">second</span> <span class="o">-</span> <span class="n">y</span><span class="p">);</span>
+        <span class="k">const</span> <span class="kt">int</span> <span class="n">posR</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">first</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">abs</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">second</span> <span class="o">-</span> <span class="n">y</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">posL</span> <span class="o">&gt;</span> <span class="n">posR</span><span class="p">)</span> <span class="n">LorR</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">posL</span> <span class="o">&lt;</span> <span class="n">posR</span><span class="p">)</span> <span class="n">LorR</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">else</span> <span class="n">LorR</span> <span class="o">=</span> <span class="p">(</span><span class="n">hand</span> <span class="o">==</span> <span class="s">"right"</span><span class="p">)</span> <span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">answer</span> <span class="o">+=</span> <span class="n">cal</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">LorR</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="타인의-풀이방식">타인의 풀이방식</h3>
+
+<p>나는 번호간의 거리를 측정하기 위해서 x,y좌표를 사용하였는데, 이는 특정한 로직을 사용하여 거리를 측정하였다.</p>
+
+<blockquote>
+  <p>이해는 안되는데 볼 사람은 참고…</p>
+</blockquote>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+</span>  <span class="n">string</span> <span class="nf">solution</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">string</span> <span class="n">hand</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">string</span> <span class="n">answer</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">curr_L</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">curr_R</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numbers</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">answer</span> <span class="o">+=</span> <span class="s">"L"</span><span class="p">;</span>
+        <span class="n">curr_L</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">answer</span> <span class="o">+=</span> <span class="s">"R"</span><span class="p">;</span>
+        <span class="n">curr_R</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="n">tmp</span> <span class="o">=</span> <span class="mi">11</span><span class="p">;</span>
+
+        <span class="kt">int</span> <span class="n">dist_L</span><span class="p">,</span> <span class="n">dist_R</span><span class="p">;</span>
+
+        <span class="c1">// 왼손으로 부터의 거리</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">curr_L</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="n">dist_L</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">tmp</span> <span class="o">-</span> <span class="n">curr_L</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">else</span> <span class="n">dist_L</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">tmp</span> <span class="o">-</span> <span class="n">curr_L</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">;</span>
+
+        <span class="c1">// 오른손으로 부터의 거리</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">curr_R</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="n">dist_R</span><span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">tmp</span> <span class="o">-</span> <span class="n">curr_R</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">else</span> <span class="n">dist_R</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">tmp</span> <span class="o">-</span> <span class="n">curr_R</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">;</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">dist_L</span> <span class="o">==</span> <span class="n">dist_R</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span><span class="p">(</span><span class="n">hand</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'l'</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">answer</span> <span class="o">+=</span> <span class="s">"L"</span><span class="p">;</span>
+            <span class="n">curr_L</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="p">{</span>
+            <span class="n">answer</span> <span class="o">+=</span> <span class="s">"R"</span><span class="p">;</span>
+            <span class="n">curr_R</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+          <span class="k">if</span><span class="p">(</span><span class="n">dist_L</span> <span class="o">&lt;</span> <span class="n">dist_R</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">answer</span> <span class="o">+=</span> <span class="s">"L"</span><span class="p">;</span>
+            <span class="n">curr_L</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="p">{</span>
+            <span class="n">answer</span> <span class="o">+=</span> <span class="s">"R"</span><span class="p">;</span>
+            <span class="n">curr_R</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>
+<ul>
+  <li>깔끔하게 잘 구성한듯하다.</li>
+</ul>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/codingtest/2022/07/12/%EC%BD%94%ED%85%8C-%EC%8B%A4%ED%8C%A8%EC%9C%A8.html" title="코딩테스트 | 실패율">코딩테스트 | 실패율</a><a class="next" href="/jekyll-theme-yat/ue5/2022/07/13/UE5-Assert.html" title="UE5 | Assert">UE5 | Assert</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/13/%EC%BD%94%ED%85%8C-%EC%98%81%ED%99%94-%EA%B4%80%EB%9E%8C.html" title="UE5 | Assert">코딩테스트 | 영화 관람</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/15/%EC%BD%94%ED%85%8C-%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-%EA%B3%B5%EB%B6%80.html" title="UE5 | Assert">코딩테스트 | 효율적인 공부</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/02/%EC%BD%94%ED%85%8C-%EC%9E%85%EA%B5%AD%EC%8B%AC%EC%82%AC.html" title="UE5 | Assert">코딩테스트 | 여행경로</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/30/%EC%BD%94%ED%85%8C-%EB%8B%A8%EC%86%8D%EC%B9%B4%EB%A9%94%EB%9D%BC.html" title="UE5 | Assert">코딩테스트 | 단속카메라</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2022 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

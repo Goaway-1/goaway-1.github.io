@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Tags | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.2.2">
+<meta property="og:title" content="Tags">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="This blog is a development blog by Namaan. I record this and that.">
+<meta property="og:description" content="This blog is a development blog by Namaan. I record this and that.">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/tags.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/tags.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="Tags">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"Namaan"},"description":"This blog is a development blog by Namaan. I record this and that.","headline":"Tags","url":"https://goaway-1.github.io/jekyll-theme-yat/tags.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <div class="page-segments">
+  <ul class="page-segments-list">
+    
+    <h2 id="Algorithm" class="segment-name">Algorithm</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Jul 04, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/algorithm/2022/07/04/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EA%B7%B8%EB%9E%98%ED%94%84-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html">
+    알고리즘 | 그래프 알고리즘
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 29, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/algorithm/2022/06/29/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%ED%81%AC%EB%9F%AC%EC%8A%A4%EC%BB%AC%EA%B3%BC-%ED%94%84%EB%A6%BC-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html">
+    알고리즘 | 크러스컬과 프림 알고리즘
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="C++" class="segment-name">C++</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Jul 28, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/28/%EC%BD%94%ED%85%8C-%EC%82%BC%EA%B0%81-%EB%8B%AC%ED%8C%BD%EC%9D%B4.html">
+    코딩테스트 | 삼각 달팽이
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 26, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/26/%EC%BD%94%ED%85%8C-%EB%B0%B0%EB%8B%AC.html">
+    코딩테스트 | 배달
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 25, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/25/%EC%BD%94%ED%85%8C-%ED%8C%8C%EC%9D%BC%EB%AA%85-%EC%A0%95%EB%A0%AC.html">
+    코딩테스트 | 파일명 정렬
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 25, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/effective_c++/2022/07/25/EffectiveC++-Effective-C++-2%EC%9E%A5.html">
+    Effective C++ | 2장
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 24, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EC%BA%90%EC%8B%9C.html">
+    코딩테스트 | 캐시
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 24, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EB%AA%A8%EC%9D%8C%EC%82%AC%EC%A0%84.html">
+    코딩테스트 | 모음사전
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 19, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/19/%EC%BD%94%ED%85%8C-%EC%88%9C%EC%9C%84-%EA%B2%80%EC%83%89.html">
+    코딩테스트 | 양궁 대회
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 19, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/effective_c++/2022/07/19/EffectiveC++-Effective-C++-1%EC%9E%A5.html">
+    Effective C++ | 1장
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 18, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/18/%EC%BD%94%ED%85%8C-%EC%96%91%EA%B6%81-%EB%8C%80%ED%9A%8C.html">
+    코딩테스트 | 양궁 대회
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 17, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/17/%EC%BD%94%ED%85%8C-2-x-n-%ED%83%80%EC%9D%BC%EB%A7%81.html">
+    코딩테스트 | 2 x n 타일링
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 16, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/16/%EC%BD%94%ED%85%8C-%EC%88%AB%EC%9E%90-%EB%B8%94%EB%A1%9D.html">
+    코딩테스트 | 숫자 블록
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 15, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/15/%EC%BD%94%ED%85%8C-%EB%A9%80%EB%A6%AC-%EB%9B%B0%EA%B8%B0.html">
+    코딩테스트 | 멀리 뛰기
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/14/%EC%BD%94%ED%85%8C-%EC%A4%84-%EC%84%9C%EB%8A%94-%EB%B0%A9%EB%B2%95.html">
+    코딩테스트 | 줄 서는 방법
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 13, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/13/UE5-Assert.html">
+    UE5 | Assert
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 12, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/12/%EC%BD%94%ED%85%8C-%ED%82%A4%ED%8C%A8%EB%93%9C-%EB%88%84%EB%A5%B4%EA%B8%B0.html">
+    코딩테스트 | 키패드 누르기
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 12, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/12/%EC%BD%94%ED%85%8C-%EC%8B%A4%ED%8C%A8%EC%9C%A8.html">
+    코딩테스트 | 실패율
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 11, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/11/%EC%BD%94%ED%85%8C-%EC%8B%A0%EA%B3%A0-%EA%B2%B0%EA%B3%BC-%EB%B0%9B%EA%B8%B0.html">
+    코딩테스트 | 신고 결과 받기
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 11, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/11/UE5-Environment-Querying-System.html">
+    UE5 | Environment Querying System
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 07, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/07/%EC%BD%94%ED%85%8C-%ED%81%AC%EB%A0%88%EC%9D%B8-%EC%9D%B8%ED%98%95%EB%BD%91%EA%B8%B0-%EA%B2%8C%EC%9E%84.html">
+    코딩테스트 | 크레인 인형뽑기 게임
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 07, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/07/%EC%BD%94%ED%85%8C-%EB%B9%84%EB%B0%80%EC%A7%80%EB%8F%84.html">
+    코딩테스트 | 비밀지도
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 05, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/05/%EC%BD%94%ED%85%8C-N_Queen.html">
+    코딩테스트 | N-Queen
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 04, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/04/%EC%BD%94%ED%85%8C-%EC%88%9C%EC%9C%84.html">
+    코딩테스트 | 순위
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 04, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/algorithm/2022/07/04/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EA%B7%B8%EB%9E%98%ED%94%84-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html">
+    알고리즘 | 그래프 알고리즘
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 03, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/03/%EC%BD%94%ED%85%8C-%EC%A7%95%EA%B2%80%EB%8B%A4%EB%A6%AC.html">
+    코딩테스트 | 징검다리
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 03, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/03/%EC%BD%94%ED%85%8C-%EA%B0%80%EC%9E%A5-%EB%A8%BC-%EB%85%B8%EB%93%9C.html">
+    코딩테스트 | 가장 먼 노드
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 02, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/02/%EC%BD%94%ED%85%8C-%EC%9E%85%EA%B5%AD%EC%8B%AC%EC%82%AC.html">
+    코딩테스트 | 여행경로
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 01, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/01/%EC%BD%94%ED%85%8C-%EC%97%AC%ED%96%89%EA%B2%BD%EB%A1%9C.html">
+    코딩테스트 | 여행경로
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 01, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/01/%EC%BD%94%ED%85%8C-%EB%8B%A8%EC%96%B4-%EB%B3%80%ED%99%98.html">
+    코딩테스트 | 단어 변환
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 30, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/30/%EC%BD%94%ED%85%8C-%EB%8B%A8%EC%86%8D%EC%B9%B4%EB%A9%94%EB%9D%BC.html">
+    코딩테스트 | 단속카메라
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 30, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/30/%EC%BD%94%ED%85%8C-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC.html">
+    코딩테스트 | 네트워크
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 29, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/29/%EC%BD%94%ED%85%8C-%EC%84%AC-%EC%97%B0%EA%B2%B0%ED%95%98%EA%B8%B0.html">
+    코딩테스트 | 섬 연결하기
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 29, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/algorithm/2022/06/29/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%ED%81%AC%EB%9F%AC%EC%8A%A4%EC%BB%AC%EA%B3%BC-%ED%94%84%EB%A6%BC-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html">
+    알고리즘 | 크러스컬과 프림 알고리즘
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 28, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/28/%EC%BD%94%ED%85%8C-%EC%9D%B4%EC%A4%91-%EC%9A%B0%EC%84%A0%EC%88%9C%EC%9C%84-%ED%81%90.html">
+    코딩테스트 | 이중우선순위큐
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 28, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/28/%EC%BD%94%ED%85%8C-%EB%94%94%EC%8A%A4%ED%81%AC-%EC%BB%A8%ED%8A%B8%EB%A1%A4%EB%9F%AC.html">
+    코딩테스트 | 디스크 컨트롤러
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 28, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/28/UE5-%EB%A9%80%ED%8B%B0%ED%94%8C%EB%A0%88%EC%9D%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8.html">
+    UE5 | 멀티플레이의 기본
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 18, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/18/%EC%BD%94%ED%85%8C-%EB%AA%A8%EB%93%A0-%EC%95%84%EB%82%98%EA%B7%B8%EB%9E%A8.html">
+    코딩테스트 | 모든 아나그램
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 16, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/16/%EC%BD%94%ED%85%8C-%EC%88%A8%EA%B2%A8%EC%A7%84-%ED%95%A9.html">
+    코딩테스트 | 숨겨진 합
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 15, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/15/%EC%BD%94%ED%85%8C-%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-%EA%B3%B5%EB%B6%80.html">
+    코딩테스트 | 효율적인 공부
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/14/%EC%BD%94%ED%85%8C-%EB%B0%94%EB%91%91%EB%8C%80%ED%9A%8C.html">
+    코딩테스트 | 바둑대회
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/14/UE5-%EB%AA%A8%EB%93%88.html">
+    UE5 | Moudel
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/14/UE5-UPROPERTY-%EC%A7%80%EC%A0%95%EC%9E%90.html">
+    UE5 | UPROPERTY 지정자
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 13, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/13/%EC%BD%94%ED%85%8C-%EC%98%81%ED%99%94-%EA%B4%80%EB%9E%8C.html">
+    코딩테스트 | 영화 관람
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 13, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/13/UE5-%EC%96%B8%EB%A6%AC%EC%96%BC-%EC%84%9C%EB%B2%84-%EA%B3%B5%EB%B6%80.html">
+    UE5 | UE5 서버 공부
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 07, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/07/%EC%BD%94%ED%85%8C-%EC%98%A4%EB%A0%8C%EC%A7%80-%EB%82%98%EB%AC%B4.html">
+    코딩테스트 | 오렌지 나무
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 03, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/03/%EC%BD%94%ED%85%8C-%EA%B3%B5%ED%86%B5-%EB%AC%B8%EC%9E%90%EC%97%B4.html">
+    코딩테스트 | 공통 문자열
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="CodingTest" class="segment-name">CodingTest</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Jul 28, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/28/%EC%BD%94%ED%85%8C-%EC%82%BC%EA%B0%81-%EB%8B%AC%ED%8C%BD%EC%9D%B4.html">
+    코딩테스트 | 삼각 달팽이
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 26, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/26/%EC%BD%94%ED%85%8C-%EB%B0%B0%EB%8B%AC.html">
+    코딩테스트 | 배달
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 25, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/25/%EC%BD%94%ED%85%8C-%ED%8C%8C%EC%9D%BC%EB%AA%85-%EC%A0%95%EB%A0%AC.html">
+    코딩테스트 | 파일명 정렬
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 24, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EC%BA%90%EC%8B%9C.html">
+    코딩테스트 | 캐시
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 24, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EB%AA%A8%EC%9D%8C%EC%82%AC%EC%A0%84.html">
+    코딩테스트 | 모음사전
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 19, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/19/%EC%BD%94%ED%85%8C-%EC%88%9C%EC%9C%84-%EA%B2%80%EC%83%89.html">
+    코딩테스트 | 양궁 대회
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 18, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/18/%EC%BD%94%ED%85%8C-%EC%96%91%EA%B6%81-%EB%8C%80%ED%9A%8C.html">
+    코딩테스트 | 양궁 대회
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 17, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/17/%EC%BD%94%ED%85%8C-2-x-n-%ED%83%80%EC%9D%BC%EB%A7%81.html">
+    코딩테스트 | 2 x n 타일링
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 16, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/16/%EC%BD%94%ED%85%8C-%EC%88%AB%EC%9E%90-%EB%B8%94%EB%A1%9D.html">
+    코딩테스트 | 숫자 블록
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 15, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/15/%EC%BD%94%ED%85%8C-%EB%A9%80%EB%A6%AC-%EB%9B%B0%EA%B8%B0.html">
+    코딩테스트 | 멀리 뛰기
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/14/%EC%BD%94%ED%85%8C-%EC%A4%84-%EC%84%9C%EB%8A%94-%EB%B0%A9%EB%B2%95.html">
+    코딩테스트 | 줄 서는 방법
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 12, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/12/%EC%BD%94%ED%85%8C-%ED%82%A4%ED%8C%A8%EB%93%9C-%EB%88%84%EB%A5%B4%EA%B8%B0.html">
+    코딩테스트 | 키패드 누르기
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 12, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/12/%EC%BD%94%ED%85%8C-%EC%8B%A4%ED%8C%A8%EC%9C%A8.html">
+    코딩테스트 | 실패율
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 11, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/11/%EC%BD%94%ED%85%8C-%EC%8B%A0%EA%B3%A0-%EA%B2%B0%EA%B3%BC-%EB%B0%9B%EA%B8%B0.html">
+    코딩테스트 | 신고 결과 받기
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 07, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/07/%EC%BD%94%ED%85%8C-%ED%81%AC%EB%A0%88%EC%9D%B8-%EC%9D%B8%ED%98%95%EB%BD%91%EA%B8%B0-%EA%B2%8C%EC%9E%84.html">
+    코딩테스트 | 크레인 인형뽑기 게임
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 07, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/07/%EC%BD%94%ED%85%8C-%EB%B9%84%EB%B0%80%EC%A7%80%EB%8F%84.html">
+    코딩테스트 | 비밀지도
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 05, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/05/%EC%BD%94%ED%85%8C-N_Queen.html">
+    코딩테스트 | N-Queen
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 04, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/04/%EC%BD%94%ED%85%8C-%EC%88%9C%EC%9C%84.html">
+    코딩테스트 | 순위
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 03, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/03/%EC%BD%94%ED%85%8C-%EC%A7%95%EA%B2%80%EB%8B%A4%EB%A6%AC.html">
+    코딩테스트 | 징검다리
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 03, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/03/%EC%BD%94%ED%85%8C-%EA%B0%80%EC%9E%A5-%EB%A8%BC-%EB%85%B8%EB%93%9C.html">
+    코딩테스트 | 가장 먼 노드
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 02, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/02/%EC%BD%94%ED%85%8C-%EC%9E%85%EA%B5%AD%EC%8B%AC%EC%82%AC.html">
+    코딩테스트 | 여행경로
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 01, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/01/%EC%BD%94%ED%85%8C-%EC%97%AC%ED%96%89%EA%B2%BD%EB%A1%9C.html">
+    코딩테스트 | 여행경로
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 01, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/01/%EC%BD%94%ED%85%8C-%EB%8B%A8%EC%96%B4-%EB%B3%80%ED%99%98.html">
+    코딩테스트 | 단어 변환
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 30, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/30/%EC%BD%94%ED%85%8C-%EB%8B%A8%EC%86%8D%EC%B9%B4%EB%A9%94%EB%9D%BC.html">
+    코딩테스트 | 단속카메라
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 30, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/30/%EC%BD%94%ED%85%8C-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC.html">
+    코딩테스트 | 네트워크
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 29, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/29/%EC%BD%94%ED%85%8C-%EC%84%AC-%EC%97%B0%EA%B2%B0%ED%95%98%EA%B8%B0.html">
+    코딩테스트 | 섬 연결하기
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 28, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/28/%EC%BD%94%ED%85%8C-%EC%9D%B4%EC%A4%91-%EC%9A%B0%EC%84%A0%EC%88%9C%EC%9C%84-%ED%81%90.html">
+    코딩테스트 | 이중우선순위큐
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 28, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/28/%EC%BD%94%ED%85%8C-%EB%94%94%EC%8A%A4%ED%81%AC-%EC%BB%A8%ED%8A%B8%EB%A1%A4%EB%9F%AC.html">
+    코딩테스트 | 디스크 컨트롤러
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 18, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/18/%EC%BD%94%ED%85%8C-%EB%AA%A8%EB%93%A0-%EC%95%84%EB%82%98%EA%B7%B8%EB%9E%A8.html">
+    코딩테스트 | 모든 아나그램
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 16, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/16/%EC%BD%94%ED%85%8C-%EC%88%A8%EA%B2%A8%EC%A7%84-%ED%95%A9.html">
+    코딩테스트 | 숨겨진 합
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 15, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/15/%EC%BD%94%ED%85%8C-%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-%EA%B3%B5%EB%B6%80.html">
+    코딩테스트 | 효율적인 공부
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/14/%EC%BD%94%ED%85%8C-%EB%B0%94%EB%91%91%EB%8C%80%ED%9A%8C.html">
+    코딩테스트 | 바둑대회
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 13, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/13/%EC%BD%94%ED%85%8C-%EC%98%81%ED%99%94-%EA%B4%80%EB%9E%8C.html">
+    코딩테스트 | 영화 관람
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 07, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/07/%EC%BD%94%ED%85%8C-%EC%98%A4%EB%A0%8C%EC%A7%80-%EB%82%98%EB%AC%B4.html">
+    코딩테스트 | 오렌지 나무
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 03, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/03/%EC%BD%94%ED%85%8C-%EA%B3%B5%ED%86%B5-%EB%AC%B8%EC%9E%90%EC%97%B4.html">
+    코딩테스트 | 공통 문자열
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="Develop" class="segment-name">Develop</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Jun 29, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/english/2022/06/29/%EC%98%81%EC%96%B4-%EC%9E%90%EC%A3%BC-%EB%B3%B4%EC%9D%B4%EB%8A%94-%EC%98%81%EB%8B%A8%EC%96%B4.html">
+    영어 | 자주 보이는 영단어
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="Effective_C++" class="segment-name">Effective_C++</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Jul 25, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/effective_c++/2022/07/25/EffectiveC++-Effective-C++-2%EC%9E%A5.html">
+    Effective C++ | 2장
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 19, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/effective_c++/2022/07/19/EffectiveC++-Effective-C++-1%EC%9E%A5.html">
+    Effective C++ | 1장
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="English" class="segment-name">English</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Jun 29, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/english/2022/06/29/%EC%98%81%EC%96%B4-%EC%9E%90%EC%A3%BC-%EB%B3%B4%EC%9D%B4%EB%8A%94-%EC%98%81%EB%8B%A8%EC%96%B4.html">
+    영어 | 자주 보이는 영단어
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="Error" class="segment-name">Error</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">May 15, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/2022/05/15/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8C%85.html">
+    첫 포스팅
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="Gitblog" class="segment-name">Gitblog</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">May 15, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/2022/05/15/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8C%85.html">
+    첫 포스팅
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="UE5" class="segment-name">UE5</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Jul 13, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/13/UE5-Assert.html">
+    UE5 | Assert
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 11, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/11/UE5-Environment-Querying-System.html">
+    UE5 | Environment Querying System
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 28, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/28/UE5-%EB%A9%80%ED%8B%B0%ED%94%8C%EB%A0%88%EC%9D%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8.html">
+    UE5 | 멀티플레이의 기본
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/14/UE5-%EB%AA%A8%EB%93%88.html">
+    UE5 | Moudel
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/14/UE5-UPROPERTY-%EC%A7%80%EC%A0%95%EC%9E%90.html">
+    UE5 | UPROPERTY 지정자
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 13, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/13/UE5-%EC%96%B8%EB%A6%AC%EC%96%BC-%EC%84%9C%EB%B2%84-%EA%B3%B5%EB%B6%80.html">
+    UE5 | UE5 서버 공부
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="Udemy" class="segment-name">Udemy</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Jun 28, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/28/UE5-%EB%A9%80%ED%8B%B0%ED%94%8C%EB%A0%88%EC%9D%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8.html">
+    UE5 | 멀티플레이의 기본
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/14/UE5-%EB%AA%A8%EB%93%88.html">
+    UE5 | Moudel
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/14/UE5-UPROPERTY-%EC%A7%80%EC%A0%95%EC%9E%90.html">
+    UE5 | UPROPERTY 지정자
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 13, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/13/UE5-%EC%96%B8%EB%A6%AC%EC%96%BC-%EC%84%9C%EB%B2%84-%EA%B3%B5%EB%B6%80.html">
+    UE5 | UE5 서버 공부
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="UnrealEngine" class="segment-name">UnrealEngine</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Jul 13, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/13/UE5-Assert.html">
+    UE5 | Assert
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jul 11, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/11/UE5-Environment-Querying-System.html">
+    UE5 | Environment Querying System
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 28, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/28/UE5-%EB%A9%80%ED%8B%B0%ED%94%8C%EB%A0%88%EC%9D%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8.html">
+    UE5 | 멀티플레이의 기본
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/14/UE5-%EB%AA%A8%EB%93%88.html">
+    UE5 | Moudel
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 14, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/14/UE5-UPROPERTY-%EC%A7%80%EC%A0%95%EC%9E%90.html">
+    UE5 | UPROPERTY 지정자
+  </a>
+</span>
+ </li>
+        
+      
+        
+        <li> 
+<span class="post-meta">Jun 13, 2022</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/13/UE5-%EC%96%B8%EB%A6%AC%EC%96%BC-%EC%84%9C%EB%B2%84-%EA%B3%B5%EB%B6%80.html">
+    UE5 | UE5 서버 공부
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="jekyll" class="segment-name">jekyll</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Dec 07, 2018</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/jekyll/2018/12/07/welcome-to-jekyll.html">
+    Welcome to Jekyll!
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="theme" class="segment-name">theme</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Dec 07, 2018</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/jekyll/2018/12/07/welcome-to-jekyll.html">
+    Welcome to Jekyll!
+  </a>
+</span>
+ </li>
+        
+      
+    
+    <h2 id="yat" class="segment-name">yat</h2>
+      
+      
+        
+        <li> 
+<span class="post-meta">Dec 07, 2018</span>
+<span>
+  <a class="post-link" href="/jekyll-theme-yat/jekyll/2018/12/07/welcome-to-jekyll.html">
+    Welcome to Jekyll!
+  </a>
+</span>
+ </li>
+        
+      
+    
+  </ul>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="common-list">
+  <ul>
+    <li>
+      <a href="/jekyll-theme-yat/index.html">
+        All<span>48</span>
+      </a>
+    </li>
+
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-Algorithm">
+          Algorithm <span>2</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-C++">
+          C++ <span>45</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-CodingTest">
+          CodingTest <span>35</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-Develop">
+          Develop <span>1</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-Effective_C++">
+          Effective_C++ <span>2</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-English">
+          English <span>1</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-Error">
+          Error <span>1</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-Gitblog">
+          Gitblog <span>1</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-UE5">
+          UE5 <span>6</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-Udemy">
+          Udemy <span>4</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-UnrealEngine">
+          UnrealEngine <span>6</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-jekyll">
+          jekyll <span>1</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-theme">
+          theme <span>1</span>
+        </a>
+      </li>
+    
+      <li>
+        <a href="/jekyll-theme-yat/tags.html#h-yat">
+          yat <span>1</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2022 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

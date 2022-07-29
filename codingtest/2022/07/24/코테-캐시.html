@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>코딩테스트 캐시 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.2.2">
+<meta property="og:title" content="코딩테스트 캐시">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content='문제 지도개발팀에서 근무하는 제이지는 지도에서 도시 이름을 검색하면 해당 도시와 관련된 맛집 게시물들을 데이터베이스에서 읽어 보여주는 서비스를 개발하고 있다. 이 프로그램의 테스팅 업무를 담당하고 있는 어피치는 서비스를 오픈하기 전 각 로직에 대한 성능 측정을 수행하였는데, 제이지가 작성한 부분 중 데이터베이스에서 게시물을 가져오는 부분의 실행시간이 너무 오래 걸린다는 것을 알게 되었다. 어피치는 제이지에게 해당 로직을 개선하라고 닦달하기 시작하였고, 제이지는 DB 캐시를 적용하여 성능 개선을 시도하고 있지만 캐시 크기를 얼마로 해야 효율적인지 몰라 난감한 상황이다. 어피치에게 시달리는 제이지를 도와, DB 캐시를 적용할 때 캐시 크기에 따른 실행시간 측정 프로그램을 작성하시오. 조건 캐시 크기(cacheSize)와 도시이름 배열(cities)을 입력받는다. cacheSize는 정수이며, 범위는 0 ≦ cacheSize ≦ 30 이다. cities는 도시 이름으로 이뤄진 문자열 배열로, 최대 도시 수는 100,000개이다. 각 도시 이름은 공백, 숫자, 특수문자 등이 없는 영문자로 구성되며, 대소문자 구분을 하지 않는다. 도시 이름은 최대 20자로 이루어져 있다. 캐시 교체 알고리즘은 LRU(Least Recently Used)를 사용한다. cache hit일 경우 실행시간은 1이다. cache miss일 경우 실행시간은 5이다. 입출력 예시 캐시크기(cacheSize) 도시이름(cities) 실행시간 3 [“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”, “Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”] 50 3 [“Jeju”, “Pangyo”, “Seoul”, “Jeju”, “Pangyo”, “Seoul”, “Jeju”, “Pangyo”, “Seoul”] 21 2 [“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”, “SanFrancisco”, “Seoul”, “Rome”, “Paris”, “Jeju”, “NewYork”, “Rome”] 60 0 [“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”] 25 풀이방식 나의 풀이방식 먼저 도시의 이름은 대소문자를 구분하지 않는다는 조건이 있었기 때문에 도시의 이름을 toBigger()라는 메서드를 사용하여, 모두 대문자로 처리해주었다. 문제의 해결 방식은 단순하다. map에는 현재 queue에 저장된 도시가 무엇이 있는지 나타내며, 이 queue는 cache를 의미한다. cache에 있는 도시라면 그 도시를 제외한 나머지를 다시 cache에 넣고, 그 도시를 마지막으로 삽입한다. (+1) 그렇지 않다면 cache의 공간이 남아있는지 확인한다. - 남아 있다면 단순히 cache에 추가하고 (+5) - 공간이 없다면 cache의 최상단(front)를 제거하고 추가한다. (+5) #include &lt;algorithm&gt; #include &lt;queue&gt; #include &lt;unordered_map&gt; using namespace std; string toBigger(const string&amp; str) { string answer = ""; for (int i = 0; i &lt; str.size(); i++){ answer += toupper(str[i]); } return answer; } int solution(int cacheSize, vector&lt;string&gt; cities) { int answer = 0; unordered_map&lt;string, int&gt; M; queue&lt;string&gt; Q; if (cacheSize == 0) return cities.size() * 5; for (int i = 0; i &lt; cities.size(); i++){ string tmp = toBigger(cities[i]); // Q에 있는 단어라면 queue의 가장 뒤로 뺀다. if (M[tmp] != 0) { queue&lt;string&gt; tmpQ; while (!Q.empty()) { if (Q.front() != tmp) tmpQ.push(Q.front()); Q.pop(); } tmpQ.push(tmp); Q = tmpQ; answer += 1; } else { // Q의 크기를 넘어간다면 최상단을 제거한다. if (Q.size() == cacheSize) { M[Q.front()] = 0; Q.pop(); } M[tmp]++; Q.push(tmp); answer += 5; } } return answer; } 다른이의 풀이방식 비슷한 방식이지만 map을 사용하지 않고, 매번 iterator를 사용하여 비교하였다. 또한 queue 대신 vector를 사용하였고, 중간에 껴있는 도시에 대해 “erase”를 하기 위해서 사용한듯 하다. #include &lt;algorithm&gt; using namespace std; int solution(int cacheSize, vector&lt;string&gt; cities) { vector &lt;string&gt; q; int duration = 0; for(vector &lt;string&gt;::iterator it = cities.begin(); it != cities.end(); it++){ //소문자화 transform(it-&gt;begin(), it-&gt;end(), it-&gt;begin(), ::tolower); //현재 Q에 있는지 판단 bool flag = false; for(vector&lt;string&gt;::iterator itt = q.begin(); itt != q.end(); itt++){ if(*itt == *it) { flag = true; duration +=1; q.erase(itt); q.push_back(*it); break; } } if(!flag) { duration +=5; if(cacheSize != 0 &amp;&amp; q.size() &gt;= cacheSize) q.erase(q.begin()); if(q.size() &lt; cacheSize) q.push_back(*it); } } return duration; } 개선점 map을 사용하였기 때문에 메모리적인 측면에서 비효율적이지 않나 생각이 든다. 근데 생각해보면 코딩테스트 중에 저장공간은 체점요소에 없나?'>
+<meta property="og:description" content='문제 지도개발팀에서 근무하는 제이지는 지도에서 도시 이름을 검색하면 해당 도시와 관련된 맛집 게시물들을 데이터베이스에서 읽어 보여주는 서비스를 개발하고 있다. 이 프로그램의 테스팅 업무를 담당하고 있는 어피치는 서비스를 오픈하기 전 각 로직에 대한 성능 측정을 수행하였는데, 제이지가 작성한 부분 중 데이터베이스에서 게시물을 가져오는 부분의 실행시간이 너무 오래 걸린다는 것을 알게 되었다. 어피치는 제이지에게 해당 로직을 개선하라고 닦달하기 시작하였고, 제이지는 DB 캐시를 적용하여 성능 개선을 시도하고 있지만 캐시 크기를 얼마로 해야 효율적인지 몰라 난감한 상황이다. 어피치에게 시달리는 제이지를 도와, DB 캐시를 적용할 때 캐시 크기에 따른 실행시간 측정 프로그램을 작성하시오. 조건 캐시 크기(cacheSize)와 도시이름 배열(cities)을 입력받는다. cacheSize는 정수이며, 범위는 0 ≦ cacheSize ≦ 30 이다. cities는 도시 이름으로 이뤄진 문자열 배열로, 최대 도시 수는 100,000개이다. 각 도시 이름은 공백, 숫자, 특수문자 등이 없는 영문자로 구성되며, 대소문자 구분을 하지 않는다. 도시 이름은 최대 20자로 이루어져 있다. 캐시 교체 알고리즘은 LRU(Least Recently Used)를 사용한다. cache hit일 경우 실행시간은 1이다. cache miss일 경우 실행시간은 5이다. 입출력 예시 캐시크기(cacheSize) 도시이름(cities) 실행시간 3 [“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”, “Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”] 50 3 [“Jeju”, “Pangyo”, “Seoul”, “Jeju”, “Pangyo”, “Seoul”, “Jeju”, “Pangyo”, “Seoul”] 21 2 [“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”, “SanFrancisco”, “Seoul”, “Rome”, “Paris”, “Jeju”, “NewYork”, “Rome”] 60 0 [“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”] 25 풀이방식 나의 풀이방식 먼저 도시의 이름은 대소문자를 구분하지 않는다는 조건이 있었기 때문에 도시의 이름을 toBigger()라는 메서드를 사용하여, 모두 대문자로 처리해주었다. 문제의 해결 방식은 단순하다. map에는 현재 queue에 저장된 도시가 무엇이 있는지 나타내며, 이 queue는 cache를 의미한다. cache에 있는 도시라면 그 도시를 제외한 나머지를 다시 cache에 넣고, 그 도시를 마지막으로 삽입한다. (+1) 그렇지 않다면 cache의 공간이 남아있는지 확인한다. - 남아 있다면 단순히 cache에 추가하고 (+5) - 공간이 없다면 cache의 최상단(front)를 제거하고 추가한다. (+5) #include &lt;algorithm&gt; #include &lt;queue&gt; #include &lt;unordered_map&gt; using namespace std; string toBigger(const string&amp; str) { string answer = ""; for (int i = 0; i &lt; str.size(); i++){ answer += toupper(str[i]); } return answer; } int solution(int cacheSize, vector&lt;string&gt; cities) { int answer = 0; unordered_map&lt;string, int&gt; M; queue&lt;string&gt; Q; if (cacheSize == 0) return cities.size() * 5; for (int i = 0; i &lt; cities.size(); i++){ string tmp = toBigger(cities[i]); // Q에 있는 단어라면 queue의 가장 뒤로 뺀다. if (M[tmp] != 0) { queue&lt;string&gt; tmpQ; while (!Q.empty()) { if (Q.front() != tmp) tmpQ.push(Q.front()); Q.pop(); } tmpQ.push(tmp); Q = tmpQ; answer += 1; } else { // Q의 크기를 넘어간다면 최상단을 제거한다. if (Q.size() == cacheSize) { M[Q.front()] = 0; Q.pop(); } M[tmp]++; Q.push(tmp); answer += 5; } } return answer; } 다른이의 풀이방식 비슷한 방식이지만 map을 사용하지 않고, 매번 iterator를 사용하여 비교하였다. 또한 queue 대신 vector를 사용하였고, 중간에 껴있는 도시에 대해 “erase”를 하기 위해서 사용한듯 하다. #include &lt;algorithm&gt; using namespace std; int solution(int cacheSize, vector&lt;string&gt; cities) { vector &lt;string&gt; q; int duration = 0; for(vector &lt;string&gt;::iterator it = cities.begin(); it != cities.end(); it++){ //소문자화 transform(it-&gt;begin(), it-&gt;end(), it-&gt;begin(), ::tolower); //현재 Q에 있는지 판단 bool flag = false; for(vector&lt;string&gt;::iterator itt = q.begin(); itt != q.end(); itt++){ if(*itt == *it) { flag = true; duration +=1; q.erase(itt); q.push_back(*it); break; } } if(!flag) { duration +=5; if(cacheSize != 0 &amp;&amp; q.size() &gt;= cacheSize) q.erase(q.begin()); if(q.size() &lt; cacheSize) q.push_back(*it); } } return duration; } 개선점 map을 사용하였기 때문에 메모리적인 측면에서 비효율적이지 않나 생각이 든다. 근데 생각해보면 코딩테스트 중에 저장공간은 체점요소에 없나?'>
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EC%BA%90%EC%8B%9C.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EC%BA%90%EC%8B%9C.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2022-07-24T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="코딩테스트 캐시">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2022-07-24T00:00:00+00:00","datePublished":"2022-07-24T00:00:00+00:00","description":"문제 지도개발팀에서 근무하는 제이지는 지도에서 도시 이름을 검색하면 해당 도시와 관련된 맛집 게시물들을 데이터베이스에서 읽어 보여주는 서비스를 개발하고 있다. 이 프로그램의 테스팅 업무를 담당하고 있는 어피치는 서비스를 오픈하기 전 각 로직에 대한 성능 측정을 수행하였는데, 제이지가 작성한 부분 중 데이터베이스에서 게시물을 가져오는 부분의 실행시간이 너무 오래 걸린다는 것을 알게 되었다. 어피치는 제이지에게 해당 로직을 개선하라고 닦달하기 시작하였고, 제이지는 DB 캐시를 적용하여 성능 개선을 시도하고 있지만 캐시 크기를 얼마로 해야 효율적인지 몰라 난감한 상황이다. 어피치에게 시달리는 제이지를 도와, DB 캐시를 적용할 때 캐시 크기에 따른 실행시간 측정 프로그램을 작성하시오. 조건 캐시 크기(cacheSize)와 도시이름 배열(cities)을 입력받는다. cacheSize는 정수이며, 범위는 0 ≦ cacheSize ≦ 30 이다. cities는 도시 이름으로 이뤄진 문자열 배열로, 최대 도시 수는 100,000개이다. 각 도시 이름은 공백, 숫자, 특수문자 등이 없는 영문자로 구성되며, 대소문자 구분을 하지 않는다. 도시 이름은 최대 20자로 이루어져 있다. 캐시 교체 알고리즘은 LRU(Least Recently Used)를 사용한다. cache hit일 경우 실행시간은 1이다. cache miss일 경우 실행시간은 5이다. 입출력 예시 캐시크기(cacheSize) 도시이름(cities) 실행시간 3 [“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”, “Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”] 50 3 [“Jeju”, “Pangyo”, “Seoul”, “Jeju”, “Pangyo”, “Seoul”, “Jeju”, “Pangyo”, “Seoul”] 21 2 [“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”, “SanFrancisco”, “Seoul”, “Rome”, “Paris”, “Jeju”, “NewYork”, “Rome”] 60 0 [“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”] 25 풀이방식 나의 풀이방식 먼저 도시의 이름은 대소문자를 구분하지 않는다는 조건이 있었기 때문에 도시의 이름을 toBigger()라는 메서드를 사용하여, 모두 대문자로 처리해주었다. 문제의 해결 방식은 단순하다. map에는 현재 queue에 저장된 도시가 무엇이 있는지 나타내며, 이 queue는 cache를 의미한다. cache에 있는 도시라면 그 도시를 제외한 나머지를 다시 cache에 넣고, 그 도시를 마지막으로 삽입한다. (+1) 그렇지 않다면 cache의 공간이 남아있는지 확인한다. - 남아 있다면 단순히 cache에 추가하고 (+5) - 공간이 없다면 cache의 최상단(front)를 제거하고 추가한다. (+5) #include &lt;algorithm&gt; #include &lt;queue&gt; #include &lt;unordered_map&gt; using namespace std; string toBigger(const string&amp; str) { string answer = &quot;&quot;; for (int i = 0; i &lt; str.size(); i++){ answer += toupper(str[i]); } return answer; } int solution(int cacheSize, vector&lt;string&gt; cities) { int answer = 0; unordered_map&lt;string, int&gt; M; queue&lt;string&gt; Q; if (cacheSize == 0) return cities.size() * 5; for (int i = 0; i &lt; cities.size(); i++){ string tmp = toBigger(cities[i]); // Q에 있는 단어라면 queue의 가장 뒤로 뺀다. if (M[tmp] != 0) { queue&lt;string&gt; tmpQ; while (!Q.empty()) { if (Q.front() != tmp) tmpQ.push(Q.front()); Q.pop(); } tmpQ.push(tmp); Q = tmpQ; answer += 1; } else { // Q의 크기를 넘어간다면 최상단을 제거한다. if (Q.size() == cacheSize) { M[Q.front()] = 0; Q.pop(); } M[tmp]++; Q.push(tmp); answer += 5; } } return answer; } 다른이의 풀이방식 비슷한 방식이지만 map을 사용하지 않고, 매번 iterator를 사용하여 비교하였다. 또한 queue 대신 vector를 사용하였고, 중간에 껴있는 도시에 대해 “erase”를 하기 위해서 사용한듯 하다. #include &lt;algorithm&gt; using namespace std; int solution(int cacheSize, vector&lt;string&gt; cities) { vector &lt;string&gt; q; int duration = 0; for(vector &lt;string&gt;::iterator it = cities.begin(); it != cities.end(); it++){ //소문자화 transform(it-&gt;begin(), it-&gt;end(), it-&gt;begin(), ::tolower); //현재 Q에 있는지 판단 bool flag = false; for(vector&lt;string&gt;::iterator itt = q.begin(); itt != q.end(); itt++){ if(*itt == *it) { flag = true; duration +=1; q.erase(itt); q.push_back(*it); break; } } if(!flag) { duration +=5; if(cacheSize != 0 &amp;&amp; q.size() &gt;= cacheSize) q.erase(q.begin()); if(q.size() &lt; cacheSize) q.push_back(*it); } } return duration; } 개선점 map을 사용하였기 때문에 메모리적인 측면에서 비효율적이지 않나 생각이 든다. 근데 생각해보면 코딩테스트 중에 저장공간은 체점요소에 없나?","headline":"코딩테스트 캐시","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EC%BA%90%EC%8B%9C.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EC%BA%90%EC%8B%9C.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">코딩테스트 | 캐시</h1>
+  <h2 class="post-subtitle">queue, unordered_map</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2022-07-24T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Jul 24, 2022
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 6 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#CodingTest">#CodingTest</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#C++">#C++</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="문제">문제</h2>
+
+<p>지도개발팀에서 근무하는 제이지는 지도에서 도시 이름을 검색하면 해당 도시와 관련된 맛집 게시물들을 데이터베이스에서 읽어 보여주는 서비스를 개발하고 있다.</p>
+
+<p>이 프로그램의 테스팅 업무를 담당하고 있는 어피치는 서비스를 오픈하기 전 각 로직에 대한 성능 측정을 수행하였는데, 제이지가 작성한 부분 중 데이터베이스에서 게시물을 가져오는 부분의 실행시간이 너무 오래 걸린다는 것을 알게 되었다.</p>
+
+<p>어피치는 제이지에게 해당 로직을 개선하라고 닦달하기 시작하였고, 제이지는 DB 캐시를 적용하여 성능 개선을 시도하고 있지만 캐시 크기를 얼마로 해야 효율적인지 몰라 난감한 상황이다.</p>
+
+<p>어피치에게 시달리는 제이지를 도와, DB 캐시를 적용할 때 캐시 크기에 따른 실행시간 측정 프로그램을 작성하시오.</p>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>캐시 크기(cacheSize)와 도시이름 배열(cities)을 입력받는다.</li>
+  <li>cacheSize는 정수이며, 범위는 0 ≦ cacheSize ≦ 30 이다.</li>
+  <li>cities는 도시 이름으로 이뤄진 문자열 배열로, 최대 도시 수는 100,000개이다.</li>
+  <li>각 도시 이름은 공백, 숫자, 특수문자 등이 없는 영문자로 구성되며, 대소문자 구분을 하지 않는다. 도시 이름은 최대 20자로 이루어져 있다.</li>
+  <li>캐시 교체 알고리즘은 LRU(Least Recently Used)를 사용한다.</li>
+  <li>cache hit일 경우 실행시간은 1이다.</li>
+  <li>cache miss일 경우 실행시간은 5이다.</li>
+</ul>
+
+<h2 id="입출력-예시">입출력 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">캐시크기(cacheSize)</th>
+      <th>도시이름(cities)</th>
+      <th>실행시간</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td>[“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”, “Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”]</td>
+      <td>50</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td>[“Jeju”, “Pangyo”, “Seoul”, “Jeju”, “Pangyo”, “Seoul”, “Jeju”, “Pangyo”, “Seoul”]</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td>[“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”, “SanFrancisco”, “Seoul”, “Rome”, “Paris”, “Jeju”, “NewYork”, “Rome”]</td>
+      <td>60</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0</td>
+      <td>[“Jeju”, “Pangyo”, “Seoul”, “NewYork”, “LA”]</td>
+      <td>25</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<h3 id="나의-풀이방식">나의 풀이방식</h3>
+
+<p>먼저 도시의 이름은 대소문자를 구분하지 않는다는 조건이 있었기 때문에 도시의 이름을 toBigger()라는 메서드를 사용하여, 모두 대문자로 처리해주었다.</p>
+
+<p>문제의 해결 방식은 단순하다. map에는 현재 queue에 저장된 도시가 무엇이 있는지 나타내며, 이 queue는 cache를 의미한다.</p>
+
+<ol>
+  <li>cache에 있는 도시라면 그 도시를 제외한 나머지를 다시 cache에 넣고, 그 도시를 마지막으로 삽입한다. (+1)</li>
+  <li>그렇지 않다면 cache의 공간이 남아있는지 확인한다.
+    - 남아 있다면 단순히 cache에 추가하고 (+5)
+    - 공간이 없다면 cache의 최상단(front)를 제거하고 추가한다. (+5)</li>
+</ol>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;algorithm&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;queue&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;unordered_map&gt;</span><span class="cp">
+</span>
+  <span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+  <span class="n">string</span> <span class="nf">toBigger</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">string</span> <span class="n">answer</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">str</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">answer</span> <span class="o">+=</span> <span class="n">toupper</span><span class="p">(</span><span class="n">str</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kt">int</span> <span class="nf">solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">cacheSize</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">cities</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">answer</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">M</span><span class="p">;</span>
+    <span class="n">queue</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">Q</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">cacheSize</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">return</span> <span class="n">cities</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">cities</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">string</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">toBigger</span><span class="p">(</span><span class="n">cities</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+      
+      <span class="c1">// Q에 있는 단어라면 queue의 가장 뒤로 뺀다.</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">M</span><span class="p">[</span><span class="n">tmp</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">queue</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">tmpQ</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">Q</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">Q</span><span class="p">.</span><span class="n">front</span><span class="p">()</span> <span class="o">!=</span> <span class="n">tmp</span><span class="p">)</span> <span class="n">tmpQ</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">Q</span><span class="p">.</span><span class="n">front</span><span class="p">());</span>
+          <span class="n">Q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="n">tmpQ</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">tmp</span><span class="p">);</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">tmpQ</span><span class="p">;</span>
+        <span class="n">answer</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Q의 크기를 넘어간다면 최상단을 제거한다.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">Q</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="n">cacheSize</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">M</span><span class="p">[</span><span class="n">Q</span><span class="p">.</span><span class="n">front</span><span class="p">()]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="n">Q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+        <span class="p">}</span>
+
+        <span class="n">M</span><span class="p">[</span><span class="n">tmp</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">Q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">tmp</span><span class="p">);</span>
+        <span class="n">answer</span> <span class="o">+=</span> <span class="mi">5</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="다른이의-풀이방식">다른이의 풀이방식</h3>
+
+<p>비슷한 방식이지만 map을 사용하지 않고, 매번 iterator를 사용하여 비교하였다.</p>
+
+<p>또한 queue 대신 vector를 사용하였고, 중간에 껴있는 도시에 대해 “erase”를 하기 위해서 사용한듯 하다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;algorithm&gt;</span><span class="cp">
+</span>
+  <span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="nf">solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">cacheSize</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">cities</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="n">vector</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">q</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">duration</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">vector</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">cities</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">cities</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">it</span><span class="o">++</span><span class="p">){</span>
+      <span class="c1">//소문자화</span>
+      <span class="n">transform</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">begin</span><span class="p">(),</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">end</span><span class="p">(),</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">begin</span><span class="p">(),</span> <span class="o">::</span><span class="n">tolower</span><span class="p">);</span>
+
+      <span class="c1">//현재 Q에 있는지 판단</span>
+      <span class="kt">bool</span> <span class="n">flag</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+      <span class="k">for</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">itt</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">itt</span> <span class="o">!=</span> <span class="n">q</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">itt</span><span class="o">++</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">itt</span> <span class="o">==</span> <span class="o">*</span><span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">flag</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+          <span class="n">duration</span> <span class="o">+=</span><span class="mi">1</span><span class="p">;</span>
+          <span class="n">q</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">itt</span><span class="p">);</span>
+          <span class="n">q</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="o">*</span><span class="n">it</span><span class="p">);</span>
+          <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">flag</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">duration</span> <span class="o">+=</span><span class="mi">5</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">cacheSize</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">q</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">cacheSize</span><span class="p">)</span> <span class="n">q</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">q</span><span class="p">.</span><span class="n">begin</span><span class="p">());</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">q</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">cacheSize</span><span class="p">)</span> <span class="n">q</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="o">*</span><span class="n">it</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">duration</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>
+<ul>
+  <li>map을 사용하였기 때문에 메모리적인 측면에서 비효율적이지 않나 생각이 든다.</li>
+  <li>근데 생각해보면 코딩테스트 중에 저장공간은 체점요소에 없나?</li>
+</ul>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EB%AA%A8%EC%9D%8C%EC%82%AC%EC%A0%84.html" title="코딩테스트 | 모음사전">코딩테스트 | 모음사전</a><a class="next" href="/jekyll-theme-yat/effective_c++/2022/07/25/EffectiveC++-Effective-C++-2%EC%9E%A5.html" title="Effective C++ | 2장">Effective C++ | 2장</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/17/%EC%BD%94%ED%85%8C-2-x-n-%ED%83%80%EC%9D%BC%EB%A7%81.html" title="Effective C++ | 2장">코딩테스트 | 2 x n 타일링</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/13/UE5-Assert.html" title="Effective C++ | 2장">UE5 | Assert</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/28/%EC%BD%94%ED%85%8C-%EC%9D%B4%EC%A4%91-%EC%9A%B0%EC%84%A0%EC%88%9C%EC%9C%84-%ED%81%90.html" title="Effective C++ | 2장">코딩테스트 | 이중우선순위큐</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/30/%EC%BD%94%ED%85%8C-%EB%8B%A8%EC%86%8D%EC%B9%B4%EB%A9%94%EB%9D%BC.html" title="Effective C++ | 2장">코딩테스트 | 단속카메라</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2022 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

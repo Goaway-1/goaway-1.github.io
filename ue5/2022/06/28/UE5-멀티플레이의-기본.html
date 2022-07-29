@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>UE5 멀티플레이의 기본 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.2.2">
+<meta property="og:title" content="UE5 멀티플레이의 기본">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content='UnrealEngine5 네트워크 UE5 프레임워크는 멀티플레이어 게임을 염두에 두고 만들어졌기 때문에, 기본적인 프레임워크 규칙만 따른다면, 일반적으로 싱글플레이어 게임을 멀티플레이어로 확장하는 데 별다른 작업이 필요하지 않다. 네트워크는 서버/클라이언트 모델을 기준으로 만들어졌고, 서버는 클라이언트가 최신 상태를 유지하도록 업데이트 해주는 권위자의 역할을 맡는다. 이때 싱글 플레이어에도 서버가 존재하며, 로컬 머신이 서버의 역할을 맡는다. ※ RPC에 대한 정보를 학습하자! 유튭1 Docs tomlooman Replication 서버와 클라이언트 사이에서 데이터와 명령을 주고 받는 프로세스. 즉 간단히 말하면 사본을 만든다는 뜻이다. 항상 Pawn이 서버에 로그인된 시간 이후부터 적용해야한다. [AGameModeBase::PostLogin] 권장 언리얼에서의 멀티 흐름 게임 플레이에 영향을 미치는 모든 작업은 서버에서 이루어진다. 위처럼 플레이에 영향을 미치는 모든 작업은 서버를 통해서 이루어진다고 볼 수 있다. 음향이나 개인상태 창과 같은 경우는 개인 클라이언트에서 이루어져도 무관하지만, 캐릭터의 움직임이나 상호작용과 같이 게임의 흐름에 영향을 미치는 것들은 서버를 통해서 작업이 이루어진 후 클라이언트로 정보를 전달해야만 한다. ※ 체력을 관리하는 ActorComponent 클래스의 HealthComponent와 같은 경우에는 클라에서 관리하지 않고, 오직 서버에만 계산을 진행한다. ※ 사용자가 이동하는 것외에 몬스터와 같은 경우는 서버에서만 이동하도록 한다. (UNavigationSystem에서 오류 발생함) RPC Remote Procedure Call RPC는 로컬에서 호출되지만 다른 머신에서 원격으로 실행되는 함수를 의미한다. 이를 이용하면 네트워크 연결을 통해서 클라이언트와 서버 사이간에 메시지를 전송할 수 있다. RPC의 사용 Client UFUNCTION(Client) void ClientRPCFunction(); 함수를 서버에서 호출되지만 클라이언트에서 실행되는 RPC Server UFUNCTION(Sever) void SeverRPCFunction(); 함수를 클라이언트에서 호출되지만 서버에서 실행되는 RPC NetMulticast UFUNCTION(NetMulticast) void NetMulticastRPCFunction(); 서버에서 호출된 다음 서버와 연결된 모든 클라이언트에서도 실행되는 RPC, 클라이언트에서도 호출 가능하지만 그때는 로컬에서만 진행 RPC 요구사항 Actor 에서 호출되어야 합니다. Actor 는 빈드시 replicated 여야 합니다. 서버에서 호출되고 클라이언트에서 실행되는 RPC 의 경우, 해당 Actor 를 실제 소유하고 있는 클라이언트에서만 함수가 실행됩니다. 클라이언트에서 호출되고 서버에서 실행되는 RPC 의 경우, 클라이언트는 RPC 가 호출되는 Actor 를 소유해야 합니다. Multicast RPC 는 예외입니다: 서버에서 호출되는 경우, 서버에서는 로컬에서 실행될 뿐만 아니라 현재 연결된 모든 클라이언트에서도 실행됩니다. 클라이언트에서 호출되는 경우, 로컬에서만 실행되며, 서버에서는 실행되지 않습니다. 현재 멀티캐스트 이벤트에 대해 단순한 스로틀 조절 메카니즘이 있습니다. 멀티캐스트 함수는 주어진 액터의 네트워크 업데이트 기간동안 두 번 이상 리플리케이트되지 않습니다. 장기적으로 크로스 채널 트래픽 관리 및 스스로틀 조절 지원을 개선시킬 계획입니다. 기본 명령어 아래는 멀티플레이를 제작하는데 필요한 기본적인 것들에 대해서 기술해두었다. 생성과 이동 /* 네트워크 클라이언트에 복제할지 여부 설정*/ // 서버에 생성되면 클라이언트에도 전송 SetReplicates(true); // Actor SetIsReplicated(true); // Actor Component // 액터의 이동이 네트워크 클라이언트에 복제되는지 여부 설정 SetReplicateMovement(true); 위 두 명령어는 서버에서 클라이언트로 업데이트된 데이터를 지속적으로 전송하여 동기화 상태를 유지하도록하는 함수이다. 이는 Actor 클래스에 존재하며, 기본적으로 생성과 이동을 동기화해준다. 서버 함수 //cpp file void AFPSCharacter::Fire(){ // spawn the projectile at the muzzle GetWorld()-&gt;SpawnActor&lt;AFPSProjectile&gt;(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams); } //header file void Fire(); 만약 위와 같이 총알을 발사하는 함수가 있다고 가정하자 이는 싱글플레이 기준으로 작성되었는데, 이를 멀티플레이에 적용하기 위해 함수에 대한 실행을 클라이언트에서 실행되는 것이 아닌 서버에 실행 요청을 보내려면 아래와 같은 순서에 따라 확장해야한다. 기존 함수는 두고 서버에서 활용가능하도록 매크로를 추가한 새로운 함수를 선언한다. //header file UFUNCTION(Server, Reliable, WithValidation) void ServerFire(); 이는 RPC라고 하며, 네트워크를 통한 함수 리플리케이션을 지정하는 것이다. “Server” : 클라이언트에서 호출되지만 서버에서 실행되는 RPC “Reliable” : RPC는 비신뢰성이기 때문에 확실한 실행을 위함 “WithValidation” : RPC에 인증을 추가하는 기능으로 악성인지 판단 새롭게 선언된 함수에 대해 2가지 확장된 함수를 구현한다. (Implementation, Validate) //cpp file void AFPSCharacter::Fire(){ ServerFire(); } void AFPSCharacter::ServerFire_Implementation(){ GetWorld()-&gt;SpawnActor&lt;AFPSProjectile&gt;(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams); } bool AFPSCharacter::ServerFire_Validate(){ return true; } 기존 Fire()함수에 _Implementation(), _Validate()가 추가되었으며, 이는 각각 서버를 통한 실행과 유효성 검사를 의미한다. 액터의 서버/클라 확인 말 그대로 액터가 서버에서 접근했는지, 클라이언트에서 접근했는지 판단하는 방법이다. //cpp file // Actor :: 서버측인지 확인 if(Role == ROLE_Authority) {} if(HasAuthority()) {} // ActorComponent :: 서버측인지 확인 if(GetOwner()-&gt;HasAuthority()) {} 파라미터 서버 업데이트 Replicated 단순히 변수가 네트워크를 통해 리플리케이트 된다는 것을 의미한다. //header file UPROPERTY(Replicated) int A; 추가로 아래와 같이 해당 파라미터에 대해서 GetLifetimeReplicatedProps()에 설정을 해주어야 모든 클라이언트와 이 복제를 사용하여 동기화를 유지한다. ※ 헤더에 선언하지 않아도 된다. #include "Net/UnrealNetwork.h" void 클래스명::GetLifetimeReplicatedProps(TArray&lt; FLifetimeProperty &gt; &amp; OutLifetimeProps) const { Super::GetLifetimeReplicatedProps(OutLifetimeProps); // 단순히 파라미터를 갱신한다 DOREPLIFETIME(클래스명, 파라미터명); } ReplicatedUsing 이는 파라미터 A가 값이 변경될때 자동으로 콜백함수를 호출하는 방법이다. 기본적으로 클라이언트에서 호출되며 서버에 대해서 갱신할때 사용한다. 변수에 대한 것은 바뀌게 되지만 OnRep은 서버에서 실행되지 않기 때문에 한번 더 실행해주어야한다.(?) //header file UPROPERTY(ReplicatedUsing = OnRep_함수명) int A; UFUNCTION() OnRep_함수명(); Replicated와 동일하게 추가로 아래와 같이 해당 파라미터에 대해서 GetLifetimeReplicatedProps()에 설정을 해주어야 모든 클라이언트와 이 복제를 사용하여 동기화를 유지한다. #include "Net/UnrealNetwork.h" void 클래스명::GetLifetimeReplicatedProps(TArray&lt; FLifetimeProperty &gt; &amp; OutLifetimeProps) const { Super::GetLifetimeReplicatedProps(OutLifetimeProps); // 단순히 파라미터를 갱신한다 DOREPLIFETIME(클래스명, 파라미터명); // 조건에 따라 파라미터를 갱신해주며, 대역폭을 절약할 수 있다. DOREPLIFETIME_CONDITION(클래스명, 파라미터명, COND_OwnerOnly); } 액터의 회전 Pawn클래스에 아래와 같이 RemoteViewPitch가 존재하는데 이는 Pawn의 Pitch의 회전을 담당하고 있다. 이는 replicated되어 있기 때문에 서버에서 값이 변경될 때마다 클라이언트에 업데이트된다. 그렇기에 단순히 이를 끌어다가 사용하면 된다. UPROPERTY(replicated) uint8 RemoteViewPitch; 게임 모드 게임 모드는 서버에만 존재하고, Replicated가 불가능하기 때문에 멀티캐스트 함수를 만들어서 해결해야한다. 이때 “GameStateBase”에서 NetMulticast를 사용한다. 이는 서버에서 호출되어 모든 클라이언트로 전송되어 실행된다. //header of GameStateBase UFUNCTION(NetMulticast, Reliable) void A(); //cpp of GameStateBase void A_Implementation() {~~~~} 이렇게 사용하는 이유는 위 그림과 같이 게임상태는 항상 사용가능하기 때문이다. 추가로 플레이어 컨트롤러는 서버/클라이언트 모두에 존재한다. 즉 서버에 컨트롤러가 클라이언트를 모두 합친 3개가 존재하고, 클라이언트는 각각 1개씩 존재한다. 데이터 전송 FVector_NetQuantize, TEnumAsByte와 같은 타입을 사용하여 데이터를 양자화하고, 이 데이터를 클라이언트에 복제하는 데 필요한 크기를 크게 줄여 서버간 효율적으로 통신한다. 아래는 구조체에서 사용한 것으로 이를 ReplicatedUsing과 혼합하여 사용하면 효과적이다. // Contains information of a single hitscan weapon linetrace USTRUCT() struct FHitScanTrace { GENERATED_BODY() public: UPROPERTY() TEnumAsByte&lt;EPhysicalSurface&gt; SurfaceType; UPROPERTY() FVector_NetQuantize TraceTo; }; 서버 Tick 시간 //BeginPlay... NetUpdateFrequency = 66.f; MinNetUpdateFrequency = 33.f; //최소 프레임 “NetUpdateFrequency는” 액터가 자체 업데이트를 할 때 초당 최대 몇번까지 업데이트를 할지 나타내며, “MinNetUpdateFrequency는” 최소 몇 번까지 업데이트를 시도할지 나타낸다. 이처럼 액터는 서버로 전송되는 프레임(업데이트 빈도)을 지정할 수 있다. 중요한 요소들은 프레임을 높게하여 자주 전송해주어야한다. 플레이어가 조종하는 액터 : 10프레임 (0.1초) AI처럼 느리게 움직이는 액터 : 5프레임 (0.2초) 액터의 파괴 액터가 사용되고 Destory()가 되는 경우에 서버에서는 클라이언트에게 많은 시간을 남겨두지 않는다. 그렇기 때문에 만약 액터가 파괴될때 효과음이나 이펙트를 사용할때 바로 Destory()를 사용하게 되면 클라이언트에서는 실행되지 않는다. 이 문제를 해결하기 위해서는 액터의 가시성과 물리충돌을 없애고, 파괴까지 시간을 부여하면 된다. // 바로삭제 Destroy(); // 클라이언트가 일정 작업을 처리하도록 몇 초뒤에 삭제 Component-&gt;SetVisibility(false, true); Component-&gt;SetCollisionEnabled(ECollisionEnabled::NoCollision); SetLifeSpan(2.f);'>
+<meta property="og:description" content='UnrealEngine5 네트워크 UE5 프레임워크는 멀티플레이어 게임을 염두에 두고 만들어졌기 때문에, 기본적인 프레임워크 규칙만 따른다면, 일반적으로 싱글플레이어 게임을 멀티플레이어로 확장하는 데 별다른 작업이 필요하지 않다. 네트워크는 서버/클라이언트 모델을 기준으로 만들어졌고, 서버는 클라이언트가 최신 상태를 유지하도록 업데이트 해주는 권위자의 역할을 맡는다. 이때 싱글 플레이어에도 서버가 존재하며, 로컬 머신이 서버의 역할을 맡는다. ※ RPC에 대한 정보를 학습하자! 유튭1 Docs tomlooman Replication 서버와 클라이언트 사이에서 데이터와 명령을 주고 받는 프로세스. 즉 간단히 말하면 사본을 만든다는 뜻이다. 항상 Pawn이 서버에 로그인된 시간 이후부터 적용해야한다. [AGameModeBase::PostLogin] 권장 언리얼에서의 멀티 흐름 게임 플레이에 영향을 미치는 모든 작업은 서버에서 이루어진다. 위처럼 플레이에 영향을 미치는 모든 작업은 서버를 통해서 이루어진다고 볼 수 있다. 음향이나 개인상태 창과 같은 경우는 개인 클라이언트에서 이루어져도 무관하지만, 캐릭터의 움직임이나 상호작용과 같이 게임의 흐름에 영향을 미치는 것들은 서버를 통해서 작업이 이루어진 후 클라이언트로 정보를 전달해야만 한다. ※ 체력을 관리하는 ActorComponent 클래스의 HealthComponent와 같은 경우에는 클라에서 관리하지 않고, 오직 서버에만 계산을 진행한다. ※ 사용자가 이동하는 것외에 몬스터와 같은 경우는 서버에서만 이동하도록 한다. (UNavigationSystem에서 오류 발생함) RPC Remote Procedure Call RPC는 로컬에서 호출되지만 다른 머신에서 원격으로 실행되는 함수를 의미한다. 이를 이용하면 네트워크 연결을 통해서 클라이언트와 서버 사이간에 메시지를 전송할 수 있다. RPC의 사용 Client UFUNCTION(Client) void ClientRPCFunction(); 함수를 서버에서 호출되지만 클라이언트에서 실행되는 RPC Server UFUNCTION(Sever) void SeverRPCFunction(); 함수를 클라이언트에서 호출되지만 서버에서 실행되는 RPC NetMulticast UFUNCTION(NetMulticast) void NetMulticastRPCFunction(); 서버에서 호출된 다음 서버와 연결된 모든 클라이언트에서도 실행되는 RPC, 클라이언트에서도 호출 가능하지만 그때는 로컬에서만 진행 RPC 요구사항 Actor 에서 호출되어야 합니다. Actor 는 빈드시 replicated 여야 합니다. 서버에서 호출되고 클라이언트에서 실행되는 RPC 의 경우, 해당 Actor 를 실제 소유하고 있는 클라이언트에서만 함수가 실행됩니다. 클라이언트에서 호출되고 서버에서 실행되는 RPC 의 경우, 클라이언트는 RPC 가 호출되는 Actor 를 소유해야 합니다. Multicast RPC 는 예외입니다: 서버에서 호출되는 경우, 서버에서는 로컬에서 실행될 뿐만 아니라 현재 연결된 모든 클라이언트에서도 실행됩니다. 클라이언트에서 호출되는 경우, 로컬에서만 실행되며, 서버에서는 실행되지 않습니다. 현재 멀티캐스트 이벤트에 대해 단순한 스로틀 조절 메카니즘이 있습니다. 멀티캐스트 함수는 주어진 액터의 네트워크 업데이트 기간동안 두 번 이상 리플리케이트되지 않습니다. 장기적으로 크로스 채널 트래픽 관리 및 스스로틀 조절 지원을 개선시킬 계획입니다. 기본 명령어 아래는 멀티플레이를 제작하는데 필요한 기본적인 것들에 대해서 기술해두었다. 생성과 이동 /* 네트워크 클라이언트에 복제할지 여부 설정*/ // 서버에 생성되면 클라이언트에도 전송 SetReplicates(true); // Actor SetIsReplicated(true); // Actor Component // 액터의 이동이 네트워크 클라이언트에 복제되는지 여부 설정 SetReplicateMovement(true); 위 두 명령어는 서버에서 클라이언트로 업데이트된 데이터를 지속적으로 전송하여 동기화 상태를 유지하도록하는 함수이다. 이는 Actor 클래스에 존재하며, 기본적으로 생성과 이동을 동기화해준다. 서버 함수 //cpp file void AFPSCharacter::Fire(){ // spawn the projectile at the muzzle GetWorld()-&gt;SpawnActor&lt;AFPSProjectile&gt;(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams); } //header file void Fire(); 만약 위와 같이 총알을 발사하는 함수가 있다고 가정하자 이는 싱글플레이 기준으로 작성되었는데, 이를 멀티플레이에 적용하기 위해 함수에 대한 실행을 클라이언트에서 실행되는 것이 아닌 서버에 실행 요청을 보내려면 아래와 같은 순서에 따라 확장해야한다. 기존 함수는 두고 서버에서 활용가능하도록 매크로를 추가한 새로운 함수를 선언한다. //header file UFUNCTION(Server, Reliable, WithValidation) void ServerFire(); 이는 RPC라고 하며, 네트워크를 통한 함수 리플리케이션을 지정하는 것이다. “Server” : 클라이언트에서 호출되지만 서버에서 실행되는 RPC “Reliable” : RPC는 비신뢰성이기 때문에 확실한 실행을 위함 “WithValidation” : RPC에 인증을 추가하는 기능으로 악성인지 판단 새롭게 선언된 함수에 대해 2가지 확장된 함수를 구현한다. (Implementation, Validate) //cpp file void AFPSCharacter::Fire(){ ServerFire(); } void AFPSCharacter::ServerFire_Implementation(){ GetWorld()-&gt;SpawnActor&lt;AFPSProjectile&gt;(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams); } bool AFPSCharacter::ServerFire_Validate(){ return true; } 기존 Fire()함수에 _Implementation(), _Validate()가 추가되었으며, 이는 각각 서버를 통한 실행과 유효성 검사를 의미한다. 액터의 서버/클라 확인 말 그대로 액터가 서버에서 접근했는지, 클라이언트에서 접근했는지 판단하는 방법이다. //cpp file // Actor :: 서버측인지 확인 if(Role == ROLE_Authority) {} if(HasAuthority()) {} // ActorComponent :: 서버측인지 확인 if(GetOwner()-&gt;HasAuthority()) {} 파라미터 서버 업데이트 Replicated 단순히 변수가 네트워크를 통해 리플리케이트 된다는 것을 의미한다. //header file UPROPERTY(Replicated) int A; 추가로 아래와 같이 해당 파라미터에 대해서 GetLifetimeReplicatedProps()에 설정을 해주어야 모든 클라이언트와 이 복제를 사용하여 동기화를 유지한다. ※ 헤더에 선언하지 않아도 된다. #include "Net/UnrealNetwork.h" void 클래스명::GetLifetimeReplicatedProps(TArray&lt; FLifetimeProperty &gt; &amp; OutLifetimeProps) const { Super::GetLifetimeReplicatedProps(OutLifetimeProps); // 단순히 파라미터를 갱신한다 DOREPLIFETIME(클래스명, 파라미터명); } ReplicatedUsing 이는 파라미터 A가 값이 변경될때 자동으로 콜백함수를 호출하는 방법이다. 기본적으로 클라이언트에서 호출되며 서버에 대해서 갱신할때 사용한다. 변수에 대한 것은 바뀌게 되지만 OnRep은 서버에서 실행되지 않기 때문에 한번 더 실행해주어야한다.(?) //header file UPROPERTY(ReplicatedUsing = OnRep_함수명) int A; UFUNCTION() OnRep_함수명(); Replicated와 동일하게 추가로 아래와 같이 해당 파라미터에 대해서 GetLifetimeReplicatedProps()에 설정을 해주어야 모든 클라이언트와 이 복제를 사용하여 동기화를 유지한다. #include "Net/UnrealNetwork.h" void 클래스명::GetLifetimeReplicatedProps(TArray&lt; FLifetimeProperty &gt; &amp; OutLifetimeProps) const { Super::GetLifetimeReplicatedProps(OutLifetimeProps); // 단순히 파라미터를 갱신한다 DOREPLIFETIME(클래스명, 파라미터명); // 조건에 따라 파라미터를 갱신해주며, 대역폭을 절약할 수 있다. DOREPLIFETIME_CONDITION(클래스명, 파라미터명, COND_OwnerOnly); } 액터의 회전 Pawn클래스에 아래와 같이 RemoteViewPitch가 존재하는데 이는 Pawn의 Pitch의 회전을 담당하고 있다. 이는 replicated되어 있기 때문에 서버에서 값이 변경될 때마다 클라이언트에 업데이트된다. 그렇기에 단순히 이를 끌어다가 사용하면 된다. UPROPERTY(replicated) uint8 RemoteViewPitch; 게임 모드 게임 모드는 서버에만 존재하고, Replicated가 불가능하기 때문에 멀티캐스트 함수를 만들어서 해결해야한다. 이때 “GameStateBase”에서 NetMulticast를 사용한다. 이는 서버에서 호출되어 모든 클라이언트로 전송되어 실행된다. //header of GameStateBase UFUNCTION(NetMulticast, Reliable) void A(); //cpp of GameStateBase void A_Implementation() {~~~~} 이렇게 사용하는 이유는 위 그림과 같이 게임상태는 항상 사용가능하기 때문이다. 추가로 플레이어 컨트롤러는 서버/클라이언트 모두에 존재한다. 즉 서버에 컨트롤러가 클라이언트를 모두 합친 3개가 존재하고, 클라이언트는 각각 1개씩 존재한다. 데이터 전송 FVector_NetQuantize, TEnumAsByte와 같은 타입을 사용하여 데이터를 양자화하고, 이 데이터를 클라이언트에 복제하는 데 필요한 크기를 크게 줄여 서버간 효율적으로 통신한다. 아래는 구조체에서 사용한 것으로 이를 ReplicatedUsing과 혼합하여 사용하면 효과적이다. // Contains information of a single hitscan weapon linetrace USTRUCT() struct FHitScanTrace { GENERATED_BODY() public: UPROPERTY() TEnumAsByte&lt;EPhysicalSurface&gt; SurfaceType; UPROPERTY() FVector_NetQuantize TraceTo; }; 서버 Tick 시간 //BeginPlay... NetUpdateFrequency = 66.f; MinNetUpdateFrequency = 33.f; //최소 프레임 “NetUpdateFrequency는” 액터가 자체 업데이트를 할 때 초당 최대 몇번까지 업데이트를 할지 나타내며, “MinNetUpdateFrequency는” 최소 몇 번까지 업데이트를 시도할지 나타낸다. 이처럼 액터는 서버로 전송되는 프레임(업데이트 빈도)을 지정할 수 있다. 중요한 요소들은 프레임을 높게하여 자주 전송해주어야한다. 플레이어가 조종하는 액터 : 10프레임 (0.1초) AI처럼 느리게 움직이는 액터 : 5프레임 (0.2초) 액터의 파괴 액터가 사용되고 Destory()가 되는 경우에 서버에서는 클라이언트에게 많은 시간을 남겨두지 않는다. 그렇기 때문에 만약 액터가 파괴될때 효과음이나 이펙트를 사용할때 바로 Destory()를 사용하게 되면 클라이언트에서는 실행되지 않는다. 이 문제를 해결하기 위해서는 액터의 가시성과 물리충돌을 없애고, 파괴까지 시간을 부여하면 된다. // 바로삭제 Destroy(); // 클라이언트가 일정 작업을 처리하도록 몇 초뒤에 삭제 Component-&gt;SetVisibility(false, true); Component-&gt;SetCollisionEnabled(ECollisionEnabled::NoCollision); SetLifeSpan(2.f);'>
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/ue5/2022/06/28/UE5-%EB%A9%80%ED%8B%B0%ED%94%8C%EB%A0%88%EC%9D%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/ue5/2022/06/28/UE5-%EB%A9%80%ED%8B%B0%ED%94%8C%EB%A0%88%EC%9D%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2022-06-28T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="UE5 멀티플레이의 기본">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2022-06-28T00:00:00+00:00","datePublished":"2022-06-28T00:00:00+00:00","description":"UnrealEngine5 네트워크 UE5 프레임워크는 멀티플레이어 게임을 염두에 두고 만들어졌기 때문에, 기본적인 프레임워크 규칙만 따른다면, 일반적으로 싱글플레이어 게임을 멀티플레이어로 확장하는 데 별다른 작업이 필요하지 않다. 네트워크는 서버/클라이언트 모델을 기준으로 만들어졌고, 서버는 클라이언트가 최신 상태를 유지하도록 업데이트 해주는 권위자의 역할을 맡는다. 이때 싱글 플레이어에도 서버가 존재하며, 로컬 머신이 서버의 역할을 맡는다. ※ RPC에 대한 정보를 학습하자! 유튭1 Docs tomlooman Replication 서버와 클라이언트 사이에서 데이터와 명령을 주고 받는 프로세스. 즉 간단히 말하면 사본을 만든다는 뜻이다. 항상 Pawn이 서버에 로그인된 시간 이후부터 적용해야한다. [AGameModeBase::PostLogin] 권장 언리얼에서의 멀티 흐름 게임 플레이에 영향을 미치는 모든 작업은 서버에서 이루어진다. 위처럼 플레이에 영향을 미치는 모든 작업은 서버를 통해서 이루어진다고 볼 수 있다. 음향이나 개인상태 창과 같은 경우는 개인 클라이언트에서 이루어져도 무관하지만, 캐릭터의 움직임이나 상호작용과 같이 게임의 흐름에 영향을 미치는 것들은 서버를 통해서 작업이 이루어진 후 클라이언트로 정보를 전달해야만 한다. ※ 체력을 관리하는 ActorComponent 클래스의 HealthComponent와 같은 경우에는 클라에서 관리하지 않고, 오직 서버에만 계산을 진행한다. ※ 사용자가 이동하는 것외에 몬스터와 같은 경우는 서버에서만 이동하도록 한다. (UNavigationSystem에서 오류 발생함) RPC Remote Procedure Call RPC는 로컬에서 호출되지만 다른 머신에서 원격으로 실행되는 함수를 의미한다. 이를 이용하면 네트워크 연결을 통해서 클라이언트와 서버 사이간에 메시지를 전송할 수 있다. RPC의 사용 Client UFUNCTION(Client) void ClientRPCFunction(); 함수를 서버에서 호출되지만 클라이언트에서 실행되는 RPC Server UFUNCTION(Sever) void SeverRPCFunction(); 함수를 클라이언트에서 호출되지만 서버에서 실행되는 RPC NetMulticast UFUNCTION(NetMulticast) void NetMulticastRPCFunction(); 서버에서 호출된 다음 서버와 연결된 모든 클라이언트에서도 실행되는 RPC, 클라이언트에서도 호출 가능하지만 그때는 로컬에서만 진행 RPC 요구사항 Actor 에서 호출되어야 합니다. Actor 는 빈드시 replicated 여야 합니다. 서버에서 호출되고 클라이언트에서 실행되는 RPC 의 경우, 해당 Actor 를 실제 소유하고 있는 클라이언트에서만 함수가 실행됩니다. 클라이언트에서 호출되고 서버에서 실행되는 RPC 의 경우, 클라이언트는 RPC 가 호출되는 Actor 를 소유해야 합니다. Multicast RPC 는 예외입니다: 서버에서 호출되는 경우, 서버에서는 로컬에서 실행될 뿐만 아니라 현재 연결된 모든 클라이언트에서도 실행됩니다. 클라이언트에서 호출되는 경우, 로컬에서만 실행되며, 서버에서는 실행되지 않습니다. 현재 멀티캐스트 이벤트에 대해 단순한 스로틀 조절 메카니즘이 있습니다. 멀티캐스트 함수는 주어진 액터의 네트워크 업데이트 기간동안 두 번 이상 리플리케이트되지 않습니다. 장기적으로 크로스 채널 트래픽 관리 및 스스로틀 조절 지원을 개선시킬 계획입니다. 기본 명령어 아래는 멀티플레이를 제작하는데 필요한 기본적인 것들에 대해서 기술해두었다. 생성과 이동 /* 네트워크 클라이언트에 복제할지 여부 설정*/ // 서버에 생성되면 클라이언트에도 전송 SetReplicates(true); // Actor SetIsReplicated(true); // Actor Component // 액터의 이동이 네트워크 클라이언트에 복제되는지 여부 설정 SetReplicateMovement(true); 위 두 명령어는 서버에서 클라이언트로 업데이트된 데이터를 지속적으로 전송하여 동기화 상태를 유지하도록하는 함수이다. 이는 Actor 클래스에 존재하며, 기본적으로 생성과 이동을 동기화해준다. 서버 함수 //cpp file void AFPSCharacter::Fire(){ // spawn the projectile at the muzzle GetWorld()-&gt;SpawnActor&lt;AFPSProjectile&gt;(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams); } //header file void Fire(); 만약 위와 같이 총알을 발사하는 함수가 있다고 가정하자 이는 싱글플레이 기준으로 작성되었는데, 이를 멀티플레이에 적용하기 위해 함수에 대한 실행을 클라이언트에서 실행되는 것이 아닌 서버에 실행 요청을 보내려면 아래와 같은 순서에 따라 확장해야한다. 기존 함수는 두고 서버에서 활용가능하도록 매크로를 추가한 새로운 함수를 선언한다. //header file UFUNCTION(Server, Reliable, WithValidation) void ServerFire(); 이는 RPC라고 하며, 네트워크를 통한 함수 리플리케이션을 지정하는 것이다. “Server” : 클라이언트에서 호출되지만 서버에서 실행되는 RPC “Reliable” : RPC는 비신뢰성이기 때문에 확실한 실행을 위함 “WithValidation” : RPC에 인증을 추가하는 기능으로 악성인지 판단 새롭게 선언된 함수에 대해 2가지 확장된 함수를 구현한다. (Implementation, Validate) //cpp file void AFPSCharacter::Fire(){ ServerFire(); } void AFPSCharacter::ServerFire_Implementation(){ GetWorld()-&gt;SpawnActor&lt;AFPSProjectile&gt;(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams); } bool AFPSCharacter::ServerFire_Validate(){ return true; } 기존 Fire()함수에 _Implementation(), _Validate()가 추가되었으며, 이는 각각 서버를 통한 실행과 유효성 검사를 의미한다. 액터의 서버/클라 확인 말 그대로 액터가 서버에서 접근했는지, 클라이언트에서 접근했는지 판단하는 방법이다. //cpp file // Actor :: 서버측인지 확인 if(Role == ROLE_Authority) {} if(HasAuthority()) {} // ActorComponent :: 서버측인지 확인 if(GetOwner()-&gt;HasAuthority()) {} 파라미터 서버 업데이트 Replicated 단순히 변수가 네트워크를 통해 리플리케이트 된다는 것을 의미한다. //header file UPROPERTY(Replicated) int A; 추가로 아래와 같이 해당 파라미터에 대해서 GetLifetimeReplicatedProps()에 설정을 해주어야 모든 클라이언트와 이 복제를 사용하여 동기화를 유지한다. ※ 헤더에 선언하지 않아도 된다. #include &quot;Net/UnrealNetwork.h&quot; void 클래스명::GetLifetimeReplicatedProps(TArray&lt; FLifetimeProperty &gt; &amp; OutLifetimeProps) const { Super::GetLifetimeReplicatedProps(OutLifetimeProps); // 단순히 파라미터를 갱신한다 DOREPLIFETIME(클래스명, 파라미터명); } ReplicatedUsing 이는 파라미터 A가 값이 변경될때 자동으로 콜백함수를 호출하는 방법이다. 기본적으로 클라이언트에서 호출되며 서버에 대해서 갱신할때 사용한다. 변수에 대한 것은 바뀌게 되지만 OnRep은 서버에서 실행되지 않기 때문에 한번 더 실행해주어야한다.(?) //header file UPROPERTY(ReplicatedUsing = OnRep_함수명) int A; UFUNCTION() OnRep_함수명(); Replicated와 동일하게 추가로 아래와 같이 해당 파라미터에 대해서 GetLifetimeReplicatedProps()에 설정을 해주어야 모든 클라이언트와 이 복제를 사용하여 동기화를 유지한다. #include &quot;Net/UnrealNetwork.h&quot; void 클래스명::GetLifetimeReplicatedProps(TArray&lt; FLifetimeProperty &gt; &amp; OutLifetimeProps) const { Super::GetLifetimeReplicatedProps(OutLifetimeProps); // 단순히 파라미터를 갱신한다 DOREPLIFETIME(클래스명, 파라미터명); // 조건에 따라 파라미터를 갱신해주며, 대역폭을 절약할 수 있다. DOREPLIFETIME_CONDITION(클래스명, 파라미터명, COND_OwnerOnly); } 액터의 회전 Pawn클래스에 아래와 같이 RemoteViewPitch가 존재하는데 이는 Pawn의 Pitch의 회전을 담당하고 있다. 이는 replicated되어 있기 때문에 서버에서 값이 변경될 때마다 클라이언트에 업데이트된다. 그렇기에 단순히 이를 끌어다가 사용하면 된다. UPROPERTY(replicated) uint8 RemoteViewPitch; 게임 모드 게임 모드는 서버에만 존재하고, Replicated가 불가능하기 때문에 멀티캐스트 함수를 만들어서 해결해야한다. 이때 “GameStateBase”에서 NetMulticast를 사용한다. 이는 서버에서 호출되어 모든 클라이언트로 전송되어 실행된다. //header of GameStateBase UFUNCTION(NetMulticast, Reliable) void A(); //cpp of GameStateBase void A_Implementation() {~~~~} 이렇게 사용하는 이유는 위 그림과 같이 게임상태는 항상 사용가능하기 때문이다. 추가로 플레이어 컨트롤러는 서버/클라이언트 모두에 존재한다. 즉 서버에 컨트롤러가 클라이언트를 모두 합친 3개가 존재하고, 클라이언트는 각각 1개씩 존재한다. 데이터 전송 FVector_NetQuantize, TEnumAsByte와 같은 타입을 사용하여 데이터를 양자화하고, 이 데이터를 클라이언트에 복제하는 데 필요한 크기를 크게 줄여 서버간 효율적으로 통신한다. 아래는 구조체에서 사용한 것으로 이를 ReplicatedUsing과 혼합하여 사용하면 효과적이다. // Contains information of a single hitscan weapon linetrace USTRUCT() struct FHitScanTrace { GENERATED_BODY() public: UPROPERTY() TEnumAsByte&lt;EPhysicalSurface&gt; SurfaceType; UPROPERTY() FVector_NetQuantize TraceTo; }; 서버 Tick 시간 //BeginPlay... NetUpdateFrequency = 66.f; MinNetUpdateFrequency = 33.f; //최소 프레임 “NetUpdateFrequency는” 액터가 자체 업데이트를 할 때 초당 최대 몇번까지 업데이트를 할지 나타내며, “MinNetUpdateFrequency는” 최소 몇 번까지 업데이트를 시도할지 나타낸다. 이처럼 액터는 서버로 전송되는 프레임(업데이트 빈도)을 지정할 수 있다. 중요한 요소들은 프레임을 높게하여 자주 전송해주어야한다. 플레이어가 조종하는 액터 : 10프레임 (0.1초) AI처럼 느리게 움직이는 액터 : 5프레임 (0.2초) 액터의 파괴 액터가 사용되고 Destory()가 되는 경우에 서버에서는 클라이언트에게 많은 시간을 남겨두지 않는다. 그렇기 때문에 만약 액터가 파괴될때 효과음이나 이펙트를 사용할때 바로 Destory()를 사용하게 되면 클라이언트에서는 실행되지 않는다. 이 문제를 해결하기 위해서는 액터의 가시성과 물리충돌을 없애고, 파괴까지 시간을 부여하면 된다. // 바로삭제 Destroy(); // 클라이언트가 일정 작업을 처리하도록 몇 초뒤에 삭제 Component-&gt;SetVisibility(false, true); Component-&gt;SetCollisionEnabled(ECollisionEnabled::NoCollision); SetLifeSpan(2.f);","headline":"UE5 멀티플레이의 기본","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2022/06/28/UE5-%EB%A9%80%ED%8B%B0%ED%94%8C%EB%A0%88%EC%9D%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2022/06/28/UE5-%EB%A9%80%ED%8B%B0%ED%94%8C%EB%A0%88%EC%9D%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">UE5 | 멀티플레이의 기본</h1>
+  <h2 class="post-subtitle">언리얼에서 진행되는 멀티플레이의 흐름과 명령어</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2022-06-28T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Jun 28, 2022
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 9 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#UE5">#UE5</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#UnrealEngine">#UnrealEngine</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#Udemy">#Udemy</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#C++">#C++</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="unrealengine5-네트워크">UnrealEngine5 네트워크</h2>
+
+<p>UE5 프레임워크는 멀티플레이어 게임을 염두에 두고 만들어졌기 때문에, 기본적인 프레임워크 규칙만 따른다면, 일반적으로 싱글플레이어 게임을 멀티플레이어로 확장하는 데 별다른 작업이 필요하지 않다.
+  네트워크는 서버/클라이언트 모델을 기준으로 만들어졌고, 서버는 클라이언트가 최신 상태를 유지하도록 업데이트 해주는 권위자의 역할을 맡는다. 이때 싱글 플레이어에도 서버가 존재하며, 로컬 머신이 서버의 역할을 맡는다.</p>
+
+<p>※ RPC에 대한 정보를 학습하자!</p>
+
+<p><a href="https://www.youtube.com/watch?v=a8ukx6nPub0">유튭1</a>
+  <a href="https://docs.unrealengine.com/5.0/ko/multiplayer-programming-quick-start-for-unreal-engine/">Docs</a>
+  <a href="https://www.tomlooman.com/">tomlooman</a></p>
+
+<h2 id="replication">Replication</h2>
+
+<p>서버와 클라이언트 사이에서 데이터와 명령을 주고 받는 프로세스. 즉 간단히 말하면 사본을 만든다는 뜻이다.</p>
+
+<p><span style="color:orange;"> 항상 Pawn이 서버에 로그인된 시간 이후부터 적용해야한다. <strong>[AGameModeBase::PostLogin] 권장</strong>  </span></p>
+
+<h2 id="언리얼에서의-멀티-흐름">언리얼에서의 멀티 흐름</h2>
+
+<p><strong><span style="color:orange;"> 게임 플레이에 영향을 미치는 모든 작업은 서버에서 이루어진다. </span></strong></p>
+
+<p>위처럼 플레이에 영향을 미치는 모든 작업은 서버를 통해서 이루어진다고 볼 수 있다. 음향이나 개인상태 창과 같은 경우는 개인 클라이언트에서 이루어져도 무관하지만, <span style="color:orange;">캐릭터의 움직임이나 상호작용과 같이 게임의 흐름에 영향을 미치는 것들은</span> 서버를 통해서 작업이 이루어진 후 클라이언트로 정보를 전달해야만 한다.</p>
+
+<p>※ 체력을 관리하는 ActorComponent 클래스의 HealthComponent와 같은 경우에는 클라에서 관리하지 않고, 오직 서버에만 계산을 진행한다.
+  ※ 사용자가 이동하는 것외에 몬스터와 같은 경우는 서버에서만 이동하도록 한다. (UNavigationSystem에서 오류 발생함)</p>
+
+<h2 id="rpc">RPC</h2>
+
+<blockquote>
+  <p>Remote Procedure Call</p>
+</blockquote>
+
+<p>RPC는 로컬에서 호출되지만 다른 머신에서 원격으로 실행되는 함수를 의미한다.</p>
+
+<p>이를 이용하면 네트워크 연결을 통해서 클라이언트와 서버 사이간에 메시지를 전송할 수 있다.</p>
+
+<h3 id="rpc의-사용">RPC의 사용</h3>
+
+<blockquote>
+  <p>Client</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">UFUNCTION</span><span class="p">(</span><span class="n">Client</span><span class="p">)</span>
+  <span class="kt">void</span> <span class="nf">ClientRPCFunction</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>함수를 서버에서 호출되지만 클라이언트에서 실행되는 RPC</p>
+
+<blockquote>
+  <p>Server</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">UFUNCTION</span><span class="p">(</span><span class="n">Sever</span><span class="p">)</span>
+  <span class="kt">void</span> <span class="nf">SeverRPCFunction</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>함수를 클라이언트에서 호출되지만 서버에서 실행되는 RPC</p>
+
+<blockquote>
+  <p>NetMulticast</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">UFUNCTION</span><span class="p">(</span><span class="n">NetMulticast</span><span class="p">)</span>
+  <span class="kt">void</span> <span class="nf">NetMulticastRPCFunction</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>서버에서 호출된 다음 서버와 연결된 모든 클라이언트에서도 실행되는 RPC, 클라이언트에서도 호출 가능하지만 그때는 로컬에서만 진행</p>
+
+<h3 id="rpc-요구사항">RPC 요구사항</h3>
+
+<ul>
+  <li>Actor 에서 호출되어야 합니다.</li>
+  <li>Actor 는 빈드시 replicated 여야 합니다.</li>
+  <li>서버에서 호출되고 클라이언트에서 실행되는 RPC 의 경우, 해당 Actor 를 실제 소유하고 있는 클라이언트에서만 함수가 실행됩니다.</li>
+  <li>클라이언트에서 호출되고 서버에서 실행되는 RPC 의 경우, 클라이언트는 RPC 가 호출되는 Actor 를 소유해야 합니다.</li>
+  <li>Multicast RPC 는 예외입니다:
+    <ul>
+      <li>서버에서 호출되는 경우, 서버에서는 로컬에서 실행될 뿐만 아니라 현재 연결된 모든 클라이언트에서도 실행됩니다.</li>
+      <li>클라이언트에서 호출되는 경우, 로컬에서만 실행되며, 서버에서는 실행되지 않습니다.</li>
+      <li>현재 멀티캐스트 이벤트에 대해 단순한 스로틀 조절 메카니즘이 있습니다. 멀티캐스트 함수는 주어진 액터의 네트워크 업데이트 기간동안 두 번 이상 리플리케이트되지 않습니다. 장기적으로 크로스 채널 트래픽 관리 및 스스로틀 조절 지원을 개선시킬 계획입니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="기본-명령어">기본 명령어</h2>
+
+<p>아래는 멀티플레이를 제작하는데 필요한 기본적인 것들에 대해서 기술해두었다.</p>
+
+<h3 id="생성과-이동">생성과 이동</h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cm">/* 네트워크 클라이언트에 복제할지 여부 설정*/</span>
+  <span class="c1">// 서버에 생성되면 클라이언트에도 전송 </span>
+  <span class="n">SetReplicates</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>     <span class="c1">// Actor</span>
+  <span class="n">SetIsReplicated</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>   <span class="c1">// Actor Component</span>
+
+  <span class="c1">// 액터의 이동이 네트워크 클라이언트에 복제되는지 여부 설정</span>
+  <span class="n">SetReplicateMovement</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span> 
+</code></pre></div></div>
+
+<p>위 두 명령어는 서버에서 클라이언트로 업데이트된 데이터를 지속적으로 전송하여 동기화 상태를 유지하도록하는 함수이다.
+  이는 Actor 클래스에 존재하며, 기본적으로 생성과 이동을 동기화해준다.</p>
+
+<h3 id="서버-함수">서버 함수</h3>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//cpp file</span>
+  <span class="kt">void</span> <span class="n">AFPSCharacter</span><span class="o">::</span><span class="n">Fire</span><span class="p">(){</span>
+    <span class="c1">// spawn the projectile at the muzzle</span>
+    <span class="n">GetWorld</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">SpawnActor</span><span class="o">&lt;</span><span class="n">AFPSProjectile</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ProjectileClass</span><span class="p">,</span> <span class="n">MuzzleLocation</span><span class="p">,</span> <span class="n">MuzzleRotation</span><span class="p">,</span> <span class="n">ActorSpawnParams</span><span class="p">);</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//header file</span>
+  <span class="kt">void</span> <span class="nf">Fire</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>만약 위와 같이 총알을 발사하는 함수가 있다고 가정하자 이는 싱글플레이 기준으로 작성되었는데, 이를 멀티플레이에 적용하기 위해 함수에 대한 실행을 <strong>클라이언트에서 실행되는 것이 아닌 서버에 실행 요청을 보내려면</strong> 아래와 같은 순서에 따라 확장해야한다.</p>
+
+<ol>
+  <li>
+    <p>기존 함수는 두고 서버에서 활용가능하도록 매크로를 추가한 새로운 함수를 선언한다.</p>
+
+    <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code> <span class="c1">//header file</span>
+ <span class="n">UFUNCTION</span><span class="p">(</span><span class="n">Server</span><span class="p">,</span> <span class="n">Reliable</span><span class="p">,</span> <span class="n">WithValidation</span><span class="p">)</span>
+ <span class="kt">void</span> <span class="nf">ServerFire</span><span class="p">();</span>
+</code></pre></div>    </div>
+
+    <ul>
+      <li>이는 RPC라고 하며, 네트워크를 통한 함수 리플리케이션을 지정하는 것이다.</li>
+      <li>“Server” : 클라이언트에서 호출되지만 서버에서 실행되는 RPC</li>
+      <li>“Reliable” : RPC는 비신뢰성이기 때문에 확실한 실행을 위함</li>
+      <li>“WithValidation” : RPC에 인증을 추가하는 기능으로 악성인지 판단</li>
+    </ul>
+  </li>
+  <li>
+    <p>새롭게 선언된 함수에 대해 2가지 확장된 함수를 구현한다. (Implementation, Validate)</p>
+
+    <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code> <span class="c1">//cpp file</span>
+ <span class="kt">void</span> <span class="n">AFPSCharacter</span><span class="o">::</span><span class="n">Fire</span><span class="p">(){</span>
+   <span class="n">ServerFire</span><span class="p">();</span>
+ <span class="p">}</span>
+
+ <span class="kt">void</span> <span class="n">AFPSCharacter</span><span class="o">::</span><span class="n">ServerFire_Implementation</span><span class="p">(){</span>
+   <span class="n">GetWorld</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">SpawnActor</span><span class="o">&lt;</span><span class="n">AFPSProjectile</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ProjectileClass</span><span class="p">,</span> <span class="n">MuzzleLocation</span><span class="p">,</span> <span class="n">MuzzleRotation</span><span class="p">,</span> <span class="n">ActorSpawnParams</span><span class="p">);</span>
+ <span class="p">}</span>
+
+ <span class="kt">bool</span> <span class="n">AFPSCharacter</span><span class="o">::</span><span class="n">ServerFire_Validate</span><span class="p">(){</span>
+   <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+ <span class="p">}</span>
+</code></pre></div>    </div>
+
+    <ul>
+      <li>기존 Fire()함수에 _Implementation(), _Validate()가 추가되었으며, 이는 각각 <strong>서버를 통한 실행과 유효성 검사를</strong> 의미한다.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="액터의-서버클라-확인">액터의 서버/클라 확인</h3>
+<p>말 그대로 액터가 서버에서 접근했는지, 클라이언트에서 접근했는지 판단하는 방법이다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//cpp file</span>
+  <span class="c1">// Actor :: 서버측인지 확인</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">Role</span> <span class="o">==</span> <span class="n">ROLE_Authority</span><span class="p">)</span> <span class="p">{}</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">HasAuthority</span><span class="p">())</span> <span class="p">{}</span>
+
+  <span class="c1">// ActorComponent :: 서버측인지 확인</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">GetOwner</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">HasAuthority</span><span class="p">())</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<h3 id="파라미터-서버-업데이트">파라미터 서버 업데이트</h3>
+
+<h4 id="replicated">Replicated</h4>
+<p>단순히 변수가 네트워크를 통해 리플리케이트 된다는 것을 의미한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//header file</span>
+  <span class="n">UPROPERTY</span><span class="p">(</span><span class="n">Replicated</span><span class="p">)</span>
+  <span class="kt">int</span> <span class="n">A</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>추가로 아래와 같이 해당 파라미터에 대해서 GetLifetimeReplicatedProps()에 설정을 해주어야 모든 클라이언트와 이 복제를 사용하여 동기화를 유지한다.</p>
+
+<p>※ 헤더에 선언하지 않아도 된다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">"Net/UnrealNetwork.h"</span><span class="cp">
+</span>
+  <span class="kt">void</span> <span class="err">클래스명</span><span class="o">::</span><span class="n">GetLifetimeReplicatedProps</span><span class="p">(</span><span class="n">TArray</span><span class="o">&lt;</span> <span class="n">FLifetimeProperty</span> <span class="o">&gt;</span> <span class="o">&amp;</span> <span class="n">OutLifetimeProps</span><span class="p">)</span> <span class="k">const</span>
+  <span class="p">{</span>
+    <span class="n">Super</span><span class="o">::</span><span class="n">GetLifetimeReplicatedProps</span><span class="p">(</span><span class="n">OutLifetimeProps</span><span class="p">);</span>
+
+    <span class="c1">// 단순히 파라미터를 갱신한다</span>
+    <span class="n">DOREPLIFETIME</span><span class="p">(</span><span class="err">클래스명</span><span class="p">,</span> <span class="err">파라미터명</span><span class="p">);</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="replicatedusing">ReplicatedUsing</h4>
+
+<p>이는 파라미터 A가 값이 변경될때 자동으로 콜백함수를 호출하는 방법이다. 기본적으로 클라이언트에서 호출되며 서버에 대해서 갱신할때 사용한다.</p>
+
+<p>변수에 대한 것은 바뀌게 되지만 OnRep은 서버에서 실행되지 않기 때문에 한번 더 실행해주어야한다.(?)</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//header file</span>
+  <span class="n">UPROPERTY</span><span class="p">(</span><span class="n">ReplicatedUsing</span> <span class="o">=</span> <span class="n">OnRep_</span><span class="err">함수명</span><span class="p">)</span>
+  <span class="kt">int</span> <span class="n">A</span><span class="p">;</span>
+
+  <span class="n">UFUNCTION</span><span class="p">()</span>
+  <span class="n">OnRep_</span><span class="err">함수명</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>Replicated와 동일하게 추가로 아래와 같이 해당 파라미터에 대해서 GetLifetimeReplicatedProps()에 설정을 해주어야 모든 클라이언트와 이 복제를 사용하여 동기화를 유지한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">"Net/UnrealNetwork.h"</span><span class="cp">
+</span>
+  <span class="kt">void</span> <span class="err">클래스명</span><span class="o">::</span><span class="n">GetLifetimeReplicatedProps</span><span class="p">(</span><span class="n">TArray</span><span class="o">&lt;</span> <span class="n">FLifetimeProperty</span> <span class="o">&gt;</span> <span class="o">&amp;</span> <span class="n">OutLifetimeProps</span><span class="p">)</span> <span class="k">const</span>
+  <span class="p">{</span>
+    <span class="n">Super</span><span class="o">::</span><span class="n">GetLifetimeReplicatedProps</span><span class="p">(</span><span class="n">OutLifetimeProps</span><span class="p">);</span>
+
+    <span class="c1">// 단순히 파라미터를 갱신한다</span>
+    <span class="n">DOREPLIFETIME</span><span class="p">(</span><span class="err">클래스명</span><span class="p">,</span> <span class="err">파라미터명</span><span class="p">);</span>
+
+    <span class="c1">// 조건에 따라 파라미터를 갱신해주며, 대역폭을 절약할 수 있다.</span>
+    <span class="n">DOREPLIFETIME_CONDITION</span><span class="p">(</span><span class="err">클래스명</span><span class="p">,</span> <span class="err">파라미터명</span><span class="p">,</span> <span class="n">COND_OwnerOnly</span><span class="p">);</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="액터의-회전">액터의 회전</h3>
+
+<p>Pawn클래스에 아래와 같이 <strong>RemoteViewPitch가</strong> 존재하는데 이는 Pawn의 Pitch의 회전을 담당하고 있다.
+  이는 replicated되어 있기 때문에 서버에서 값이 변경될 때마다 클라이언트에 업데이트된다. 그렇기에 단순히 이를 끌어다가 사용하면 된다.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	<span class="n">UPROPERTY</span><span class="p">(</span><span class="n">replicated</span><span class="p">)</span>
+	<span class="n">uint8</span> <span class="n">RemoteViewPitch</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h2 id="게임-모드">게임 모드</h2>
+
+<p>게임 모드는 서버에만 존재하고, Replicated가 불가능하기 때문에 멀티캐스트 함수를 만들어서 해결해야한다. 이때 <strong>“GameStateBase”에서</strong>  <span style="color:orange;"> NetMulticast</span>를 사용한다. 이는 서버에서 호출되어 모든 클라이언트로 전송되어 실행된다.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//header of GameStateBase</span>
+  <span class="n">UFUNCTION</span><span class="p">(</span><span class="n">NetMulticast</span><span class="p">,</span> <span class="n">Reliable</span><span class="p">)</span>
+  <span class="kt">void</span> <span class="nf">A</span><span class="p">();</span>
+</code></pre></div></div>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//cpp of GameStateBase</span>
+  <span class="kt">void</span> <span class="nf">A_Implementation</span><span class="p">()</span> <span class="p">{</span><span class="o">~~~~</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/GameMode_State.png" height="200" title="GameMode_State"></p>
+
+<p>이렇게 사용하는 이유는 위 그림과 같이 게임상태는 항상 사용가능하기 때문이다.</p>
+
+<ul>
+  <li>추가로 플레이어 컨트롤러는 서버/클라이언트 모두에 존재한다. 즉 서버에 컨트롤러가 클라이언트를 모두 합친 3개가 존재하고, 클라이언트는 각각 1개씩 존재한다.</li>
+</ul>
+
+<h2 id="데이터-전송">데이터 전송</h2>
+
+<p>FVector_NetQuantize, TEnumAsByte와 같은 타입을 사용하여 데이터를 양자화하고, 이 데이터를 클라이언트에 복제하는 데 필요한 크기를 크게 줄여 서버간 효율적으로 통신한다.</p>
+
+<p>아래는 구조체에서 사용한 것으로 이를 <strong>ReplicatedUsing과</strong> 혼합하여 사용하면 효과적이다.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">// Contains information of a single hitscan weapon linetrace</span>
+  <span class="n">USTRUCT</span><span class="p">()</span>
+  <span class="k">struct</span> <span class="nc">FHitScanTrace</span> <span class="p">{</span>
+    <span class="n">GENERATED_BODY</span><span class="p">()</span>
+
+  <span class="nl">public:</span>
+    <span class="n">UPROPERTY</span><span class="p">()</span>
+    <span class="n">TEnumAsByte</span><span class="o">&lt;</span><span class="n">EPhysicalSurface</span><span class="o">&gt;</span> <span class="n">SurfaceType</span><span class="p">;</span>
+
+    <span class="n">UPROPERTY</span><span class="p">()</span>
+    <span class="n">FVector_NetQuantize</span> <span class="n">TraceTo</span><span class="p">;</span>
+  <span class="p">};</span>
+</code></pre></div></div>
+
+<h2 id="서버-tick-시간">서버 Tick 시간</h2>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//BeginPlay...</span>
+	<span class="n">NetUpdateFrequency</span> <span class="o">=</span> <span class="mf">66.</span><span class="n">f</span><span class="p">;</span>      
+	<span class="n">MinNetUpdateFrequency</span> <span class="o">=</span> <span class="mf">33.</span><span class="n">f</span><span class="p">;</span>   <span class="c1">//최소 프레임</span>
+</code></pre></div></div>
+
+<p><strong>“NetUpdateFrequency는”</strong> 액터가 자체 업데이트를 할 때 초당 최대 몇번까지 업데이트를 할지 나타내며, <strong>“MinNetUpdateFrequency는”</strong> 최소 몇 번까지 업데이트를 시도할지 나타낸다.</p>
+
+<p>이처럼 액터는 서버로 전송되는 프레임(업데이트 빈도)을 지정할 수 있다. 중요한 요소들은 프레임을 높게하여 자주 전송해주어야한다.</p>
+
+<ul>
+  <li>플레이어가 조종하는 액터 : 10프레임 (0.1초)</li>
+  <li>AI처럼 느리게 움직이는 액터 : 5프레임 (0.2초)</li>
+</ul>
+
+<h2 id="액터의-파괴">액터의 파괴</h2>
+
+<p>액터가 사용되고 Destory()가 되는 경우에 서버에서는 클라이언트에게 많은 시간을 남겨두지 않는다. 그렇기 때문에 만약 액터가 파괴될때 효과음이나 이펙트를 사용할때 바로 Destory()를 사용하게 되면 클라이언트에서는 실행되지 않는다.</p>
+
+<p>이 문제를 해결하기 위해서는 액터의 가시성과 물리충돌을 없애고, 파괴까지 시간을 부여하면 된다.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">// 바로삭제</span>
+  <span class="n">Destroy</span><span class="p">();</span>
+
+  <span class="c1">// 클라이언트가 일정 작업을 처리하도록 몇 초뒤에 삭제</span>
+  <span class="n">Component</span><span class="o">-&gt;</span><span class="n">SetVisibility</span><span class="p">(</span><span class="nb">false</span><span class="p">,</span> <span class="nb">true</span><span class="p">);</span>
+  <span class="n">Component</span><span class="o">-&gt;</span><span class="n">SetCollisionEnabled</span><span class="p">(</span><span class="n">ECollisionEnabled</span><span class="o">::</span><span class="n">NoCollision</span><span class="p">);</span>
+  <span class="n">SetLifeSpan</span><span class="p">(</span><span class="mf">2.</span><span class="n">f</span><span class="p">);</span>
+</code></pre></div></div>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/codingtest/2022/06/18/%EC%BD%94%ED%85%8C-%EB%AA%A8%EB%93%A0-%EC%95%84%EB%82%98%EA%B7%B8%EB%9E%A8.html" title="코딩테스트 | 모든 아나그램">코딩테스트 | 모든 아나그램</a><a class="next" href="/jekyll-theme-yat/codingtest/2022/06/28/%EC%BD%94%ED%85%8C-%EB%94%94%EC%8A%A4%ED%81%AC-%EC%BB%A8%ED%8A%B8%EB%A1%A4%EB%9F%AC.html" title="코딩테스트 | 디스크 컨트롤러">코딩테스트 | 디스크 컨트롤러</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/07/%EC%BD%94%ED%85%8C-%EB%B9%84%EB%B0%80%EC%A7%80%EB%8F%84.html" title="코딩테스트 | 디스크 컨트롤러">코딩테스트 | 비밀지도</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/30/%EC%BD%94%ED%85%8C-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC.html" title="코딩테스트 | 디스크 컨트롤러">코딩테스트 | 네트워크</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/06/14/%EC%BD%94%ED%85%8C-%EB%B0%94%EB%91%91%EB%8C%80%ED%9A%8C.html" title="코딩테스트 | 디스크 컨트롤러">코딩테스트 | 바둑대회</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/24/%EC%BD%94%ED%85%8C-%EB%AA%A8%EC%9D%8C%EC%82%AC%EC%A0%84.html" title="코딩테스트 | 디스크 컨트롤러">코딩테스트 | 모음사전</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2022 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>코딩테스트 모든 아나그램 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.2.2">
+<meta property="og:title" content="코딩테스트 모든 아나그램">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="문제 Anagram이란 두 문자열이 알파벳의 나열 순서를 다르지만 그 구성이 일치하면 두 단어는 아나그램이라고 합니다. 예를 들면 AbaAeCe 와 baeeACA 는 알파벳을 나열 순서는 다르지만 그 구성을 살펴보면 A(2), a(1), b(1), C(1), e(2)로 알파벳과 그 개수가 모두 일치합니다. 즉 어느 한 단어를 재배열하면 상대편 단어가 될 수 있는 것을 아나그램이라 합니다. 하나의 문자열 S가 주어지면, S문자열에서 T문자열과 아나그램이 되는 연속된 부분문자열이 몇 개 있는지 구하는 프로그램을 작성하세요. 조건 첫 번째 줄에 길이 100,000을 넘지 않는 문자열 S가 주어진다. 두 번째 줄에 길이 50,000을 넘지 않는 문자열 T가 주어진다.(T길이&lt;=S길이) 두 문자열의 모두 소문자로 입력된다. 풀이방식 1번 풀이방식 입력 예시 : eabcbacade abc 출력 예시 : 3 먼저 문자열 S의 한 문자씩 Map에 추가하며, 위 그림와 같은 구조(char, int)를 이룬다. 이때 Map은 unordered를 사용하여 자동으로 정렬되지 않도록한다. 그 후 T문자열의 한 문자씩 Map의 내용과 비교해가며, 동일하다면 map의 int를 하나씩 빼준다. 이때 map의 모든 int값이 0이라면 “아나그램이 되는 연속된 부분 문자열”이기 때문에 cnt에 1을 더해준다. 이때 속도향상을 위해서 사전 i-1번째의 문자가 map에 있다면 int에 더해주고, 추후 i + s.size() - 1번째 문자가 map에 있다면 int에서 빼준다. 위 그림에서는 a,b,c가 0이 되었기에 아나그램을 만족한다. #include &lt;iostream&gt; #include &lt;string&gt; #include &lt;unordered_map&gt; int main(){ string s, t; int cnt = 0; unordered_map&lt;char, int&gt; M; cin &gt;&gt; s &gt;&gt; t; for(int i=0;i &lt; t.size();i++) M[t[i]]++; //init bool isDone = true; for(int i=0;i&lt;t.size();i++) if(M.find(s[i]) != M.end()) M[s[i]]--; for(auto it = M.begin();it != M.end();it++){ if(it-&gt;second != 0){ isDone = false; break; } } if(isDone) cnt++; //calcuate for(int i=1;i &lt; s.size()-1;i++){ isDone = true; if(M.find(s[i-1]) != M.end()) M[s[i-1]]++; if(M.find(s[i+t.size()-1]) != M.end()) M[s[i+t.size()-1]]--; for(auto it = M.begin();it != M.end();it++){ if(it-&gt;second != 0){ isDone = false; break; } } if(isDone) cnt++; } cout &lt;&lt; cnt; return 0; } 2번 풀이방식 이전 방식과 비슷하지만 이는 map을 2개 사용하여, 두 개의 맵이 동일하다면 처리. 이때도 역시 앞을 제거, 뒤를 추가해가며 진행 #include &lt;iostream&gt; #include &lt;string&gt; #include &lt;unordered_map&gt; int main(){ string S, T; int cnt=0; unordered_map&lt;char, int&gt; sH, tH; cin &gt;&gt; S &gt;&gt; T; for(auto x : T) tH[x]++; int L=T.size()-1; for(int i=0; i&lt;L; i++) sH[S[i]]++; int lt=0; for(int rt=L; rt&lt;S.size(); rt++){ sH[S[rt]]++; if(sH==tH) cnt++; sH[S[lt]]--; if(sH[S[lt]]==0) sH.erase(S[lt]); lt++; } cout&lt;&lt;cnt&lt;&lt;endl; return 0; } 개선점 조금 더 단순하게 구현하도록 노력하자.">
+<meta property="og:description" content="문제 Anagram이란 두 문자열이 알파벳의 나열 순서를 다르지만 그 구성이 일치하면 두 단어는 아나그램이라고 합니다. 예를 들면 AbaAeCe 와 baeeACA 는 알파벳을 나열 순서는 다르지만 그 구성을 살펴보면 A(2), a(1), b(1), C(1), e(2)로 알파벳과 그 개수가 모두 일치합니다. 즉 어느 한 단어를 재배열하면 상대편 단어가 될 수 있는 것을 아나그램이라 합니다. 하나의 문자열 S가 주어지면, S문자열에서 T문자열과 아나그램이 되는 연속된 부분문자열이 몇 개 있는지 구하는 프로그램을 작성하세요. 조건 첫 번째 줄에 길이 100,000을 넘지 않는 문자열 S가 주어진다. 두 번째 줄에 길이 50,000을 넘지 않는 문자열 T가 주어진다.(T길이&lt;=S길이) 두 문자열의 모두 소문자로 입력된다. 풀이방식 1번 풀이방식 입력 예시 : eabcbacade abc 출력 예시 : 3 먼저 문자열 S의 한 문자씩 Map에 추가하며, 위 그림와 같은 구조(char, int)를 이룬다. 이때 Map은 unordered를 사용하여 자동으로 정렬되지 않도록한다. 그 후 T문자열의 한 문자씩 Map의 내용과 비교해가며, 동일하다면 map의 int를 하나씩 빼준다. 이때 map의 모든 int값이 0이라면 “아나그램이 되는 연속된 부분 문자열”이기 때문에 cnt에 1을 더해준다. 이때 속도향상을 위해서 사전 i-1번째의 문자가 map에 있다면 int에 더해주고, 추후 i + s.size() - 1번째 문자가 map에 있다면 int에서 빼준다. 위 그림에서는 a,b,c가 0이 되었기에 아나그램을 만족한다. #include &lt;iostream&gt; #include &lt;string&gt; #include &lt;unordered_map&gt; int main(){ string s, t; int cnt = 0; unordered_map&lt;char, int&gt; M; cin &gt;&gt; s &gt;&gt; t; for(int i=0;i &lt; t.size();i++) M[t[i]]++; //init bool isDone = true; for(int i=0;i&lt;t.size();i++) if(M.find(s[i]) != M.end()) M[s[i]]--; for(auto it = M.begin();it != M.end();it++){ if(it-&gt;second != 0){ isDone = false; break; } } if(isDone) cnt++; //calcuate for(int i=1;i &lt; s.size()-1;i++){ isDone = true; if(M.find(s[i-1]) != M.end()) M[s[i-1]]++; if(M.find(s[i+t.size()-1]) != M.end()) M[s[i+t.size()-1]]--; for(auto it = M.begin();it != M.end();it++){ if(it-&gt;second != 0){ isDone = false; break; } } if(isDone) cnt++; } cout &lt;&lt; cnt; return 0; } 2번 풀이방식 이전 방식과 비슷하지만 이는 map을 2개 사용하여, 두 개의 맵이 동일하다면 처리. 이때도 역시 앞을 제거, 뒤를 추가해가며 진행 #include &lt;iostream&gt; #include &lt;string&gt; #include &lt;unordered_map&gt; int main(){ string S, T; int cnt=0; unordered_map&lt;char, int&gt; sH, tH; cin &gt;&gt; S &gt;&gt; T; for(auto x : T) tH[x]++; int L=T.size()-1; for(int i=0; i&lt;L; i++) sH[S[i]]++; int lt=0; for(int rt=L; rt&lt;S.size(); rt++){ sH[S[rt]]++; if(sH==tH) cnt++; sH[S[lt]]--; if(sH[S[lt]]==0) sH.erase(S[lt]); lt++; } cout&lt;&lt;cnt&lt;&lt;endl; return 0; } 개선점 조금 더 단순하게 구현하도록 노력하자.">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/06/18/%EC%BD%94%ED%85%8C-%EB%AA%A8%EB%93%A0-%EC%95%84%EB%82%98%EA%B7%B8%EB%9E%A8.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/06/18/%EC%BD%94%ED%85%8C-%EB%AA%A8%EB%93%A0-%EC%95%84%EB%82%98%EA%B7%B8%EB%9E%A8.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2022-06-18T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="코딩테스트 모든 아나그램">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2022-06-18T00:00:00+00:00","datePublished":"2022-06-18T00:00:00+00:00","description":"문제 Anagram이란 두 문자열이 알파벳의 나열 순서를 다르지만 그 구성이 일치하면 두 단어는 아나그램이라고 합니다. 예를 들면 AbaAeCe 와 baeeACA 는 알파벳을 나열 순서는 다르지만 그 구성을 살펴보면 A(2), a(1), b(1), C(1), e(2)로 알파벳과 그 개수가 모두 일치합니다. 즉 어느 한 단어를 재배열하면 상대편 단어가 될 수 있는 것을 아나그램이라 합니다. 하나의 문자열 S가 주어지면, S문자열에서 T문자열과 아나그램이 되는 연속된 부분문자열이 몇 개 있는지 구하는 프로그램을 작성하세요. 조건 첫 번째 줄에 길이 100,000을 넘지 않는 문자열 S가 주어진다. 두 번째 줄에 길이 50,000을 넘지 않는 문자열 T가 주어진다.(T길이&lt;=S길이) 두 문자열의 모두 소문자로 입력된다. 풀이방식 1번 풀이방식 입력 예시 : eabcbacade abc 출력 예시 : 3 먼저 문자열 S의 한 문자씩 Map에 추가하며, 위 그림와 같은 구조(char, int)를 이룬다. 이때 Map은 unordered를 사용하여 자동으로 정렬되지 않도록한다. 그 후 T문자열의 한 문자씩 Map의 내용과 비교해가며, 동일하다면 map의 int를 하나씩 빼준다. 이때 map의 모든 int값이 0이라면 “아나그램이 되는 연속된 부분 문자열”이기 때문에 cnt에 1을 더해준다. 이때 속도향상을 위해서 사전 i-1번째의 문자가 map에 있다면 int에 더해주고, 추후 i + s.size() - 1번째 문자가 map에 있다면 int에서 빼준다. 위 그림에서는 a,b,c가 0이 되었기에 아나그램을 만족한다. #include &lt;iostream&gt; #include &lt;string&gt; #include &lt;unordered_map&gt; int main(){ string s, t; int cnt = 0; unordered_map&lt;char, int&gt; M; cin &gt;&gt; s &gt;&gt; t; for(int i=0;i &lt; t.size();i++) M[t[i]]++; //init bool isDone = true; for(int i=0;i&lt;t.size();i++) if(M.find(s[i]) != M.end()) M[s[i]]--; for(auto it = M.begin();it != M.end();it++){ if(it-&gt;second != 0){ isDone = false; break; } } if(isDone) cnt++; //calcuate for(int i=1;i &lt; s.size()-1;i++){ isDone = true; if(M.find(s[i-1]) != M.end()) M[s[i-1]]++; if(M.find(s[i+t.size()-1]) != M.end()) M[s[i+t.size()-1]]--; for(auto it = M.begin();it != M.end();it++){ if(it-&gt;second != 0){ isDone = false; break; } } if(isDone) cnt++; } cout &lt;&lt; cnt; return 0; } 2번 풀이방식 이전 방식과 비슷하지만 이는 map을 2개 사용하여, 두 개의 맵이 동일하다면 처리. 이때도 역시 앞을 제거, 뒤를 추가해가며 진행 #include &lt;iostream&gt; #include &lt;string&gt; #include &lt;unordered_map&gt; int main(){ string S, T; int cnt=0; unordered_map&lt;char, int&gt; sH, tH; cin &gt;&gt; S &gt;&gt; T; for(auto x : T) tH[x]++; int L=T.size()-1; for(int i=0; i&lt;L; i++) sH[S[i]]++; int lt=0; for(int rt=L; rt&lt;S.size(); rt++){ sH[S[rt]]++; if(sH==tH) cnt++; sH[S[lt]]--; if(sH[S[lt]]==0) sH.erase(S[lt]); lt++; } cout&lt;&lt;cnt&lt;&lt;endl; return 0; } 개선점 조금 더 단순하게 구현하도록 노력하자.","headline":"코딩테스트 모든 아나그램","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/06/18/%EC%BD%94%ED%85%8C-%EB%AA%A8%EB%93%A0-%EC%95%84%EB%82%98%EA%B7%B8%EB%9E%A8.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/codingtest/2022/06/18/%EC%BD%94%ED%85%8C-%EB%AA%A8%EB%93%A0-%EC%95%84%EB%82%98%EA%B7%B8%EB%9E%A8.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">코딩테스트 | 모든 아나그램</h1>
+  <h2 class="post-subtitle">시뮬레이션</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2022-06-18T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Jun 18, 2022
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 5 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#CodingTest">#CodingTest</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#C++">#C++</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="문제">문제</h2>
+
+<p>Anagram이란 두 문자열이 알파벳의 나열 순서를 다르지만 그 구성이 일치하면 두 단어는 아나그램이라고 합니다. 예를 들면 AbaAeCe 와 baeeACA 는 알파벳을 나열 순서는 다르지만 그 구성을 살펴보면 A(2), a(1), b(1), C(1), e(2)로 알파벳과 그 개수가 모두 일치합니다. 즉 어느 한 단어를 재배열하면 상대편 단어가 될 수 있는 것을 아나그램이라 합니다. 하나의 문자열 S가 주어지면, S문자열에서 T문자열과 아나그램이 되는 연속된 부분문자열이 몇 개 있는지 구하는 프로그램을 작성하세요.</p>
+
+<h2 id="조건">조건</h2>
+
+<ul>
+  <li>첫 번째 줄에 길이 100,000을 넘지 않는 문자열 S가 주어진다.</li>
+  <li>두 번째 줄에 길이 50,000을 넘지 않는 문자열 T가 주어진다.(T길이&lt;=S길이)</li>
+  <li>두 문자열의 모두 소문자로 입력된다.</li>
+</ul>
+
+<h2 id="풀이방식">풀이방식</h2>
+
+<h3 id="1번-풀이방식">1번 풀이방식</h3>
+
+<ul>
+  <li>입력 예시 : eabcbacade abc</li>
+  <li>출력 예시 : 3</li>
+</ul>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/Ana_init.png" alt="Ana_init"></p>
+
+<p>먼저 문자열 S의 한 문자씩 Map에 추가하며, 위 그림와 같은 구조(char, int)를 이룬다. 이때 Map은 unordered를 사용하여 자동으로 정렬되지 않도록한다. 그 후 T문자열의 한 문자씩 Map의 내용과 비교해가며, 동일하다면 map의 int를 하나씩 빼준다. 이때 map의 모든 int값이 0이라면 “아나그램이 되는 연속된 부분 문자열”이기 때문에 cnt에 1을 더해준다.</p>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/Ana_cal.png" alt="Ana_cal"></p>
+
+<p>이때 속도향상을 위해서 사전 i-1번째의 문자가 map에 있다면 int에 더해주고, 추후 i + s.size() - 1번째 문자가 map에 있다면 int에서 빼준다. 위 그림에서는 a,b,c가 0이 되었기에 아나그램을 만족한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;unordered_map&gt;</span><span class="cp">
+</span>
+  <span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">string</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">char</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">M</span><span class="p">;</span>
+    <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">s</span> <span class="o">&gt;&gt;</span> <span class="n">t</span><span class="p">;</span>
+      
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">t</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">M</span><span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">++</span><span class="p">;</span>
+      
+    <span class="c1">//init</span>
+    <span class="kt">bool</span> <span class="n">isDone</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">t</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="k">if</span><span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">!=</span> <span class="n">M</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="n">M</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">--</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span><span class="n">it</span> <span class="o">!=</span> <span class="n">M</span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="n">it</span><span class="o">++</span><span class="p">){</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+        <span class="n">isDone</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">isDone</span><span class="p">)</span> <span class="n">cnt</span><span class="o">++</span><span class="p">;</span> 
+     
+    <span class="c1">//calcuate</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">isDone</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+       
+      <span class="k">if</span><span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">!=</span> <span class="n">M</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="n">M</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">++</span><span class="p">;</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">t</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">!=</span> <span class="n">M</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> 	<span class="n">M</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">t</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">--</span><span class="p">;</span>
+      
+      <span class="k">for</span><span class="p">(</span><span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">M</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span><span class="n">it</span> <span class="o">!=</span> <span class="n">M</span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="n">it</span><span class="o">++</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+          <span class="n">isDone</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+          <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      
+      <span class="k">if</span><span class="p">(</span><span class="n">isDone</span><span class="p">)</span> <span class="n">cnt</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">cnt</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="2번-풀이방식">2번 풀이방식</h3>
+
+<p>이전 방식과 비슷하지만 이는 map을 2개 사용하여, 두 개의 맵이 동일하다면 처리. 이때도 역시 앞을 제거, 뒤를 추가해가며 진행</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;unordered_map&gt;</span><span class="cp">
+</span>
+  <span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">string</span> <span class="n">S</span><span class="p">,</span> <span class="n">T</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">cnt</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">char</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">sH</span><span class="p">,</span> <span class="n">tH</span><span class="p">;</span>
+    <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">S</span> <span class="o">&gt;&gt;</span> <span class="n">T</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="k">auto</span> <span class="n">x</span> <span class="o">:</span> <span class="n">T</span><span class="p">)</span> <span class="n">tH</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">L</span><span class="o">=</span><span class="n">T</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">L</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">sH</span><span class="p">[</span><span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">++</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">lt</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">rt</span><span class="o">=</span><span class="n">L</span><span class="p">;</span> <span class="n">rt</span><span class="o">&lt;</span><span class="n">S</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">rt</span><span class="o">++</span><span class="p">){</span>
+      <span class="n">sH</span><span class="p">[</span><span class="n">S</span><span class="p">[</span><span class="n">rt</span><span class="p">]]</span><span class="o">++</span><span class="p">;</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">sH</span><span class="o">==</span><span class="n">tH</span><span class="p">)</span> <span class="n">cnt</span><span class="o">++</span><span class="p">;</span>
+      <span class="n">sH</span><span class="p">[</span><span class="n">S</span><span class="p">[</span><span class="n">lt</span><span class="p">]]</span><span class="o">--</span><span class="p">;</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">sH</span><span class="p">[</span><span class="n">S</span><span class="p">[</span><span class="n">lt</span><span class="p">]]</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="n">sH</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">S</span><span class="p">[</span><span class="n">lt</span><span class="p">]);</span>
+      <span class="n">lt</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">cnt</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="개선점">개선점</h2>
+<ul>
+  <li>조금 더 단순하게 구현하도록 노력하자.</li>
+</ul>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/codingtest/2022/06/16/%EC%BD%94%ED%85%8C-%EC%88%A8%EA%B2%A8%EC%A7%84-%ED%95%A9.html" title="코딩테스트 | 숨겨진 합">코딩테스트 | 숨겨진 합</a><a class="next" href="/jekyll-theme-yat/ue5/2022/06/28/UE5-%EB%A9%80%ED%8B%B0%ED%94%8C%EB%A0%88%EC%9D%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8.html" title="UE5 | 멀티플레이의 기본">UE5 | 멀티플레이의 기본</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/13/UE5-Assert.html" title="UE5 | 멀티플레이의 기본">UE5 | Assert</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/17/%EC%BD%94%ED%85%8C-2-x-n-%ED%83%80%EC%9D%BC%EB%A7%81.html" title="UE5 | 멀티플레이의 기본">코딩테스트 | 2 x n 타일링</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/03/%EC%BD%94%ED%85%8C-%EA%B0%80%EC%9E%A5-%EB%A8%BC-%EB%85%B8%EB%93%9C.html" title="UE5 | 멀티플레이의 기본">코딩테스트 | 가장 먼 노드</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/codingtest/2022/07/28/%EC%BD%94%ED%85%8C-%EC%82%BC%EA%B0%81-%EB%8B%AC%ED%8C%BD%EC%9D%B4.html" title="UE5 | 멀티플레이의 기본">코딩테스트 | 삼각 달팽이</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2022 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
