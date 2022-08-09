@@ -392,6 +392,116 @@ C = 2 * A;            //GOOD
 ### 잊지 말자
   - 어떤 함수에 들어가는 모든 매개변수(this 포인터가 가르키는 객체도 포함해서)에 대해 타입 변환을 해 줄 필요가 있다면, 그 함수는 비멤버이어야 한다.
 
+## 항목 25 : 예외를 던지지 않는 swap에 대한 지원도 생각해보자
+
+```cpp
+// swap의 원형 : std내에 존재
+namespace std{
+  template<Typename T>
+  void swap(T &a, T &b){
+    T temp(a);
+    a = b;
+    b = temp;
+  }
+}
+```
+
+swap은 초장기부터 STL에 포함된 이래로 예외 안전성 프로그래밍에 없어선 안 될 감초 역할로서, 자기대입 현상의 가능성에 대처하기 위한 대표적인 메커니즘으로서 널리 사용되었다. 이는 두 객체의 값을 "맞바꾸기"하여, 각자의 값을 상대방에게 주는 동작을 한다. 위는 swap의 원형인데, __한 번 호출 시 복사가 세 번발생한다.__ 만약 데이터가 포인터일때 swap을 사용하면 큰 손해를 볼 수 있다.
+
+### 클래스의 경우
+
+```cpp
+// pimpl 관용구기법
+class WidgetImpl{   //실제 데이터가 담긴 클래스
+private:
+  int a,b,c;
+  vector<double> v;
+};
+class Widget{
+public:
+  Widget(const Widget &rhs);
+  Widget& operator = (const Widget &rhs){
+    ...
+    *pImpl = *(rhs.pImpl);
+  }
+  void swap(Widget &other) {
+    using std::swap;
+    swap(pImpl, other.pImpl);
+  }
+private:
+  WidgetImpl *pImpl;    //Widget의 실제 데이터를 가지는 포인터
+}
+
+//수정된 swap
+namespace std{
+  template<>
+  void swap<Widget>(Widget &a, Widget &b){
+    a.swap(b);
+  }
+}
+```
+
+이를 해결하기 위한 기법이 바로 __"pimpl 관용구"이다.__ 이는 pImpl 포인터만 살짝 바꾸면 swap을 사용할 수 있다. 이 정보를 알리기 위해서 "std::swap"을 위와 같이 수정한다. 함수 이름 뒤에 <Widget>을 붙여 템플릿 특수화 함수라는 것을 컴파일러에게 알려준다. 일반적으로 std 구성요소는 변경이 불가능하나, 프로그래머가 직접 만든 타입에 대해 표준 템플릿을 완전 특수화하는 것은 허용이 된다.
+
+<span style = "color:orange;">즉, 두 객체의 값을 빠르게 바꿀 함수 swap을 public 멤버로 만들고, 특수화된 std::swap에서 이를 호출하도록 만든다.</span>
+
+### 클래스 템플릿의 경우
+
+```cpp
+//클래스 템플릿의 경우
+template<typename T>
+class WidgetImpl {...};
+
+// 비멤버 swap
+namespace WidgetStuff{
+  template<typename T>
+  class Widget {...};   //swap이란 멤버 함수 존재
+
+  template<typename T>  // 비멤버 swap함수
+  void swap(Widget<T> &a, Widget<T> &b){
+    a.swap(b);
+  }
+} 
+```
+
+만약 클래스가 아닌 클래스 템플릿으로 구성된 경우에는 기존과 동일하게 구현하면 안된다. C++는 클래스 템플릿에 대해서 부분 특수화를 허용하지만 함수 템플릿에 대해서는 허용하지 않기 때문이다. 그렇기 때문에 이를 위해서는 __"멤버 swap을 호출하는 비멤버 swap을 선언해 놓되, 이 비멤버 함수를 std::swap의 특수화 버전, 오버로딩 버전으로 선언하지만 않으면 된다."__
+
+이제는 어떤 코드가 swap을 호출하더라도, 컴파일러는 c++의 이름 탐색 규칙(인자 기반 탐색, 쾨니그 탐색)에 의해 WidgetStuff 네임스페이스 안에서 widget 특수화 버전을 찾아낸다. 하지만 "클래스 타입 전용의 swap"이 호출되도록 하고 싶다면, 그 클래스와 동일한 네임스페이스 안에 비멤버 버전의 swap을 만들어 넣고, 동시에 std::swap의 특수화 버전도 준비해야한다.
+
+### 어떤 swap을 호출?
+
+```cpp
+template<typename T>
+void DoSomething(T &obj1, T &obj2){
+  using std::swap;    //std::swap을 이 함수 안으로 끌고 들어온다.
+
+  swap(obj1, obj2);
+}
+```
+
+만약 swap을 사용할 것인데, 어떤 swap을 호출해야 될지 모를때는 먼저 __"타입 T 전용 버전이 있다면 호출하고, 없다면 std의 일반형을 호출하도록 구현"한다.__ 그는 위의 예시 처럼 __"using std::swap;"을__ 추가하면 된다.
+
+단순히 기본 std의 일반형을 호출하고 싶다고 한정자를 붙여 "std::swap(obj1, obj2)"를 사용하면, 매커니즘에 영향이 가기 때문에 사용하지 마라.
+
+### 요약
+
+_첫째,_ 표준에서 제공하는 swap이 클래스 및 클래스 템플릿에 대해 납득할 만한 효율을 보이면, 그냥 아무것도 하지 말고 쓰자.
+
+_둘째,_ 표준 swap의 효율이 기대한 만큼 충분하지 않다면 아래 과정을 따르자.
+  1. 두 객체의 값을 빠르게 바꾸는 함수 swap을 public 멤버 함수로 만들자. (예외 X)
+  2. 클래스 혹은 템플릿이 들어 있는 네임스페이스에 비멤버 swap을 만들어 넣고, 1번에서 만든 swap멤버 함수를 이 비멤버 함수가 호출하도록 한다.
+  3. 클래스 템플릿이 아닌 클래스를 만들고 있다면, std::swap의 특수화 버전을 준비하고, 이 특수화 버전에서 swap 멤버 함수를 호출하자.
+
+_셋째,_ 사용자 입장에서 swap을 호출할 때, swap을 호출하는 함수가 std::swap을 볼 수 있도록 using 선언을 반드시 포함시키고, 네임스페이스 한정자를 붙이지 말자.
+
+_마지막,_ swap을 진짜 유용하게 사용하는 방법 중에서 클래스가 강력한 예외 안전성 보장을 제공하도록 도움을 주는 방법이 있기 때문에, __예외는 던지면 안된다.__
+
+### 잊지 말자
+  - std::swap이 여러분의 타입에 대해 느리게 동작할 여지가 있다면, swap 멤버 함수를 제공하고, 예외를 던지지 않도록 처리하자.
+  - 멤버 swap을 제공했으면, 이 멤버를 호출하는 비멤버 swap도 제공하고, 클래스(템플릿이 아닌)에 대해서는 std::swap도 특수화해주자.
+  - 사용자 입장에서 swap을 호출할 때는, std::swap에 대한 using 선언을 넣어 준 후에 네임스페이스 한정 없이 swap을 호출하자.
+  - 사용자 정의 타입에 대한 std 템플릿을 완전 특수화하는 것은 가능하다. 하지만 std에 어떤 것이라도 새로 추가하려고는 하지말자.
+
 ## 출처
   ※ Effective C++ 책의 내용을 개인적으로 요악한 것입니다.
   책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다.
