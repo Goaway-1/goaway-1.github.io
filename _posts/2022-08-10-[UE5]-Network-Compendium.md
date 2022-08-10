@@ -5,6 +5,54 @@ subtitle: Network in Unreal Engine
 categories: UE5
 tags: [UE5, UnrealEngine, C++]
 ---
+## test
+
+<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
+
+  ```cpp
+  aa
+  ```  
+</details>
+
+<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
+
+    ```cpp
+    aa
+    ```  
+</details>
+
+<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
+
+    ```cpp
+    aa
+    ```  
+
+</details>
+
+<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
+
+      ```cpp
+      aa
+      ```
+
+</details>
+
+<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
+
+
+```cpp
+aa
+```  
+
+
+</details>
+
+<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
+```cpp
+aa
+```  
+</details>
+
 ## Introduction
 
 이 포스트는 __"Cedric 'eXi' Neukirchen"이__ 제작하신 'Unreal Engine 4' Network Compendium을 읽고, 학습을 위해 한글로 번역한 것입니다. 저작권 및 각종 권한은 지은이에게 있음을 알립니다.
@@ -13,7 +61,7 @@ This post reads the "Unreal Engine 4 Network Compendium" produced by __"Cedric '
 
 ## Network in Unreal
 
-언리얼은 보통 <span style = "color:orange;">__"Sever-Client"의__</span> 구조를 사용한다. 서버는 권위적이며 모든 데이터는 클라이언트에서 서버로 먼저 전송되어야 한다. 그리고 서버는 데이터를 입증하고, 개발자의 코드에 따라 반응한다.
+언리얼은 보통 <span style = "color:orange;">__"Sever-Client"의__</span> 구조를 사용합니다. 서버는 권위적이며 모든 데이터는 클라이언트에서 서버로 먼저 전송되어야 합니다. 그리고 서버는 데이터를 입증하고, 개발자의 코드에 따라 반응합니다.
 
 __Example :__
 
@@ -32,7 +80,7 @@ __Another Example :__
 
 ## Framework & Network
 
-서버-클라이언트 구조에 대한 프레임워크를 아래와 같이 4개의 구역으로 나눌 수 있습니다. 이때 __"Owning Client"란__ 액터를 소유한 플레이어/클라이언트입니다. 당신이 당신의 컴퓨터를 소유하는 한다고 볼 수 있습니다. Ownership(소유권)은 나중에 __"RPCs"에__ 중요해집니다.
+서버-클라이언트 구조에 대한 프레임워크를 아래와 같이 4개의 구역으로 나눌 수 있습니다. 이때 __"Owning Client"란__ 액터를 소유한 플레이어/클라이언트입니다. 당신이 당신의 컴퓨터를 소유한다고 볼 수 있습니다. Ownership(소유권)은 나중에 __"RPCs"에서__ 중요해집니다.
 
 |Architecture|Content|
 |:--:|--|
@@ -43,11 +91,11 @@ __Another Example :__
 
 <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Network_Framework.png" height="350" title="Network_Framework">
 
-위 그림은 네트워크 프레임워크에서 가장 중요한 클래스 중 일부가 배치되는 방법이다.
+위 그림은 네트워크 프레임워크에서 가장 중요한 클래스 중 일부가 배치되는 방법입니다.
 
 <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Network_Framework_Diagram.png" height="350" title="Network_Framework_Diagram">
 
-위 그림은 개체들이 네트워크 프레임워크에서 어떻게 나뉘어 지는지 보여준다. 클라이언트1과 클라이언트2 사이에는 개체가 존재하는 않는데, 자신들만이 알고 있는 사물들을 실제로 공유하지 않기 때문이다.
+위 그림은 개체들이 네트워크 프레임워크에서 어떻게 나뉘어 지는지 보여줍니다. 클라이언트1과 클라이언트2 사이에는 개체가 존재하는 않는데, 자신들만이 알고 있는 사물들을 실제로 공유하지 않기 때문입니다.
 
 ### Common Classes
 
@@ -55,7 +103,7 @@ __Another Example :__
 
 #### Game Mode
 
-GameMode Class는 GameModeBase와 GameMode로 분할되었습니다. 일부 게임에서는 GameMode 클래스의 전체 기능 목록이 필요하지 않을 수 있기 때문에 GameModeBase를 사용하며, 이는 기능이 더 적습니다.
+GameMode Class는 GameModeBase와 GameMode로 분할되어 있습니다. 일부 게임에서는 GameMode 클래스의 전체 기능 목록이 필요하지 않을 수 있기 때문에 GameModeBase를 사용하며, 이는 기능이 더 적습니다.
 
 이는 게임의 규칙을 정의하는 데 사용됩니다. 여기에는 Apawn, APlayer Controller, APlayerState 등과 같은 사용된 클래스가 포함되며, 서버에서만 사용할 수 있습니다. 클라이언트는 게임 모드의 개체가 없으며 게임 모드를 검색할 때는 nullptr이 표시됩니다.
 
@@ -72,7 +120,7 @@ __Example :__
 
 <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/OverrideFunction.png" height="350" title="OverrideFunction">
 
-멀티플레이어에서 게임모드에는 플레이어 및/또는 일반적인 경기 흐름을 관리하는 데 도움이 되는 몇 가지 흥미로운 기능도 있습니다. Blueprint의 "Override Function"을 참고하면 위와 같은 함수들이 존재합니다.
+멀티플레이에서 게임모드에는 플레이어 및/또는 __일반적인 경기 흐름을 관리하는 데 도움이 되는 몇 가지 기능이__ 있습니다. Blueprint의 "Override Function"을 참고하면 위와 같은 함수들이 존재합니다.
 
   <details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
 
@@ -84,6 +132,7 @@ __Example :__
   // Overriding the PostLogin function
   virtual void PostLogin(APlayerController* NewPlayer) override;
   ```
+
   ```cpp
   /* CPP file of our GameMode Child Class */
   void ATestGameMode::PostLogin(APlayerController* NewPlayer) { 
@@ -91,6 +140,7 @@ __Example :__
     PlayerControllerList.Add(NewPlayer);
   }
   ```
+
   </details>
 
 이때 게임 플레이 내내 특정 사항에 반응하는 특정 이벤트들도 존재한다. 좋은 예시로는 "Event OnPostLogin"이 존재하는데, 이는 새로운 플레이어가 게임에 참여할 때마다 호출됩니다. 플레이어와 이미 상호 작용하거나, 플레이어를 위해 새 폰을 생성하거나, 나중에 사용할 수 있도록 플레이어 컨트롤러를 배열에 저장하는 데 사용할 수 있습니다.
