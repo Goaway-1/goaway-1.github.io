@@ -1,0 +1,56 @@
+---
+layout: post
+title: UE5 | Network Compendium
+subtitle: Network in Unreal Engine
+categories: UE5
+tags: [UE5, UnrealEngine, C++]
+---
+## Introduction
+
+이 포스트는 __"Cedric 'eXi' Neukirchen"이__ 제작하신 'Unreal Engine 4' Network Compendium을 읽고, 학습을 위해 한글로 번역한 것입니다. 저작권 및 각종 권한은 지은이에게 있음을 알립니다.
+
+This post reads the "Unreal Engine 4 Network Compendium" produced by __"Cedric 'eXi' Neukirchen"__ and translates it into Korean for learning. We inform you that the copyright and various rights belong to the author.
+
+## Network in Unreal
+
+언리얼은 보통 <span style = "color:orange;">__"Sever-Client"의__</span> 구조를 사용한다. 서버는 권위적이며 모든 데이터는 클라이언트에서 서버로 먼저 전송되어야 한다. 그리고 서버는 데이터를 입증하고, 개발자의 코드에 따라 반응한다.
+
+__예시 :__
+
+  멀티플레이어 매치에서 클라이언트로서 캐릭터를 이동할 때 실제로 캐릭터를 직접 이동하지 않고 서버에 캐릭터를 이동시킬 것을 알립니다. 그런 다음 서버는 사용자를 포함한 다른 모든 사용자에게 캐릭터의 위치를 업데이트합니다.
+  
+  _노트 :_ 로컬 클라이언트의 "지연" 느낌을 방지하기 위해 서버가 여전히 캐릭터의 위치를 재정의할 수 있지만, 로컬 클라이언트의 "지연" 느낌을 방지하기 위해 플레이어가 직접 로컬로 캐릭터를 제어하도록 하는 경우가 많습니다. 클라이언트가 부정행위를 시작할 때 서버는 여전히 캐릭터의 위치를 재정의할 수 있습니다! __즉, 클라이언트는 다른 클라이언트와 직접 '대화'하지 않습니다.__
+
+__다른 예시 :__
+
+  대화 메시지를 다른 클라이언트에 발송할 때, 실제로 서버로 발송한 다음 연결하려는 클라이언트에 전달합니다. 팀, 길드, 그룹 등이 될 수도 있습니다.
+
+### 중요한 점
+
+- 클라이언트를 절대 신뢰하지 마십시오! 클라이언트를 신뢰한다는 것은 클라이언트 작업을 실행하기 전에 테스트하지 않는다는 의미입니다. 이것은 부정행위를 허용합니다.
+- 서버에서 클라이언트가 실제로 탄약(실행 권한)을 가지고 있고, 직접 샷을 처리하는 대신 다시 샷을 할 수 있는지 테스트해야 합니다!
+
+## Framework & Network
+
+서버-클라이언트 구조에 대한 프레임워크를 아래와 같이 4개의 구역으로 나눌 수 있습니다. 이때 __"Owning Client"란__ 액터를 소유한 플레이어/클라이언트입니다. 당신이 당신의 컴퓨터를 소유하는 한다고 볼 수 있습니다. Ownership(소유권)은 나중에 __"RPCs"에__ 중요해집니다.
+
+|Architecture|Content|
+|:--:|--|
+|__Server Only__|개체는 서버에만 존재|
+|__Server & Clients__|개체는 서버와 모든 클라이언트들에 존재|
+|__Server & Owning Client__|개체는 오직 서버와 소유권이 있는 클라이언트에만 존재|
+|__Owning Client Only__|객체는 오직 클라이언트에만 존재|
+
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Network_Framework.png" height="350" title="Network_Framework">
+
+위 그림은 네트워크 프레임워크에서 가장 중요한 클래스 중 일부가 배치되는 방법이다.
+
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Network_Framework_Diagram.png" height="350" title="Network_Framework_Diagram">
+
+위 그림은 개체들이 네트워크 프레임워크에서 어떻게 나뉘어 지는지 보여준다. 클라이언트1과 클라이언트2 사이에는 개체가 존재하는 않는데, 자신들만이 알고 있는 사물들을 실제로 공유하지 않기 때문이다.
+
+### Common Classes
+  - Tiffk
+
+#### Game Mode
+  -Tlffo
