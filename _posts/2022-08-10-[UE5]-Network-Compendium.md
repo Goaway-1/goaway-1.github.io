@@ -9,48 +9,47 @@ tags: [UE5, UnrealEngine, C++]
 
 <details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
 
-  ```cpp
-  aa
-  ```  
-</details>
-
-<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
-
-    ```cpp
-    aa
-    ```  
-</details>
-
-<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
-
-    ```cpp
-    aa
-    ```  
+{% highlight javascript linenos %}
+var foo = function(x) {
+  return(x + 5);
+}
+foo(3)
+{% endhighlight %}
 
 </details>
 
 <details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
 
-      ```cpp
-      aa
-      ```
+  {% highlight javascript linenos %}
+  var foo = function(x) {
+    return(x + 5);
+  }
+  foo(3)
+  {% endhighlight %}
+
+</details>
+
+
+<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
+
+  {% highlight javascript %}
+  var foo = function(x) {
+    return(x + 5);
+  }
+  foo(3)
+  {% endhighlight %}
 
 </details>
 
 <details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
 
+  ~~~
+  var foo = function(x) {
+    return(x + 5);
+  }
+  foo(3)
+  ~~~
 
-```cpp
-aa
-```  
-
-
-</details>
-
-<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
-```cpp
-aa
-```  
 </details>
 
 ## Introduction
@@ -143,6 +142,7 @@ __Example :__
 
   </details>
 
+
 이때 게임 플레이 내내 특정 사항에 반응하는 특정 이벤트들도 존재한다. 좋은 예시로는 "Event OnPostLogin"이 존재하는데, 이는 새로운 플레이어가 게임에 참여할 때마다 호출됩니다. 플레이어와 이미 상호 작용하거나, 플레이어를 위해 새 폰을 생성하거나, 나중에 사용할 수 있도록 플레이어 컨트롤러를 배열에 저장하는 데 사용할 수 있습니다.
 
 <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/OverrideFunction_Flows.png" height="350" title="OverrideFunction_Flows">
@@ -164,8 +164,8 @@ __Example :__
   ```
   </details>
 
-이 게임모드를 사용하여 일반 매치 를로우를 관리할 수 있는데, "Ready to start Match"와 같이 재정의를 할 수 있는 기능과도 연결됩니다. 이는 True로 반환될 때 자동으로 호출되지만 수동으로도 사용할 수 있습니다. 이때 "작업이 GameState에서 처리되지 않는다"고 생각할 수 있지만, 게임 모드 기능을 실제로 게임 상태와 함께 작동합니다. 하지만 게임 모드는 서버에만 존재하기 대문에 클라이언트로부터 멀리 떨어진 상태를 관리할 수 있는 포인트를 제공합니다.
 
+이 게임모드를 사용하여 일반 매치 를로우를 관리할 수 있는데, "Ready to start Match"와 같이 재정의를 할 수 있는 기능과도 연결됩니다. 이는 True로 반환될 때 자동으로 호출되지만 수동으로도 사용할 수 있습니다. 이때 "작업이 GameState에서 처리되지 않는다"고 생각할 수 있지만, 게임 모드 기능을 실제로 게임 상태와 함께 작동합니다. 하지만 게임 모드는 서버에만 존재하기 대문에 클라이언트로부터 멀리 떨어진 상태를 관리할 수 있는 포인트를 제공합니다.
 
 <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/GameMode_OptionsString.png" height="150" title="GameMode_OptionsString">
 
@@ -189,6 +189,7 @@ __Example :__
   }
   ```
   </details>
+
 
 게임 모드에서는 중요한 변수들이 이미 존재하며, 값을 설정할 수 있습니다. __"Default Player Name"은__ 플레이어 상태 클래스를 통해 액세스할 수 있는 기본 플레이어 이름을 제공합니다. __"bDelayed Start"를__ 선택하면 __"Ready to Start Match"가__ 다른 모든 기준을 충족하더라도 게임이 시작되지 않습니다. 더 중요한 변수 중 하나는 소위 <span style = "color:orange;">"Options String"이다.</span> 이러한 옵션은 '?'로 구분되며, 'OpenLevel' 기능을 통해 전달하거나 'ServerTravel'을 콘솔 명령으로 호출할 때 전달할 수 있습니다. 'Parse Option'을 사용하여 'MaxNumPlayers'와 같은 전달된 옵션을 추출할 수 있습니다.
 
