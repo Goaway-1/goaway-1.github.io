@@ -5,53 +5,6 @@ subtitle: Network in Unreal Engine
 categories: UE5
 tags: [UE5, UnrealEngine, C++]
 ---
-## test
-
-<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
-
-{% highlight javascript linenos %}
-var foo = function(x) {
-  return(x + 5);
-}
-foo(3)
-{% endhighlight %}
-
-</details>
-
-<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
-
-  {% highlight javascript linenos %}
-  var foo = function(x) {
-    return(x + 5);
-  }
-  foo(3)
-  {% endhighlight %}
-
-</details>
-
-
-<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
-
-  {% highlight javascript %}
-  var foo = function(x) {
-    return(x + 5);
-  }
-  foo(3)
-  {% endhighlight %}
-
-</details>
-
-<details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
-
-  ~~~
-  var foo = function(x) {
-    return(x + 5);
-  }
-  foo(3)
-  ~~~
-
-</details>
-
 ## Introduction
 
 이 포스트는 __"Cedric 'eXi' Neukirchen"이__ 제작하신 'Unreal Engine 4' Network Compendium을 읽고, 학습을 위해 한글로 번역한 것입니다. 저작권 및 각종 권한은 지은이에게 있음을 알립니다.
@@ -123,63 +76,65 @@ __Example :__
 
   <details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
 
-  ```cpp
+  {% highlight cpp %}
   /* Header file of our GameMode Child Class inside of the Class declaration */ 
   // List of PlayerControllers
   TArray<class APlayerController*> PlayerControllerList; 
 
   // Overriding the PostLogin function
   virtual void PostLogin(APlayerController* NewPlayer) override;
-  ```
+  {% endhighlight %}
 
-  ```cpp
+  {% highlight cpp %}
   /* CPP file of our GameMode Child Class */
   void ATestGameMode::PostLogin(APlayerController* NewPlayer) { 
     Super::PostLogin(NewPlayer);
     PlayerControllerList.Add(NewPlayer);
   }
-  ```
-
+  {% endhighlight %}
+  
   </details>
 
 
 이때 게임 플레이 내내 특정 사항에 반응하는 특정 이벤트들도 존재한다. 좋은 예시로는 "Event OnPostLogin"이 존재하는데, 이는 새로운 플레이어가 게임에 참여할 때마다 호출됩니다. 플레이어와 이미 상호 작용하거나, 플레이어를 위해 새 폰을 생성하거나, 나중에 사용할 수 있도록 플레이어 컨트롤러를 배열에 저장하는 데 사용할 수 있습니다.
 
-<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/OverrideFunction_Flows.png" height="350" title="OverrideFunction_Flows">
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/OverrideFunction_Flows.png" height="250" title="OverrideFunction_Flows">
 
   <details><summary><span style = "color:green;">Ready to start Match Code</span></summary> 
 
-  ```cpp
+
+  {% highlight cpp %}
   /* Header file of our GameMode Child Class inside of the Class declaration */ 
   // Maximum Number of Players needed/allowed during this Match
   int32 MaxNumPlayers; 
 
   // Override Implementation of ReadyToStartMatch 
   virtual bool ReadyToStartMatch_Implementation() override;
-  ```
-  ```cpp
+  {% endhighlight %}
+  {% highlight cpp %}
   /* CPP file of our GameMode Child Class */
   bool ATestGameMode::ReadyToStartMatch_Implementation() { Super::ReadyToStartMatch();
   return MaxNumPlayers == NumPlayers; }
-  ```
+  {% endhighlight %}
+  
   </details>
 
 
 이 게임모드를 사용하여 일반 매치 를로우를 관리할 수 있는데, "Ready to start Match"와 같이 재정의를 할 수 있는 기능과도 연결됩니다. 이는 True로 반환될 때 자동으로 호출되지만 수동으로도 사용할 수 있습니다. 이때 "작업이 GameState에서 처리되지 않는다"고 생각할 수 있지만, 게임 모드 기능을 실제로 게임 상태와 함께 작동합니다. 하지만 게임 모드는 서버에만 존재하기 대문에 클라이언트로부터 멀리 떨어진 상태를 관리할 수 있는 포인트를 제공합니다.
 
-<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/GameMode_OptionsString.png" height="150" title="GameMode_OptionsString">
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/GameMode_OptionsString.png" height="120" title="GameMode_OptionsString">
 
   <details><summary><span style = "color:green;">Options String Code</span></summary> 
 
-  ```cpp
+  {% highlight cpp %}
   /* Header file of our GameMode Child Class inside of the Class declaration */ 
   // Maximum Number of Players needed/allowed during this Match
   nt32 MaxNumPlayers; 
 
   // Override BeginPlay, since we need that to recreate the BP version 
   virtual void BeginPlay() override;
-  ```
-  ```cpp
+  {% endhighlight %}
+  {% highlight cpp %}
   /* CPP file of our GameMode Child Class */ 
   void ATestGameMode::BeginPlay() {
     Super::BeginPlay();
@@ -187,7 +142,8 @@ __Example :__
     // 'UGameplayStatics' Class to get the correct Key from the 'OptionsString'
     MaxNumPlayers = FCString::Atoi( *(UGameplayStatics::ParseOption(OptionsString, “MaxNumPlayers”)) ); 
   }
-  ```
+  {% endhighlight %}
+
   </details>
 
 
