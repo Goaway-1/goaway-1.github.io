@@ -77,16 +77,16 @@ __Example :__
   <details><summary><span style = "color:green;">Event OnPostLogin Code</span></summary> 
 
   {% highlight cpp %}
-  /* Header file of our GameMode Child Class inside of the Class declaration */ 
+  /* GameMode의 파생 클래스 Header */ 
   // List of PlayerControllers
   TArray<class APlayerController*> PlayerControllerList; 
 
-  // Overriding the PostLogin function
+  //  PostLogin함수의 오버라이딩
   virtual void PostLogin(APlayerController* NewPlayer) override;
   {% endhighlight %}
 
   {% highlight cpp %}
-  /* CPP file of our GameMode Child Class */
+  /* GameMode의 파생 클래스 CPP */
   void ATestGameMode::PostLogin(APlayerController* NewPlayer) { 
     Super::PostLogin(NewPlayer);
     PlayerControllerList.Add(NewPlayer);
@@ -104,17 +104,19 @@ __Example :__
 
 
   {% highlight cpp %}
-  /* Header file of our GameMode Child Class inside of the Class declaration */ 
-  // Maximum Number of Players needed/allowed during this Match
+  /* GameMode의 파생 클래스 Header */ 
+  // 매치 중에 필요하거나 허용할 최대 사용자의 수
   int32 MaxNumPlayers; 
 
-  // Override Implementation of ReadyToStartMatch 
+  // ReadyToStartMatch의 Implementation 오버라이드
   virtual bool ReadyToStartMatch_Implementation() override;
   {% endhighlight %}
   {% highlight cpp %}
-  /* CPP file of our GameMode Child Class */
-  bool ATestGameMode::ReadyToStartMatch_Implementation() { Super::ReadyToStartMatch();
-  return MaxNumPlayers == NumPlayers; }
+  /* GameMode의 파생 클래스 CPP */
+  bool ATestGameMode::ReadyToStartMatch_Implementation() { 
+    Super::ReadyToStartMatch();
+    return MaxNumPlayers == NumPlayers; 
+  }
   {% endhighlight %}
   
   </details>
@@ -127,19 +129,19 @@ __Example :__
   <details><summary><span style = "color:green;">Options String Code</span></summary> 
 
   {% highlight cpp %}
-  /* Header file of our GameMode Child Class inside of the Class declaration */ 
-  // Maximum Number of Players needed/allowed during this Match
+  /* GameMode의 파생 클래스 Header */ 
+  // 매치 중에 필요하거나 허용할 최대 사용자의 수
   nt32 MaxNumPlayers; 
 
-  // Override BeginPlay, since we need that to recreate the BP version 
+  // BeginPlay의 오버라이드 : BP 버전을 재생성하기 위해
   virtual void BeginPlay() override;
   {% endhighlight %}
   {% highlight cpp %}
-  /* CPP file of our GameMode Child Class */ 
+  /* GameMode의 파생 클래스 CPP */ 
   void ATestGameMode::BeginPlay() {
     Super::BeginPlay();
-    // 'FCString::Atoi' converts 'FString' to 'int32' and we use the static 'ParseOption' function of the 
-    // 'UGameplayStatics' Class to get the correct Key from the 'OptionsString'
+    // 'FCString::Atoi'는 'FString'을 'int32'로 변환하고 static 'ParseOption' 기능을 사용
+    // 'UGameplayStatistics' 클래스에서 'OptionsString'에서 올바른 키를 가져옴
     MaxNumPlayers = FCString::Atoi( *(UGameplayStatics::ParseOption(OptionsString, “MaxNumPlayers”)) ); 
   }
   {% endhighlight %}
@@ -149,4 +151,81 @@ __Example :__
 
 게임 모드에서는 중요한 변수들이 이미 존재하며, 값을 설정할 수 있습니다. __"Default Player Name"은__ 플레이어 상태 클래스를 통해 액세스할 수 있는 기본 플레이어 이름을 제공합니다. __"bDelayed Start"를__ 선택하면 __"Ready to Start Match"가__ 다른 모든 기준을 충족하더라도 게임이 시작되지 않습니다. 더 중요한 변수 중 하나는 소위 <span style = "color:orange;">"Options String"이다.</span> 이러한 옵션은 '?'로 구분되며, 'OpenLevel' 기능을 통해 전달하거나 'ServerTravel'을 콘솔 명령으로 호출할 때 전달할 수 있습니다. 'Parse Option'을 사용하여 'MaxNumPlayers'와 같은 전달된 옵션을 추출할 수 있습니다.
 
-#### Game State
+#### GameState
+
+"GameState"는 __서버와 클라이언트들 사이에서 정보를 공유하는 가장 중요한 클래스이다.__ 이는 게임의 현재 상태를 추적하는데 사용되는데, 연결된 플레이어들의 정보 (APlayerState)가 포함되어 있습니다. __또한 모든 클라이언트들에게 복제되며,__ 모두가 접근할 수 있게하므로써 멀티플레이 게임을 위한 가장 중심적인 클래스가 되었습니다. (서버와 클라이언트 모두)
+
+"GameMode"는 승리하는 데 필요한 킬 수를 알려주는 반면, "GameState"는 각 플레이어 및/또는 팀의 현재 킬 수를 추적합니다. 여기에 어떤 정보를 저장하느냐는 전적으로 사용자에게 달려 있습니다. 점수 배열 또는 그룹 및 길드를 추적하는 데 사용하는 사용자 지정 구조 배열일 수 있습니다.
+
+__Example :__
+
+멀티플레이어에서 "GameState" 클래스는 플레이어와 플레이어의 상태를 포함하여 __게임의 현재 상태를 추적하는 데__ 사용됩니다. 게임 모드는 "GameState"의 Match State 함수가 호출되는지 확인하고 "GameState" 자체가 클라이언트에서도 사용할 수 있는 기회를 제공합니다.
+
+"GameMode"에 비해 "GameState"는 우리에게 많은 것을 주지 않습니다. 그러나 이 방법을 통해 모든 클라이언들에게 정보를 전파하기 위해 시도하는 로직을 만들 수 있습니다.
+
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/GameState_Valiable.png" height="350" title="GameState_Valiable">
+
+  <details><summary><span style = "color:green;">PlayerArray* Code</span></summary> 
+
+  {% highlight cpp %}
+  // PlayerState 클래스 자체 내부
+  void APlayerState::PostInitializeComponents() { 
+    […]
+    UWorld* World = GetWorld();
+
+    // "GameState"에 이 "PlayerState"를 등록
+    if(World->GameState != NULL) World->GameState->AddPlayerState(this); 
+    […] 
+  }
+  {% endhighlight %}
+  {% highlight cpp %}
+  // GameState 클래스 자체 내부:
+  void AGameState::PostInitializeComponents() { […]
+    for(TActorIterator<APlayerState> It(World); It; ++It) AddPlayerState(*It);
+  }
+  void AGameState::AddPlayerState(APlayerState* PlayerState) { 
+    if(!PlayerState->bIsInactive) PlayerArray.AddUnique(PlayerState);
+  }
+  {% endhighlight %}
+
+  </details>
+
+위 그림은 "GameState"클래스에서 사용할 수 있는 몇 가지 변수입니다. __"PlayerArray*", "MatchState", "ElapsedTime"들은__ 복제되므로 클라이언트도 접근할 수 있습니다. 이것은 "Authority Game Mode"에는 해당되지 않습니다. "GameMode"는 서버에만 존재하므로 서버만 액세스할 수 있습니다. __"PlayerArray*"은__ 직접 복제되지 않지만 모든 플레이어 상태는 복제되며 생성 시 플레이어 배열에 추가됩니다. 동시에 "GameState"는 생성될 때 한 번 수집합니다.
+
+__Another Example :__
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/GameState_CustomEvent.png" height="250" title="GameState_CustomEvent">
+
+  <details><summary><span style = "color:green;">Custom Event Code</span></summary> 
+
+  {% highlight cpp %}
+  /* GameState 클래스의 Header */
+  // Replication의 동작을 위해서는 헤어에 "#include “UnrealNetwork.h”"를 포함해야함
+  UPROPERTY(Replicated)
+  int32 TeamAScore; 
+  UPROPERTY(Replicated)
+  int32 TeamBScore;
+
+  // 팀의 점수를 올리는 기능
+  void AddScore(bool TeamAScored);
+  {% endhighlight %}
+
+  {% highlight cpp %}
+  /* GameState 클래스의 CPP */
+  void ATestGameState::AddScore(bool TeamAScored) {
+    if(TeamAScored) TeamAScore++;
+    else TeamBScore++;
+  }
+
+  // 이 함수는 UPROPERTY 매크로의 Replicated 지정자를 사용했다면 지정해주어야한다.
+  void ATestGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(ATestGameState, TeamAScore);
+    DOREPLIFETIME(ATestGameState, TeamBScore); 
+  }
+  {% endhighlight %}
+
+  </details>
+
+예를 들어 두 팀 'A'와 'B'의 점수를 추적하는 것이 있습니다. 팀이 점수를 획득할 때 호출되는 사용자 "Custom Event"가 있다고 가정해 보겠습니다. 위 그림처럼 Boolean을 통해서 어느 팀이 득점했는지 알 수 있습니다. 나중에 "Replicated" 파트에서 서버만 변수를 복제할 수 있으므로, 해당 서버만 이 이벤트를 호출할 수 있다는 규칙을 읽을 수 있습니다. 다른 클래스(예: 누군가를 죽인 무기)에서 호출되며, 서버(항상!)에서 이 작업이 수행되어야 하므로 RPC는 여기에 필요하지 않습니다. 이러한 변수와 "GameState"가 복제되므로 이 두 변수를 사용할 수 있습니다. 위젯에 표시할 다른 클래스에서 가져올 수 있습니다.
+
+#### Player State
