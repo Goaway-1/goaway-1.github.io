@@ -246,8 +246,9 @@ __Example :__
 
   위의 표는 PlayerState를 구성하는 변수들의 예시입니다. 이 변수들은 모두 복제되기 때문에, 모든 클라이언트에서 동기화된 상태로 유지됩니다. 만약 PlayerName을 수정하려고 한다면, "GameMode"의 "ChangeName"을 호출하여 플레이어의 컨트롤러를 전달하여 수정합니다. 
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/PlayerState_Copy.png" height="250" title="PlayerState_Copy">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/PlayerState_Copy.png" height="200" title="PlayerState_Copy">
 
+  <details><summary><span style = "color:green;">CopyProperties/OverrideWith Event Code</span></summary> 
   {% highlight cpp %}
   /* Header file of our PlayerState Child Class inside of the Class declaration */ 
   // Used to copy properties from the current PlayerState to the passed one
@@ -274,6 +275,7 @@ __Example :__
     } 
   }
   {% endhighlight %}
+  </details>
 
   또한 "PlayerState"는 __Level 변경, 예기치 않은 연경 문제 발생 시 데이터가 지속되도록하는데 사용됩니다.__ 즉, 플레이어를 다시 연결하거나 서버와 함께 새 맵으로 이동하는 기능이 기능이 있습니다. 또한 이미 보유하고 있는 정보를 새 플레이어 상태로 복사하는 작업을 수행합니다. Level 변경하거나 플레이어가 다시 연결될때 생성됩니다.
 
