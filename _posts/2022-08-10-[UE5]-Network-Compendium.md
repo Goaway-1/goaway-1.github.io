@@ -229,3 +229,52 @@ __Another Example :__
 예를 들어 두 팀 'A'와 'B'의 점수를 추적하는 것이 있습니다. 팀이 점수를 획득할 때 호출되는 사용자 "Custom Event"가 있다고 가정해 보겠습니다. 위 그림처럼 Boolean을 통해서 어느 팀이 득점했는지 알 수 있습니다. 나중에 "Replicated" 파트에서 서버만 변수를 복제할 수 있으므로, 해당 서버만 이 이벤트를 호출할 수 있다는 규칙을 읽을 수 있습니다. 다른 클래스(예: 누군가를 죽인 무기)에서 호출되며, 서버(항상!)에서 이 작업이 수행되어야 하므로 RPC는 여기에 필요하지 않습니다. 이러한 변수와 "GameState"가 복제되므로 이 두 변수를 사용할 수 있습니다. 위젯에 표시할 다른 클래스에서 가져올 수 있습니다.
 
 #### Player State
+
+"Player State" 클래스는 특별한 플레이어에게 가장 중요한 클래스입니다. 이것은 플레이어의 현재 정보를 가지고 있음을 의미하며, 각 플레이어는 자신의 "Player State"를 가지고 있습니다. 또한 모두에게 복제되고 다른 클라이언트의 데이터를 검색하여 표시할 수 있습니다. 모든 "Player state"에 접근하는 쉬운 방법은 "GameState"에 있는 "PlayerArray"에 접근하는 것입니다.
+
+__Example :__
+
+  |Example Information|Content|
+  |:--:|--|
+  |__PlayerName__|현재 연결된 플레이어의 이름|
+  |__Score__|현재 연결된 플레이어의 점수|
+  |__Ping__|현재 연결된 플레이어의 핑|
+  |__GuildID__|플레이어가 속한 길드 ID|
+  |__etc__|과 같이 다른 플레이어에서 얻어야하는 Replicated된 정보..|
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/PlayerState.png" height="250" title="PlayerState">
+
+  위의 표는 PlayerState를 구성하는 변수들의 예시입니다. 이 변수들은 모두 복제되기 때문에, 모든 클라이언트에서 동기화된 상태로 유지됩니다. 만약 PlayerName을 수정하려고 한다면, "GameMode"의 "ChangeName"을 호출하여 플레이어의 컨트롤러를 전달하여 수정합니다. 
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/PlayerState_Copy.png" height="250" title="PlayerState_Copy">
+
+  {% highlight cpp %}
+  /* Header file of our PlayerState Child Class inside of the Class declaration */ 
+  // Used to copy properties from the current PlayerState to the passed one
+  virtual void CopyProperties(class APlayerState* PlayerState);
+  
+  // Used to override the current PlayerState with the properties of the passed one 
+  virtual void OverrideWith(class APlayerState* PlayerState)
+  {% endhighlight %}
+
+  {% highlight cpp %}
+  /* CPP file of our PlayerState Child Class */
+  void ATestPlayerState::CopyProperties(class APlayerState* PlayerState) { 
+    Super::CopyProperties(PlayerState);
+    if(PlayerState) {
+      ATestPlayerState* TestPlayerState = Cast<ATestPlayerState>(PlayerState); 
+      if(TestPlayerState) TestPlayerState->SomeVariable = SomeVariable;
+    } 
+  }
+  void ATestPlayerState::OverrideWith(class APlayerState* PlayerState) { 
+    Super::OverrideWith(PlayerState);
+    if(PlayerState) {
+      ATestPlayerState* TestPlayerState = Cast<ATestPlayerState>(PlayerState); if(TestPlayerState)
+      SomeVariable = TestPlayerState->SomeVariable;
+    } 
+  }
+  {% endhighlight %}
+
+  또한 "PlayerState"는 __Level 변경, 예기치 않은 연경 문제 발생 시 데이터가 지속되도록하는데 사용됩니다.__ 즉, 플레이어를 다시 연결하거나 서버와 함께 새 맵으로 이동하는 기능이 기능이 있습니다. 또한 이미 보유하고 있는 정보를 새 플레이어 상태로 복사하는 작업을 수행합니다. Level 변경하거나 플레이어가 다시 연결될때 생성됩니다.
+
+#### Pawn
