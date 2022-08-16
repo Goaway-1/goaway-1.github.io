@@ -336,7 +336,7 @@ __Example :__
 
 __Another Example :__
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/34p.png" height="200" title="34p">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/34p.png" height="150" title="34p">
 
   <details><summary><span style = "color:green;">Un/Possessed Event Code</span></summary> 
 
@@ -369,11 +369,11 @@ __Another Example :__
 
   서버에서 호출할 경우 "Pawn"을 복제해야 하므로 'DestroyActor' 노드가 액터의 클라이언트 버전도 삭제합니다. 클라이언트에서 HUD 또는 모든 사람의 머리 위에 있는 헬스 바에 대해 복제된 "Health" 변수를 사용할 수 있습니다. 진행률 표시줄과 폰의 참조가 있는 위젯을 만들어 쉽게 이 작업을 수행할 수 있습니다.
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/35_1p.png" height="200" title="35_1p">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/35_1p.png" height="170" title="35_1p">
   
   "TestPawn" 클래스에 "Health" 및 'MaxHealth' 변수가 있으며 모두 복제되도록 설정되어 있다고 가정해 보겠습니다. 이제 위젯 내부에 "TestPawn" 참조 변수와 진행률 표시줄을 만든 후 해당 막대의 백분율을 다음 함수에 바인딩할 수 있습니다.
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/35_2p.png" height="200" title="35_2p">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/35_2p.png" height="170" title="35_2p">
 
   이제 위젯의 구성 요소를 설정한 후 ,BeginPlay에서 "Widget class to use"를 "HealthBar"로 설정할 수 있습니다.
 
