@@ -280,3 +280,103 @@ __Example :__
   또한 "PlayerState"는 __Level 변경, 예기치 않은 연경 문제 발생 시 데이터가 지속되도록하는데 사용됩니다.__ 즉, 플레이어를 다시 연결하거나 서버와 함께 새 맵으로 이동하는 기능이 기능이 있습니다. 또한 이미 보유하고 있는 정보를 새 플레이어 상태로 복사하는 작업을 수행합니다. Level 변경하거나 플레이어가 다시 연결될때 생성됩니다.
 
 #### Pawn
+
+"Pawn" 클래스는 플레이어가 실제로 조작하는 액터입니다. 주로 인간형 캐릭터에 사용되지만, 고양이, 책, 비행기, 배와 같은 것도 가능합니다. 플레이어는 한번에 하나의 "Pawn"를 소유할 수 있지만, "Pawn"를 소유하거나 재소유하는 등 쉽게 변경할 수 있습니다.
+
+__Pawn은 대부분 모든 클라이언트들에게 복제 :__
+
+  Pawn의 자식 클래스인 "ACharacter"는 종종 사용되는데, 이는 위치, 회전등을 복제처리하는 네트워크화된 "MovementComponent"라는 구성요소가 존재하기 때문입니다. 항상 말하지만 클라이언트는 캐릭터를 움직이게 하지 않고, 서버가 클라이언트로부터 움직임을 입력받아 움직인후 캐릭터를 복제하는 형식입니다.
+
+__Example :__
+ 
+  멀티플레이에서 우리는 주로 "Pawn"가 캐릭터를 화면에 표시하고, 다른이와 몇가지 정보를 공유하기 위해 복제된 부분을 사용합니다. 간단한 예가 바로 캐릭터의 "Health"입니다. 하지만 우리는 오직 '체력'을 다른 사람에게만 보이게 하기 위해 복제할뿐만 아니라, 서버가 그것에 대한 권한을 가지고 클라이언트가 치트를 쓸 수 없도록 복제합니다.
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/32p.png" height="200" title="32p">
+
+  <details><summary><span style = "color:green;">Un/Possessed Event Code</span></summary> 
+ 
+  {% highlight cpp %}
+  virtual void PossessedBy(AController* NewController); 
+  
+  virtual void UnPossessed();
+  {% endhighlight %}
+
+  {% highlight cpp %}
+  // Header file of our Pawn Child Class, inside of the Class declaration 
+  // The 'UnPossessed' Event does not pass the old PlayerController though.
+  // SkeletalMesh Component, so we have something to hide
+  class USkeletalMeshComponent* SkeletalMesh; 
+  
+  // Overriding the UnPossessed Event
+  virtual void UnPossessed() override;
+  {% endhighlight %}
+
+  - "MulticastRPCFunction"가 필요한 경우 아래와 같이 만들 수 있다.
+
+  {% highlight cpp %}
+  /* Header file of our Pawn Child Class, inside of the Class declaration */ 
+  UFUNCTION(NetMulticast, unreliable)
+  void Multicast_HideMesh();
+  {% endhighlight %}
+
+  {% highlight cpp %}
+  /* CPP file of our Pawn Child Class */ 
+  void ATestPawn::UnPossessed() {
+    Super::UnPossessed(); Multicast_HideMesh();
+  }
+  
+  // You will read later about RPC's and why that '_Implementation' is a thing 
+  void ATestPawn::Multicast_HideMesh_Implementation() {
+    SkeletalMesh->SetVisibility(false); 
+  }
+  {% endhighlight %}
+  </details>
+
+  표준 재정의 함수임에도 불구하고 "Pawn"은 "Possessed"와 "Unpossessed" 2가지 기능을 가지고 있습니다. 그것은 "Pawn"이 "UnPossessed"되지 않았을때, 숨기기 위해서 사용할 수 있습니다. (소유가 서버에서 발생하기 때문에, 이러한 이벤트는 서버에서만 호출됩니다.)
+
+__Another Example :__
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/34p.png" height="200" title="34p">
+
+  <details><summary><span style = "color:green;">Un/Possessed Event Code</span></summary> 
+
+  {% highlight cpp %}
+  /* Header file of our Pawn Child Class, inside of the Class declaration */ 
+  // Replicated Health Variable
+  UPROPERTY(Replicated)
+  int32 Health;
+  
+  // Overriding the Damage Event
+  virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+  {% endhighlight %}
+
+  {% highlight cpp %}
+  /* CPP file of our Pawn Child Class */
+  // This function is required through the Replicated specifier in the UPROPERTY Macro and is declared by it 
+  void ATestPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps); // This actually takes care of replicating the Variable
+    DOREPLIFETIME(ATestPawn, Health); 
+  }
+  float ATestPawn::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) {
+    float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+    Health -= ActualDamage;             // Lower the Health of the Player 
+    if(Health <= 0.0) return ActualDamage;          // And destroy it if the Health is less or equal 0 Destroy();
+  }
+  {% endhighlight %}
+  </details>
+
+  두 번째 예시로는 "Health"의 값에 대한 것입니다. 사진을 보면 "EventAnyDamage"와 복제된 "체력"의 값이 플레이어의 체력을 낮추는 방법을 볼 수 있습니다. 이는 서버에서만 호출되며 클라이언트에서는 발생하지 않습니다.
+
+  서버에서 호출할 경우 "Pawn"을 복제해야 하므로 'DestroyActor' 노드가 액터의 클라이언트 버전도 삭제합니다. 클라이언트에서 HUD 또는 모든 사람의 머리 위에 있는 헬스 바에 대해 복제된 "Health" 변수를 사용할 수 있습니다. 진행률 표시줄과 폰의 참조가 있는 위젯을 만들어 쉽게 이 작업을 수행할 수 있습니다.
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/35_1p.png" height="200" title="35_1p">
+  
+  "TestPawn" 클래스에 "Health" 및 'MaxHealth' 변수가 있으며 모두 복제되도록 설정되어 있다고 가정해 보겠습니다. 이제 위젯 내부에 "TestPawn" 참조 변수와 진행률 표시줄을 만든 후 해당 막대의 백분율을 다음 함수에 바인딩할 수 있습니다.
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/35_2p.png" height="200" title="35_2p">
+
+  이제 위젯의 구성 요소를 설정한 후 ,BeginPlay에서 "Widget class to use"를 "HealthBar"로 설정할 수 있습니다.
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/36p.png" height="200" title="36p">
+
+  "BeginPlay"는 서버와 모든 클라이언트에서 의미하는 "Pawn"의 모든 인스턴스에서 호출됩니다. 그래서 모든 인스턴스가 스스로를 위젯의 "Pawn"의 참조로 설정됩니다. 
