@@ -53,7 +53,7 @@ __Another Example :__
 
 다음 페이지 부터는 가장 일반적인 클래스에 대해 설명합니다. 또한 이러한 클래스가 어떻게 사용되는지에 대한 작은 예시를 제공합니다.
 
-#### Game Mode
+#### [Game Mode](https://docs.unrealengine.com/5.0/en-US/API/Runtime/Engine/GameFramework/AGameMode/)
 
 GameMode Class는 GameModeBase와 GameMode로 분할되어 있습니다. 일부 게임에서는 GameMode 클래스의 전체 기능 목록이 필요하지 않을 수 있기 때문에 GameModeBase를 사용하며, 이는 기능이 더 적습니다.
 
@@ -151,7 +151,7 @@ __Example :__
 
 게임 모드에서는 중요한 변수들이 이미 존재하며, 값을 설정할 수 있습니다. __"Default Player Name"은__ 플레이어 상태 클래스를 통해 액세스할 수 있는 기본 플레이어 이름을 제공합니다. __"bDelayed Start"를__ 선택하면 __"Ready to Start Match"가__ 다른 모든 기준을 충족하더라도 게임이 시작되지 않습니다. 더 중요한 변수 중 하나는 소위 <span style = "color:orange;">"Options String"이다.</span> 이러한 옵션은 '?'로 구분되며, 'OpenLevel' 기능을 통해 전달하거나 'ServerTravel'을 콘솔 명령으로 호출할 때 전달할 수 있습니다. 'Parse Option'을 사용하여 'MaxNumPlayers'와 같은 전달된 옵션을 추출할 수 있습니다.
 
-#### GameState
+#### [GameState](https://docs.unrealengine.com/5.0/en-US/API/Runtime/Engine/GameFramework/AGameState/)
 
 "GameState"는 __서버와 클라이언트들 사이에서 정보를 공유하는 가장 중요한 클래스이다.__ 이는 게임의 현재 상태를 추적하는데 사용되는데, 연결된 플레이어들의 정보 (APlayerState)가 포함되어 있습니다. __또한 모든 클라이언트들에게 복제되며,__ 모두가 접근할 수 있게하므로써 멀티플레이 게임을 위한 가장 중심적인 클래스가 되었습니다. (서버와 클라이언트 모두)
 
@@ -228,7 +228,7 @@ __Another Example :__
 
 예를 들어 두 팀 'A'와 'B'의 점수를 추적하는 것이 있습니다. 팀이 점수를 획득할 때 호출되는 사용자 "Custom Event"가 있다고 가정해 보겠습니다. 위 그림처럼 Boolean을 통해서 어느 팀이 득점했는지 알 수 있습니다. 나중에 "Replicated" 파트에서 서버만 변수를 복제할 수 있으므로, 해당 서버만 이 이벤트를 호출할 수 있다는 규칙을 읽을 수 있습니다. 다른 클래스(예: 누군가를 죽인 무기)에서 호출되며, 서버(항상!)에서 이 작업이 수행되어야 하므로 RPC는 여기에 필요하지 않습니다. 이러한 변수와 "GameState"가 복제되므로 이 두 변수를 사용할 수 있습니다. 위젯에 표시할 다른 클래스에서 가져올 수 있습니다.
 
-#### Player State
+#### [Player State](https://docs.unrealengine.com/5.0/en-US/API/Runtime/Engine/GameFramework/APlayerState/)
 
 "Player State" 클래스는 특별한 플레이어에게 가장 중요한 클래스입니다. 이것은 플레이어의 현재 정보를 가지고 있음을 의미하며, 각 플레이어는 자신의 "Player State"를 가지고 있습니다. 또한 모두에게 복제되고 다른 클라이언트의 데이터를 검색하여 표시할 수 있습니다. 모든 "Player state"에 접근하는 쉬운 방법은 "GameState"에 있는 "PlayerArray"에 접근하는 것입니다.
 
@@ -279,7 +279,7 @@ __Example :__
 
   또한 "PlayerState"는 __Level 변경, 예기치 않은 연경 문제 발생 시 데이터가 지속되도록하는데 사용됩니다.__ 즉, 플레이어를 다시 연결하거나 서버와 함께 새 맵으로 이동하는 기능이 기능이 있습니다. 또한 이미 보유하고 있는 정보를 새 플레이어 상태로 복사하는 작업을 수행합니다. Level 변경하거나 플레이어가 다시 연결될때 생성됩니다.
 
-#### Pawn
+#### [Pawn](https://docs.unrealengine.com/5.0/en-US/API/Runtime/Engine/GameFramework/APawn/)
 
 "Pawn" 클래스는 플레이어가 실제로 조작하는 액터입니다. 주로 인간형 캐릭터에 사용되지만, 고양이, 책, 비행기, 배와 같은 것도 가능합니다. 플레이어는 한번에 하나의 "Pawn"를 소유할 수 있지만, "Pawn"를 소유하거나 재소유하는 등 쉽게 변경할 수 있습니다.
 
@@ -381,7 +381,7 @@ __Another Example :__
 
   "BeginPlay"는 서버와 모든 클라이언트에서 의미하는 "Pawn"의 모든 인스턴스에서 호출됩니다. 그래서 모든 인스턴스가 스스로를 위젯의 "Pawn"의 참조로 설정됩니다. 
 
-#### Player Controller
+#### [Player Controller](https://docs.unrealengine.com/5.0/en-US/API/Runtime/Engine/GameFramework/APlayerController)
 
 "APlayerController"클래스는 우리가 접하는 클래스 중 아마 가장 흥미있을 것이고 복잡한 클래스일 것입니다. 이 <span style = "color:orange;">__클래스는 클라이언트가 실제로 소유하는__</span> 첫 번째 클래스이기 때문에, 많은 클라이언트 관련 작업을 위한 센터입니다. 
 
@@ -485,4 +485,26 @@ __Example :__
 
   버튼(클라이언트 측)을 클릭하면, "Player Controller"의 ServerRPC를 사용하여 서버 측으로 이동한 다음 게임 상태의 'Increase Variable' 이벤트를 호출하여 복제된 정수를 증가시킵니다. 이 정수는 서버에 의해 복제되고 설정되므로 이제 GameState의 모든 인스턴스에서 업데이트되며 클라이언트도 업데이트를 볼 수 있습니다.
 
-#### HUD
+#### [HUD](https://docs.unrealengine.com/5.0/en-US/API/Runtime/Engine/GameFramework/AHUD/)
+
+"AHUD"클래스는 각 클라이언트에서만 사용할 수 있는 클래스이며 플레이어 컨트롤러를 통해 액세스할 수 있고, 자동으로 생성됩니다. UMG(Unreal Motion Graphics)가 출시되기 전에 HUD 클래스는 클라이언트의 뷰포트에서 텍스트, 텍스처 등을 그리는 데 사용되었습니다. "HUD"클래스를 사용하여 디버깅하거나 분리된 영역을 사용하여 위젯의 생성/표시/숨기기 및 삭제를 관리할 수 있습니다. "HUD"는 네트워크에 직접 연결되지 않기 때문에 싱글 플레이어만 영향을 미칩니다.
+
+#### [Widgets (UMG)](https://docs.unrealengine.com/5.0/en-US/API/Runtime/UMG/)
+
+"Widgets"은 "Unreal Motion Graphics"라고 불리는 에픽게임즈의 새로운 UI 시스템입니다. 이는 C++ 내에서 UI를 만드는 데 사용되며 ["Slate"](https://docs.unrealengine.com/4.27/ko/ProgrammingAndScripting/Slate)로부터 상속됩니다. 위젯은 클라이언트(수신 서버)에서만 로컬로 사용할 수 있습니다. 또한 복제되지 않으며, 버튼 누름과 같이 복제된 작업을 수행하려면 항상 별도의 복제된 클래스가 필요합니다. 이에 대한 예시는 Pawn에서 이미 진행하였습니다.
+
+## Dedicated vs Listen Server
+
+### Dedicated Server
+
+"Dedicated Server"는 클라이언트를 필요로 하지 않는 독립 실행형 서버입니다. 게임 클라이언트와 별도로 실행되며 플레이어가 항상 참여/탈퇴할 수 있는 서버를 실행하는 데 주로 사용됩니다. 또한 시각적 부분이 없으므로 UI도 필요하지 않으며 플레이어 컨트롤러도 없습니다. 그들은 또한 게임에서 그들을 대표하는 캐릭터나 캐릭터와 유사한 것들을 가지고 있지 않습니다. Windows 및 Linux용으로 컴파일할 수 있으며, 고정 IP 주소를 통해 플레이어가 연결할 수 있는 가상 서버에서 실행할 수 있습니다. 
+
+즉, 서버 그 자체를 의미합니다.
+
+### Listen Server
+
+"Listen Server"는 클라이언트이기도 한 서버입니다. 즉, 서버는 항상 적어도 하나의 클라이언트를 연결합니다. 이 클라이언트는 "Listen Server"라고 하며 이 연결이 끊어지면 서버가 종료됩니다. 클라이언트이기 때문에 "Listen Server"에는 UI가 필요하며 클라이언트 부분을 나타내는 "PlayerController"가 있습니다. 이때 "PlayerController(0)"를 가져오면 바로 해당 클라이언트의 "PlayerController"가 반환됩니다. "Listen Server"는 클라이언트 자체에서 실행되므로 다른 사용자가 연결해야 하는 IP는 클라이언트의 IP입니다. 전용 서버와 비교했을 때, 이것은 종종 고정 IP를 가지고 있지 않은 인터넷 사용자의 문제와 함께 발생합니다. 그러나 "Online Subsystem"을 사용하면 변화하는 IP 문제를 해결할 수 있습니다.
+
+즉, 플레이어가 서버가 되는 것을 의미합니다.
+
+## Replication
