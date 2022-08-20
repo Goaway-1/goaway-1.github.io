@@ -338,7 +338,7 @@ __Another Example :__
 
   <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/34p.png" height="150" title="34p">
 
-  <details><summary><span style = "color:green;">Un/Possessed Event Code</span></summary> 
+  <details><summary><span style = "color:green;">Health Event Code</span></summary> 
 
   {% highlight cpp %}
   /* Header file of our Pawn Child Class, inside of the Class declaration */ 
@@ -380,3 +380,108 @@ __Another Example :__
   <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/36p.png" height="200" title="36p">
 
   "BeginPlay"는 서버와 모든 클라이언트에서 의미하는 "Pawn"의 모든 인스턴스에서 호출됩니다. 그래서 모든 인스턴스가 스스로를 위젯의 "Pawn"의 참조로 설정됩니다. 
+
+#### Player Controller
+
+"APlayerController"클래스는 우리가 접하는 클래스 중 아마 가장 흥미있을 것이고 복잡한 클래스일 것입니다. 이 <span style = "color:orange;">__클래스는 클라이언트가 실제로 소유하는__</span> 첫 번째 클래스이기 때문에, 많은 클라이언트 관련 작업을 위한 센터입니다. 
+
+"Player Controller"는 플레이어의 '입력'으로 볼 수 있습니다. 플레이어와 서버의 연결입니다. 즉, 모든 클라이언트에는 하나의 플레이어 컨트롤러가 있습니다. <ins>클라이언트의 "Player Controller"는 자신과 서버에만 존재하지만, 다른 클라이언트는 다른 "Player Controller"에 대해 알지 못합니다.</ins>
+
+그 결과 서버는 모든 클라이언트의 "Player Controller"에 대한 참조를 가지게 됩니다. 이때 모든 입력(버튼 누름, 마우스 이동, 컨트롤러 축 등)을 "Player Controller"에 배치할 필요는 없습니다. 입력을 각 Character/Pawn 클래스에 배치하고, "Player Controller"를 사용하여 호출하는 것이 좋습니다.
+
+__How to Get PlayerController?__
+
+  <ins>__"GetPlayerController(0)"__ 또는 __"UGameplayStatics::GetPlayerController(GetWorld()), 0;"은__</ins> 서버와 클라이언트에서 다르게 작동하지만, 실제로는 어렵지 않습니다.
+
+  |Mode|Content|
+  |:--:|:--|
+  |__Listen-Server에서의 호출__|Listen-Server의 PlayerController를 반환|
+  |__Client에서의 호출__|Client의 PlayerController를 반환|
+  |__Dedicated Server에서의 호출__|첫 번째 클라이어트의 PlayerController를 반환|
+
+__Example :__
+
+  "Player Controller"는 네트워킹에 대한 가장 중요한 클래스 중 하나이지만 기본적으로는 많이 존재하지 않습니다. 그래서 우리는 왜 그것이 필요한지 명확히 하기 위해 작은 예를 만들 것입니다. 소유권(Ownership)에 대한 장에서는 "Player Controller"가 RPC에 중요한 이유에 대해 설명합니다. 다음 예제에서는 "Player Controller"를 사용하여 위젯 단추를 눌러 게임 상태에서 복제된 변수를 늘리는 방법을 보여 줍니다.
+
+  먼저 "Player Controller"가 필요한 이유에 대해서 설명하고자 합니다. 
+  
+  <ins>위젯은 Client/Listen-Server에만 존재하며, 클라이언트가 위젯을 소유하더라도 서버의 RPC에는 실행할 인스턴스가 존재하지 않습니다.</ins> 그것은 단순하게 복제되지 않습니다. 즉, 위젯은 클라이언트에만 존재하며, 이를 서버에서 실행할 수 없습니다. 그렇기 때문에 우리는 버튼을 눌렀을때 서버로 넘겨서 컨트롤할 수 있는 방법이 필요합니다. 이 방법이 바로 서버 소유인 GameState의 RPC를 사용하는 방법입니다. <span style = "color:orange;">"Player Controller"의 Server함수에서 GameState의 일반 함수를 호출하면 됩니다. </span>
+
+---
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/GameState_IncreaseVariable.png" height="200" title="GameState_IncreaseVariable">
+  
+  <details><summary><span style = "color:green;">GameState Event Code</span></summary> 
+
+  {% highlight cpp %}
+  /* CPP file of our GameState Child Class */
+  // This function is required through the Replicated specifier in the UPROPERTY Macro and is declared by it void ATestGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
+    
+    // This actually takes care of replicating the Variable
+    DOREPLIFETIME(ATestGameState, OurVariable);
+  }
+  void ATestGameState::IncreaseVariable() {
+    OurVariable++; 
+  }
+  {% endhighlight %}
+
+  {% highlight cpp %}
+  /* Header file of our GameState Child Class, inside of the Class declaration */ 
+  // Replicated Integer Variable
+  UPROPERTY(Replicated) 
+    int32 OurVariable;
+  public:
+    // Function to Increment the Variable 
+    void IncreaseVariable();
+  {% endhighlight %}
+  </details>
+
+  버튼을 눌렀을때 Our Variable이 증가하는 함수입니다. 이 이벤트는 로컬에서 실행되는 함수입니다. (로컬 전용)
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/PlayerController_Server_IncreaseVariable.png" height="200" title="PlayerController_Server_IncreaseVariable">
+
+  <details><summary><span style = "color:green;">PlayerController Event Code</span></summary> 
+
+  {% highlight cpp %}
+  /* CPP file of our PlayerController Child Class */
+  // Otherwise we can't access the GameState functions 
+  #include “TestGameState.h”
+
+  // You will read later about RPC's and why that '_Validate' is a thing 
+  bool ATestPlayerController::Server_IncreaseVariable_Validate() {
+    return true; 
+  }
+
+  // You will read later about RPC's and why that '_Implementation' is a thing 
+  void ATestPlayerController::Server_IncreaseVariable_Implementation() {
+    ATestGameState* GameState = Cast<ATestGameState>(UGameplayStatics::GetGameState(GetWorld())); 
+    GameState->IncreaseVariable();
+  }
+
+  void ATestPlayerController::BeginPlay() { 
+    Super::BeginPlay();
+
+    // Make sure only the Client Version of this PlayerController calls the ServerRPC 
+    if(Role < ROLE_Authority) Server_IncreaseVariable();
+  }
+  {% endhighlight %}
+
+  {% highlight cpp %}
+  /* Header file of our PlayerController Child Class, inside of the Class declaration */
+  // Server RPC. You will read more about this in the RPC Chapter 
+  UFUNCTION(Server, unreliable, WithValidation)
+  void Server_IncreaseVariable();
+
+  // Also overriding the BeginPlay function for this example 
+  virtual void BeginPlay() override
+  {% endhighlight %}
+  </details>
+
+  "GameState"를 통해서 복제된 정수 변수를 증가시키는 일반 함수(Increase Variable)를 가져옵니다. 이 이벤트는 "Player Controller"의 서버 RPC 내부에 있는 서버 측에서 호출됩니다. (서버 전용)
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Character_Button.png" height="200" title="Character_Button">
+
+  버튼(클라이언트 측)을 클릭하면, "Player Controller"의 ServerRPC를 사용하여 서버 측으로 이동한 다음 게임 상태의 'Increase Variable' 이벤트를 호출하여 복제된 정수를 증가시킵니다. 이 정수는 서버에 의해 복제되고 설정되므로 이제 GameState의 모든 인스턴스에서 업데이트되며 클라이언트도 업데이트를 볼 수 있습니다.
+
+#### HUD
