@@ -415,7 +415,8 @@ __Example :__
 
   {% highlight cpp %}
   /* CPP file of our GameState Child Class */
-  // This function is required through the Replicated specifier in the UPROPERTY Macro and is declared by it void ATestGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+  // This function is required through the Replicated specifier in the UPROPERTY Macro and is declared by it 
+  void ATestGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
     
     // This actually takes care of replicating the Variable
@@ -480,7 +481,7 @@ __Example :__
 
   "GameState"를 통해서 복제된 정수 변수를 증가시키는 일반 함수(Increase Variable)를 가져옵니다. 이 이벤트는 "Player Controller"의 서버 RPC 내부에 있는 서버 측에서 호출됩니다. (서버 전용)
 
-  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Character_Button.png" height="200" title="Character_Button">
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Character_Button.png" height="150" title="Character_Button">
 
   버튼(클라이언트 측)을 클릭하면, "Player Controller"의 ServerRPC를 사용하여 서버 측으로 이동한 다음 게임 상태의 'Increase Variable' 이벤트를 호출하여 복제된 정수를 증가시킵니다. 이 정수는 서버에 의해 복제되고 설정되므로 이제 GameState의 모든 인스턴스에서 업데이트되며 클라이언트도 업데이트를 볼 수 있습니다.
 
