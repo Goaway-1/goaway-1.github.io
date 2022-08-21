@@ -507,4 +507,97 @@ __Example :__
 
 즉, 플레이어가 서버가 되는 것을 의미합니다.
 
-## Replication
+## [Replication](https://docs.unrealengine.com/4.27/ko/InteractiveExperiences/Networking/Actors/Properties/)
+
+"Replication"(복제)는 서버가 정보/데이터를 클라이언트에 전달하는 작업입니다. 이것은 특정 개념 및 그룹으로 제한될 수 있습니다. Blueprint는 대부분 영향을 받는 "Actor"의 설정에 따라 복제를 수행합니다. 속성을 복제할 수 있는 첫 번째 클래스는 "Actor"입니다. 앞서 언급한 모든 클래스는 "Actor"에서 상속되므로 필요한 경우 속성을 복제할 수 있습니다. 물론 "Actor"를 상속받지 않는 "GameMode"와 같이 전혀 복제되지 않고 서버에만 존재하는 경우도 있습니다.
+
+---
+
+__Set Replication__
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Replication.png" height="250" title="Replication">
+
+  <details><summary><span style = "color:green;">Set Replication Code</span></summary> 
+
+  {% highlight cpp %}
+  ATestCharacter::ATestCharacter() {
+    // Network game, so let's setup Replication 
+    bReplicates = true;
+    bReplicateMovement = true; 
+  }
+  {% endhighlight %}
+  </details>
+
+  "Replication"는 Actor 하위의 Class Defaults/Constructor에서 활성화할 수 있습니다. "bReplicates"가 TRUE로 설정된 "Actor"는 <span style = "color:yellow;"><ins>서버에 의해 생성될 때 모든 클라이언트에서 생성되고 복제됩니다.</ins></span> 클라이언트가 이 액터를 생성하면 액터는 바로 이 클라이언트에만 존재합니다.
+
+---
+
+__Replicating Properties (Replicated)__
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Replicated.png" height="300" title="Replicated">
+  
+  <details><summary><span style = "color:green;">Set Replicated Code</span></summary> 
+
+  {% highlight cpp %}
+  /* Header file inside of the Classes declaration */ 
+  // Create replicated health variable 
+  UPROPERTY(Replicated)
+    float Health;
+  {% endhighlight %}
+  {% highlight cpp %}
+  void ATestPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const { 
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    // Here we list the variables we want to replicate + a condition if wanted 
+    DOREPLIFETIME(ATestPlayerCharacter, Health);
+
+    // Replicates the Variable only to the Owner of this Object/Class
+    DOREPLIFETIME_CONDITION(ATestPlayerCharacter, Health, COND_OwnerOnly);
+  }
+  {% endhighlight %}
+  </details>
+
+  "Replication"를 사용하도록 설정하면 변수를 복제할 수 있습니다. 변수의 "Replication"를 "Replicated"로 설정하고, 이 변수가 변경되면 그 변수 값이 클라이언트에게 공유됩니다. 물론 이것은 복제하도록 설정된 배우에게만 작동합니다. 전체 "Replication" 프로세스는 서버에서 클라이언트로만 작동하며, 그 반대는 작동하지 않습니다. 나중에 서버가 클라이언트가 다른 사용자와 공유하려는 내용을 복제하도록 하는 방법에 대해 알아보겠습니다
+
+  이때 "DOREPLIFETIME_CONDITION"은 조건이 있는 복제 기준입니다. 이에 대한 규정은 아래 표를 확인해주세요.
+
+  |Condition|Description|
+  |:--|:--|
+  |COND_InitialOnly|초기에만 전송을 시도합니다.|
+  |COND_OwnerOnly|Actor의 소유자에게만 전송됩니다.|
+  |COND_SkipOwner|소유자를 제외한 모든 연결에 전송됩니다.|
+  |COND_SimulatedOnly|시뮬레이션된 Actor에게만 전송됩니다.|
+  |COND_AutonomousOnly|자율 Actor에게만 전송됩니다.|
+  |COND_SimulatedOrPhysics|시뮬레이션되는 또는 bRepPhysics 액터에 전송합니다.|
+  |COND_InitialOrOwner|초기 패킷시, 또는 액터의 오너에 전송합니다.|
+  |COND_Custom|별다른 조건이 없지만, SetCustomIsActiveOverride 를 통해 껐다 켰다 토글 기능을 원합니다.|
+
+---
+
+__Replicating Properties (RepNotify)__
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/RepNotify.png" height="300" title="RepNotify">
+
+  <details><summary><span style = "color:green;">Set RepNotify Code</span></summary> 
+
+  {% highlight cpp %}
+  /* Header file inside of the Classes declaration */ 
+  // Create RepNotify Health variable 
+  UPROPERTY(ReplicatedUsing=OnRep_Health) 
+  float Health;
+
+  // Create OnRep Function | UFUNCTION() Macro is important! | Doesn't need to be virtual though 
+  UFUNCTION()
+  virtual void OnRep_Health();
+  {% endhighlight %}
+  {% highlight cpp %}
+  /* CPP file of the Class */
+  void ATestCharacter::OnRep_Health() { 
+    if(Health < 0.0f) PlayDeathAnimation(); 
+  }
+  {% endhighlight %}
+  </details>
+
+  "Replication"의 다른 방법은 "Replicated"대신 "RepNotify"을 사용하는 것입니다. 이는 업데이트된 값을 수신할 때, 모든 인스턴스에서 자동으로 함수를 호출하도록한다. 이렇게 하면 값이 복제된 후에 호출해야 하는 로직을 자동으로 호출할 수 있습니다.
+
+## [Remote Procedure Calls](https://ko.wikipedia.org/wiki/%EC%9B%90%EA%B2%A9_%ED%94%84%EB%A1%9C%EC%8B%9C%EC%A0%80_%ED%98%B8%EC%B6%9C)
