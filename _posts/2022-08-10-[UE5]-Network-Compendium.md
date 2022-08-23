@@ -602,7 +602,7 @@ __Replicating Properties (RepNotify)__
 
 ## [Remote Procedure Calls](https://ko.wikipedia.org/wiki/%EC%9B%90%EA%B2%A9_%ED%94%84%EB%A1%9C%EC%8B%9C%EC%A0%80_%ED%98%B8%EC%B6%9C)
 
-복제(Replication)를 위한 다른 방법을 <span style = "color:orange;">"RPC"</span>라고 합니다. 이는 "Remote Porcedure Calls"(원격 프로시저 호출)의 약자로 다른 경우에 무언가를 호출할 때 사용됩니다. UE4는 이를 사용하여 "클라이언트에서 서버", "서버에서 클라이언트", "서버에서 특정 그룹"으로 함수를 호출합니다. 이 RPC는 반환 값을 가질 수 없으며, 반환하기 위해서는 두 번째 RPC를 사용해야 합니다. 
+복제(Replication)를 위한 다른 방법을 <span style = "color:orange;">"RPC"</span>라고 합니다. 이는 "Remote Porcedure Calls"(원격 프로시저 호출)의 약자로 다른 경우에 무언가를 호출할 때 사용됩니다. UE4는 이를 사용하여 "클라이언트에서 서버", "서버에서 클라이언트", "서버에서 특정 그룹"으로 함수를 호출할 수 있습니다. 이 RPC는 반환 값을 가질 수 없으며, 반환하기 위해서는 두 번째 RPC를 사용해야 합니다. 
 
 |Rules|Content|
 |:--:|:--|
@@ -610,7 +610,7 @@ __Replicating Properties (RepNotify)__
 |Run on OwningServer|소유자에게 실행되도록 되어 있습니다.|
 |NetMulticast|모든 인스턴스에 대해 실행되도록 되어 있습니다.|
 
-<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/SetReplicated.png" height="300" title="SetReplicated">
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/SetReplicated.png" height="250" title="SetReplicated">
 
 <details><summary><span style = "color:green;">Set RPC Code</span></summary> 
 
@@ -653,18 +653,18 @@ bool ATestPlayerCharacter::SomeRPCFunction_Validate(int32 AddHealth) {
 ---
 
 __요구 사항 및 주의 사항__
-  하지만 "RPC"은 특정한 규칙에서만 작동하며, 아래와 같은 규칙과 상황이 존재합니다.
+
+  "RPC"은 특정한 규칙에서만 작동하며, 아래와 같은 규칙과 상황이 존재합니다.
 
   1. ACtor에서 호출되어야 합니다.
   2. Actor는 복제되어야 합니다.
   3. 클라이언트에서 RPC가 실행되도록 서버에서 호출되는 경우, 해당 Actor를 실제로 소유한 클라이언트만 해당 기능을 실행합니다.
   4. 서버에서 RPC가 실행되도록 클라이언트에서 호출되는 경우, 클라이언트는 RPC가 호출되는 Actor를 소유해야 합니다.
   5. 멀티캐스트 RPC는 예외입니다.
-      - 서버에서 호출된 경우, 서버는 로컬에서 실행할 뿐만 아니라 모든 서버에서 실행할 수 있습니다. 현재 연결된 클라이언트입니다.
-      - 클라이언트에서 호출된 경우 로컬에서만 실행되며 서버에서 실행되지 않습니다. 
-      - 현재, 우리는 멀티캐스트 이벤트를 위한 간단한 조절 메커니즘을 가지고 있다.     
-        - 멀티캐스트 기능은 주어진 시간에 두 번 이상 복제하지 않는다.
-        - 배우의 네트워크 업데이트 기간입니다. 장기적으로, 우리는 이것에 대해 개선하기를 기대한다.
+      - 서버에서 호출된 경우, 로컬에서 실행할 뿐만 아니라 현재 연결된 모든 클라이언트에서 실행할 수 있습니다.
+      - 클라이언트에서 호출된 경우 로컬에서만 실행되며, 서버에서는 실행되지 않습니다. 
+      - 우리는 멀티캐스트 이벤트를 위한 간단한 조절 메커니즘을 가지고 있습니다.     
+        - 멀티캐스트는 주어진 시간에 두 번 이상 복제하지 않습니디.
 
 ---
 
@@ -679,6 +679,7 @@ __서버에서 호출된 RPC__
 ---
 
 __클라이언트에서 호출된 RPC__
+
   |Actor Onwership|Not Replicated|NetMulticast|Server|Client|
   |:--:|:--:|:--:|:--:|:--:|
   |Owned by invoking Client|호출한 클라이언트에서 실행|호출한 클라이언트에서 실행|서버에서 실행|호출한 클라이언트에서 실행|
