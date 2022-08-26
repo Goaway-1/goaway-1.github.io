@@ -688,3 +688,78 @@ __클라이언트에서 호출된 RPC__
   |Unowned Actor|호출한 클라이언트에서 실행|호출한 클라이언트에서 실행|실행 X|호출한 클라이언트에서 실행|
 
 ## Onwership
+
+"Onwership"이란 액터의 소유권을 나타냅니다. 위에서 이미 "Client-owned Actor"와 같은 표를 보았을 것입니다. 서버 또는 클라이언트들은 액터를 소유할 수 있죠. 
+
+예를 들어 "Player Controller"를 소유하는 클라이언트가 있고, 서버가 소유하는 "문"이 월드에 배치되어 있습니다. 이때 클라이언트가 소유하지 않은 액터에서 서버 RPC를 호출할 경우 서버 RPC가 실패하게 됩니다. <ins>__즉 클라이언트는 서버가 소유한 "문"의 "Server_OpenDoor"를 호출할 수 없게 됩니다.__</ins>
+
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/OwnerShip.png" height="250" title="OwnerShip">
+
+이를 해결하기 위해서 우리는 클라이언트가 실제로 소유하고 있는 클래스/액터를 사용합니다. <ins>__바로 여기서 플레이어 컨트롤러가 빛을 발하기 시작합니다.__</ins> "문"에서 입력을 활성화하고, __서버 RPC를 호출하는 대신 "Player Controller"에서 "서버 RPC"를 만들고 서버가 문에서 "인터페이스 기능"을 호출하도록 합니다.__ "문"의 [인터페이스](https://docs.unrealengine.com/4.27/ko/ProgrammingAndScripting/GameplayArchitecture/Interfaces/)를 구현하면 정의된 로직을 호출하여 Open/Closed 상태를 올바르게 복제합니다. 
+
+### Actors & Their Owning Connections
+
+이미 언급했듯이 "Player Controller"는 실제로 플레이어가 '소유'하는 클래스입니다. 만들어진 "Player Controller"는 해당 Connection에서 소유합니다. 따라서 액터가 누군가의 소유인지 결정할 때, 가장 바깥쪽 소유자에게 질문하고, 이것이 "PlayerController"인 경우 이를 소유한 Connection도 해당 액터를 소유합니다.
+
+__<ins>Pawn/Character는 "PlayerController"에 의해 소유되며, 동시에 "PlayerController"는 소유된 Pawn의 소유자입니다.</ins>__
+
+이 정보는 아래와 같은 경우에 있어 중요한 정보입니다.
+
+  - RPC는 'Run-On-Client RPC'를 실행할 클라이언트를 결정하는데 필요합니다.
+  - 액터 __복제(Replication)와 연결 관련성(Relevancy)__
+  - Actor 속성 소유자가 관여할 때 복제 조건
+
+RPC가 소유한 연결에 따라 클라이언트/서버가 호출할 때 RPC가 다르게 반응한다는 것을 이미 읽었습니다. 또한 (C++에서) 변수가 특정 조건에서만 복제되는 조건부 복제에 대해 읽었습니다. 다음 항목에서는 목록의 관련성 부분에 대해 설명합니다.
+
+## Actor Relevancy & Priority
+
+### 관련성(Relevancy)
+
+  그렇다면 "Relevancy"이란 무엇이며 왜 필요한가요? 플레이어가 실제로 다른 사람들에게 <ins>__'중요하지 않을'__</ins> 수 있을 만큼 충분히 큰 레벨/맵이 있는 게임이 있다고 상상해 보세요. 플레이어 A가 서로 멀리 떨어져 있는 경우 플레이어 B를 볼 필요는 없을 것입니다. 언리얼 네트워크 코드의 <ins>상당한 대역폭 최적화</ins>는, __서버가 클라이언트에게 연관성이 있는 액터 세트에 대해서만 알려주는 것으로 이루어집니다.__
+
+  플레이어에 대한 관련 액터의 세트를 결정하기 위해 다음 규칙을 순서대로 적용합니다. 이러한 테스트는 가상 함수 __"AActor::IsNetRelevantFor()"에서__ 구현됩니다.
+
+  1. 액터가 bAlwaysRelevant (항상 연관성이 있)거나, Pawn 이거나, 폰이 노이즈나 대미지같은 동작의 Instigator (유발자)인 경우, 연관성이 있습니다.
+  2. Actor가 'bNetUserOwnerRelevancy'이고 Owner가 있는 경우, Owner의 연관성을 사용합니다.
+  3. Actor가 'bOnlyRelevantToOwner'이고 첫 번째 검사를 통과하지 못하는 경우, 연관성이 없습니다.
+  4. 액터가 다른 액터의 스켈레톤에 부착된 경우, 관련성은 상위 조상의 연관성에 의해 결정됩니다.
+  5. 액터가 숨겨져 있고('bHidden == true') 루트 구성 요소가 충돌하지 않으면, 액터는 연관성이 없습니다.
+      - 루트 구성 요소가 없는 경우 'AActor::IsNetRelevantFor()'는 경고를 출력하고 Actor를 'bAlwaysRelevant = true'로 설정해야 하는지 물어봅니다.
+  6. 'AGameNetworkManager'가 거리 기반 관련성을 사용하도록 설정된 경우 액터가 "컬 거리(Cull Distance)"보다 가까우면 관련성이 있습니다.
+
+  참고: Pawn 및 PlayerController는 'AActor::IsNetRelevantFor()'를 재정의하고 결과적으로 관련성 조건이 다릅니다.
+
+### 우선순위(Prioritization)
+
+  언리얼에서는 모든 액터의 우선순위를 부여하는 __"부하 균형 기법"을__ 사용하여, 각 액터의 게임플레이 중요도에 따라 대역폭을 적절히 분배합니다.
+
+  각 액터에는 NetPriority (우선권)이라는 플로트 변수가 있습니다. <ins>__수치가 큰 액터일수록 다른 액터에 비해 더욱 많은 대역폭을 받게 됩니다.__</ins> 우선권이 2.0 인 액터는 1.0 인 것보다 정확히 두 배의 빈도로 업데이트될 것입니다. 우선권 관련해서 중요한 유일한 것은 그 비율인데, 모든 우선권을 높인다고 언리얼의 네트워크 퍼포먼스가 향상되지는 않습니다. 저희 퍼포먼스 튜닝시 할당해 둔 NetPriority 값은 다음과 같습니다:
+
+  - Actor = 1.0
+  - Matinee = 2.7
+  - Pawn = 3.0
+  - PlayerController = 3.0
+
+  액터의 현재 우선권은 "AActor::GetNetPriority()" 가상 함수를 사용해 계산합니다. 업데이트받지 못하는 경우를 피하기 위해 AActor::GetNetPriority() 는 NetPriority 에 액터의 지난 번 리플리케이션 이후 경과시간을 곱합니다. GetNetPriority 함수 역시 액터와 관찰자 사이의 거리와 상대적 위치를 고려합니다.
+
+  <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Prioritization.png" height="250" title="Prioritization">
+
+  <details><summary><span style = "color:green;">Set Prioritization Code</span></summary> 
+
+  {% highlight cpp %}
+  bOnlyRelevantToOwner = false; 
+  bAlwaysRelevant = false; 
+  bReplicateMovement = true; 
+  bNetLoadOnClient = true; 
+  bNetUseOwnerRelevancy = false; 
+  bReplicates = true;
+
+  NetUpdateFrequency = 100.0f;
+  NetCullDistanceSquared = 225000000.0f;
+  NetPriority = 1.0f;
+  {% endhighlight %}
+  </details>
+  
+  이러한 설정의 대부분은 Blueprint의 클래스 기본값에서 찾을 수 있으며, 물론 각 Actor의 자식 C++ 클래스 내에서 설정할 수 있습니다.
+
+## Actor Role & RemoteRole
