@@ -15,15 +15,11 @@ This post reads the "Unreal Engine 4 Network Compendium" produced by __"Cedric '
 
 언리얼은 보통 <span style = "color:orange;">__"Sever-Client"의__</span> 구조를 사용합니다. 서버는 권위적이며 모든 데이터는 클라이언트에서 서버로 먼저 전송되어야 합니다. 그리고 서버는 데이터를 입증하고, 개발자의 코드에 따라 반응합니다.
 
-__Example :__
-
-  멀티플레이어 매치에서 클라이언트로서 캐릭터를 이동할 때 실제로 캐릭터를 직접 이동하지 않고 서버에 캐릭터를 이동시킬 것을 알립니다. 그런 다음 서버는 사용자를 포함한 다른 모든 사용자에게 캐릭터의 위치를 업데이트합니다.
+멀티플레이어 매치에서 클라이언트로서 캐릭터를 이동할 때 실제로 캐릭터를 직접 이동하지 않고 서버에 캐릭터를 이동시킬 것을 알립니다. 그런 다음 서버는 사용자를 포함한 다른 모든 사용자에게 캐릭터의 위치를 업데이트합니다.
   
-  _노트 :_ 로컬 클라이언트의 "지연" 느낌을 방지하기 위해 서버가 여전히 캐릭터의 위치를 재정의할 수 있지만, 로컬 클라이언트의 "지연" 느낌을 방지하기 위해 플레이어가 직접 로컬로 캐릭터를 제어하도록 하는 경우가 많습니다. 클라이언트가 부정행위를 시작할 때 서버는 여전히 캐릭터의 위치를 재정의할 수 있습니다! __즉, 클라이언트는 다른 클라이언트와 직접 '대화'하지 않습니다.__
+_노트 :_ 로컬 클라이언트의 "지연" 느낌을 방지하기 위해 서버가 여전히 캐릭터의 위치를 재정의할 수 있지만, 로컬 클라이언트의 "지연" 느낌을 방지하기 위해 플레이어가 직접 로컬로 캐릭터를 제어하도록 하는 경우가 많습니다. 클라이언트가 부정행위를 시작할 때 서버는 여전히 캐릭터의 위치를 재정의할 수 있습니다! __즉, 클라이언트는 다른 클라이언트와 직접 '대화'하지 않습니다.__
 
-__Another Example :__
-
-  대화 메시지를 다른 클라이언트에 발송할 때, 실제로 서버로 발송한 다음 연결하려는 클라이언트에 전달합니다. 팀, 길드, 그룹 등이 될 수도 있습니다.
+대화 메시지를 다른 클라이언트에 발송할 때, 실제로 서버로 발송한 다음 연결하려는 클라이언트에 전달합니다. 팀, 길드, 그룹 등이 될 수도 있습니다.
 
 ### 중요한 점
 
@@ -59,16 +55,16 @@ GameMode Class는 GameModeBase와 GameMode로 분할되어 있습니다. 일부 
 
 이는 게임의 규칙을 정의하는 데 사용됩니다. 여기에는 Apawn, APlayer Controller, APlayerState 등과 같은 사용된 클래스가 포함되며, 서버에서만 사용할 수 있습니다. 클라이언트는 게임 모드의 개체가 없으며 게임 모드를 검색할 때는 nullptr이 표시됩니다.
 
-__Example :__
-
-  게임 모드는 일반적인 모드를 통해 데스매치, 팀 데스매치, 깃발 캡처 등에 사용하며, 아래와 같은 조건들을 선언할 수 있다.
+게임 모드는 일반적인 모드를 통해 데스매치, 팀 데스매치, 깃발 캡처 등에 사용하며, 아래와 같은 조건들을 선언할 수 있다.
 
   - 개인전인지 팀전인지를 구분
   - 몇번을 킬해야하는지, 우승 조건은 무엇인지
   - 점수가 오르는 기준. (킬, 점령)
   - 사용이 허용되는 무기들에 대한..
 
-> Usage Example
+---
+
+> __Example__
 
 <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/OverrideFunction.png" height="350" title="OverrideFunction">
 
@@ -122,7 +118,7 @@ __Example :__
   </details>
 
 
-이 게임모드를 사용하여 일반 매치 를로우를 관리할 수 있는데, "Ready to start Match"와 같이 재정의를 할 수 있는 기능과도 연결됩니다. 이는 True로 반환될 때 자동으로 호출되지만 수동으로도 사용할 수 있습니다. 이때 "작업이 GameState에서 처리되지 않는다"고 생각할 수 있지만, 게임 모드 기능을 실제로 게임 상태와 함께 작동합니다. 하지만 게임 모드는 서버에만 존재하기 대문에 클라이언트로부터 멀리 떨어진 상태를 관리할 수 있는 포인트를 제공합니다.
+이 게임모드를 사용하여 일반 매치의 흐름을 관리할 수 있는데, "Ready to start Match"와 같이 재정의를 할 수 있는 기능과도 연결됩니다. 이는 True로 반환될 때 자동으로 호출되지만 수동으로도 사용할 수 있습니다. 이때 "작업이 GameState에서 처리되지 않는다"고 생각할 수 있지만, 게임 모드 기능을 실제로 게임 상태와 함께 작동합니다. 하지만 게임 모드는 서버에만 존재하기 대문에 클라이언트로부터 멀리 떨어진 상태를 관리할 수 있는 포인트를 제공합니다.
 
 <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/GameMode_OptionsString.png" height="120" title="GameMode_OptionsString">
 
@@ -157,7 +153,7 @@ __Example :__
 
 "GameMode"는 승리하는 데 필요한 킬 수를 알려주는 반면, "GameState"는 각 플레이어 및/또는 팀의 현재 킬 수를 추적합니다. 여기에 어떤 정보를 저장하느냐는 전적으로 사용자에게 달려 있습니다. 점수 배열 또는 그룹 및 길드를 추적하는 데 사용하는 사용자 지정 구조 배열일 수 있습니다.
 
-__Example :__
+> __Example__
 
 멀티플레이어에서 "GameState" 클래스는 플레이어와 플레이어의 상태를 포함하여 __게임의 현재 상태를 추적하는 데__ 사용됩니다. 게임 모드는 "GameState"의 Match State 함수가 호출되는지 확인하고 "GameState" 자체가 클라이언트에서도 사용할 수 있는 기회를 제공합니다.
 
@@ -192,7 +188,9 @@ __Example :__
 
 위 그림은 "GameState"클래스에서 사용할 수 있는 몇 가지 변수입니다. __"PlayerArray*", "MatchState", "ElapsedTime"들은__ 복제되므로 클라이언트도 접근할 수 있습니다. 이것은 "Authority Game Mode"에는 해당되지 않습니다. "GameMode"는 서버에만 존재하므로 서버만 액세스할 수 있습니다. __"PlayerArray*"은__ 직접 복제되지 않지만 모든 플레이어 상태는 복제되며 생성 시 플레이어 배열에 추가됩니다. 동시에 "GameState"는 생성될 때 한 번 수집합니다.
 
-__Another Example :__
+---
+
+> __Another Example__
 
   <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/GameState_CustomEvent.png" height="250" title="GameState_CustomEvent">
 
@@ -232,7 +230,9 @@ __Another Example :__
 
 "Player State" 클래스는 특별한 플레이어에게 가장 중요한 클래스입니다. 이것은 플레이어의 현재 정보를 가지고 있음을 의미하며, 각 플레이어는 자신의 "Player State"를 가지고 있습니다. 또한 모두에게 복제되고 다른 클라이언트의 데이터를 검색하여 표시할 수 있습니다. 모든 "Player state"에 접근하는 쉬운 방법은 "GameState"에 있는 "PlayerArray"에 접근하는 것입니다.
 
-__Example :__
+---
+
+> __Example__
 
   |Example Information|Content|
   |:--:|--|
@@ -283,11 +283,11 @@ __Example :__
 
 "Pawn" 클래스는 플레이어가 실제로 조작하는 액터입니다. 주로 인간형 캐릭터에 사용되지만, 고양이, 책, 비행기, 배와 같은 것도 가능합니다. 플레이어는 한번에 하나의 "Pawn"를 소유할 수 있지만, "Pawn"를 소유하거나 재소유하는 등 쉽게 변경할 수 있습니다.
 
-__Pawn은 대부분 모든 클라이언트들에게 복제 :__
+Pawn의 자식 클래스인 "ACharacter"는 종종 사용되는데, 이는 위치, 회전등을 복제처리하는 네트워크화된 "MovementComponent"라는 구성요소가 존재하기 때문입니다. 항상 말하지만 클라이언트는 캐릭터를 움직이게 하지 않고, 서버가 클라이언트로부터 움직임을 입력받아 움직인후 캐릭터를 복제하는 형식입니다. 즉, Pawn은 대부분 모든 클라이언트들에게 복제됩니다.
 
-  Pawn의 자식 클래스인 "ACharacter"는 종종 사용되는데, 이는 위치, 회전등을 복제처리하는 네트워크화된 "MovementComponent"라는 구성요소가 존재하기 때문입니다. 항상 말하지만 클라이언트는 캐릭터를 움직이게 하지 않고, 서버가 클라이언트로부터 움직임을 입력받아 움직인후 캐릭터를 복제하는 형식입니다.
+---
 
-__Example :__
+> __Example__
  
   멀티플레이에서 우리는 주로 "Pawn"가 캐릭터를 화면에 표시하고, 다른이와 몇가지 정보를 공유하기 위해 복제된 부분을 사용합니다. 간단한 예가 바로 캐릭터의 "Health"입니다. 하지만 우리는 오직 '체력'을 다른 사람에게만 보이게 하기 위해 복제할뿐만 아니라, 서버가 그것에 대한 권한을 가지고 클라이언트가 치트를 쓸 수 없도록 복제합니다.
 
@@ -334,7 +334,9 @@ __Example :__
 
   표준 재정의 함수임에도 불구하고 "Pawn"은 "Possessed"와 "Unpossessed" 2가지 기능을 가지고 있습니다. 그것은 "Pawn"이 "UnPossessed"되지 않았을때, 숨기기 위해서 사용할 수 있습니다. (소유가 서버에서 발생하기 때문에, 이러한 이벤트는 서버에서만 호출됩니다.)
 
-__Another Example :__
+---
+
+> __Another Example__
 
   <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/34p.png" height="150" title="34p">
 
@@ -389,7 +391,7 @@ __Another Example :__
 
 그 결과 서버는 모든 클라이언트의 "Player Controller"에 대한 참조를 가지게 됩니다. 이때 모든 입력(버튼 누름, 마우스 이동, 컨트롤러 축 등)을 "Player Controller"에 배치할 필요는 없습니다. 입력을 각 Character/Pawn 클래스에 배치하고, "Player Controller"를 사용하여 호출하는 것이 좋습니다.
 
-__How to Get PlayerController?__
+> __How to Get PlayerController?__
 
   <ins>__"GetPlayerController(0)"__ 또는 __"UGameplayStatics::GetPlayerController(GetWorld()), 0;"은__</ins> 서버와 클라이언트에서 다르게 작동하지만, 실제로는 어렵지 않습니다.
 
@@ -399,7 +401,7 @@ __How to Get PlayerController?__
   |__Client에서의 호출__|Client의 PlayerController를 반환|
   |__Dedicated Server에서의 호출__|첫 번째 클라이어트의 PlayerController를 반환|
 
-__Example :__
+> __Example__
 
   "Player Controller"는 네트워킹에 대한 가장 중요한 클래스 중 하나이지만 기본적으로는 많이 존재하지 않습니다. 그래서 우리는 왜 그것이 필요한지 명확히 하기 위해 작은 예를 만들 것입니다. 소유권(Ownership)에 대한 장에서는 "Player Controller"가 RPC에 중요한 이유에 대해 설명합니다. 다음 예제에서는 "Player Controller"를 사용하여 위젯 단추를 눌러 게임 상태에서 복제된 변수를 늘리는 방법을 보여 줍니다.
 
@@ -513,7 +515,7 @@ __Example :__
 
 ---
 
-__Set Replication__
+> __Set Replication__
 
   <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Replication.png" height="250" title="Replication">
 
@@ -532,7 +534,7 @@ __Set Replication__
 
 ---
 
-__Replicating Properties (Replicated)__
+> __Replicating Properties (Replicated)__
 
   <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Replicated.png" height="300" title="Replicated">
   
@@ -574,7 +576,7 @@ __Replicating Properties (Replicated)__
 
 ---
 
-__Replicating Properties (RepNotify)__
+> __Replicating Properties (RepNotify)__
 
   <img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/RepNotify.png" height="300" title="RepNotify">
 
@@ -652,7 +654,7 @@ bool ATestPlayerCharacter::SomeRPCFunction_Validate(int32 AddHealth) {
 
 ---
 
-__요구 사항 및 주의 사항__
+> __요구 사항 및 주의 사항__
 
   "RPC"은 특정한 규칙에서만 작동하며, 아래와 같은 규칙과 상황이 존재합니다.
 
@@ -668,7 +670,7 @@ __요구 사항 및 주의 사항__
 
 ---
 
-__서버에서 호출된 RPC__
+> __서버에서 호출된 RPC__
 
   |Actor Onwership|Not Replicated|NetMulticast|Server|Client|
   |:--:|:--:|:--:|:--:|:--:|
@@ -678,7 +680,7 @@ __서버에서 호출된 RPC__
 
 ---
 
-__클라이언트에서 호출된 RPC__
+> __클라이언트에서 호출된 RPC__
 
   |Actor Onwership|Not Replicated|NetMulticast|Server|Client|
   |:--:|:--:|:--:|:--:|:--:|
@@ -803,7 +805,7 @@ RPC가 소유한 연결에 따라 클라이언트/서버가 호출할 때 RPC가
   - __"ROLE_AutonomousProxy"는__ 소유자와는 별도로 취급될 필요가 있는 클라이언트 제어 액터에 사용됩니다. 이것은 클라이언트에서 액터를 시뮬레이션하는데 Simulated Proxy를 사용하는 게임에서의 다른 플레이어에 대한 클라이언트에서 서버로의 이동 정보를 제공합니다.
 
 ---
-__"ROLE_DumbProxy"__
+> __"ROLE_DumbProxy"__
 
   이 역할은 실제 클라이언트측 예측이 필요없는 간단한 액터에 사용됩니다. 
   
@@ -815,9 +817,7 @@ __"ROLE_DumbProxy"__
 
 ---
 
-__"ROLE_SimulatedProxy"__
-
-  > 대리 시뮬레이션
+> __"ROLE_SimulatedProxy"__
 
   이 역할은 예측을 통행 네트워크상에서 시뮬레이션되는 모든 것에 대해 사용됩니다. 
   
@@ -833,9 +833,7 @@ __"ROLE_SimulatedProxy"__
 
 ---
 
-__"ROLE_AutonomousProxy"__
-
-  > 자치적으로 대리 조작
+> __"ROLE_AutonomousProxy"__
   
   이것은 사용자를 위한 것입니다. 온라인 게임을 플레이할 때 자신은 다른 PlayerControllers와는 다르게 취급되야 합니다. __<ins>본인 자신이 서버의 예상대로 예측되어지는 것을 원하지 않을 것입니다. 오히여 본인 자신을 조작하고 서버에게 자신의 진행 위치를 알리고 싶을 것입니다.</ins>__ 이것이 이 역할의 목적입니다. 이 
   
@@ -843,14 +841,170 @@ __"ROLE_AutonomousProxy"__
 
   일반적으로 "Player Controller"가 소유한 Actor에서만 사용됩니다. 이것은 이 행위자가 사용자로부터 입력을 받고 있다는 것을 의미하기 때문에, 우리가 추론할 때, 우리는 __조금 더 많은 정보를 가지고 있고, (마지막으로 알려진 속도를 기반으로 추정하는 것보다) 누락된 정보를 채우기 위해 실제 사용자의 입력을 사용할 수 있다.__
 
-## Traveling in Multiplayer
+## [Traveling in Multiplayer](https://docs.unrealengine.com/5.0/ko/travelling-in-multiplayer-in-unreal-engine/)
+
+한 레벨에서 다른 레벨로 맵을 이동하는 것을 __"Travel"이라고__ 한다. 로그인 버튼을 누르면 서버측(GameMode)에서 로그인 순서대로 플레이어에게 순번을 부여하고, 클라이언트 측의 SaveGame이나 GameInstance에 저장했다가 2명이 모두 로그인을 완료하면 서버측(GameMode)에서는 Travel명령을 실행하여 모두 클라이언트가 다른 맵으로 전환하도록 한다.
+
+Travel후에 실행되는 맵의 한 함수에서 "SaveGame/GameInstance"로부터 플레이어의 순번을 참조하여 해당 번호의 캐릭터를 스폰하여 3인칭 맵 위에 표시한다.
+
+Game Mode에서 bUseSeamlessTravel를 true로 하고 Transition map을 만든다.
+[Project Settings] > [Project] > [Maps & Modes] > [Advanced] > [Transition map] 에서 만든 맵을 설정하고, 다음과 같은 [과정](https://unrealengine.tistory.com/298)을 참고한다.
 
 ### Non-/Seamless travel
 
+> __비/원활한 여행__
+
+"Seamless"와 "Non-Seamless" travel의 사이의 차이는 간단하다. "Seamless travel"은 비차단 호출이고, "Non-Seamless travel"은 차단 호출이다. 
+
+클라이언트에게 "Non-Seamless Travel"은 클라이언트가 서버에서 연결을 끊었다가 동일한 서버에 다시 연결하여, 새 맵을 로드합니다. 때문에 끊김현상이 발생합니다. 
+
+엔진은 "Seamless Trabel"을 자주 사용할 것을 권장합니다. 이름 그대로 원활한 이동이며, "Transition map"이라는 중간에 거쳐가는 맵을 사용한다. 즉, A맵에서 B맵을 로딩할 때 __"A -> Transition map -> B"가__ 된다. 이렇게 하면 더 부드러운 경험을 할 수 있고 재연결 과정에서 발생할 수 있는 문제를 피할 수 있기 때문입니다.
+
+<ins>blocking은 어떤 연산을 실행했을 때, 그 연산이 끝날때까지 기다리고,  non-blocking는 연산해달라고 요청만하고, 원래 실행 흐름을 그대로 실행한다.</ins>
+
+"Non-seamless travel"을 사용하는 세 가지 방법이 있습니다.
+
+  - 맵을 처음 로드할 때
+  - 서버에 클라이언트로 처음 접속하는 경우
+  - 멀티 플레이 게임을 종료하고 새로운 게임을 시작하려는 경우
 
 ### Main Traveling Functions
 
+이동을 위해 쓰이는 함수는 크게 __"UEngine::Browse", "UWorld::ServerTravel", "APlayerController::ClientTravel"__ 세 가지입니다. 
+
+---
+> __"UEngine::Browse"__
+
+  - 새로운 맵 로드 시 "하드 리셋"같은 것입니다.
+  - 항상 매끄럽지 않은 이동을 합니다.
+  - 목적 맵으로 이동하기 전 서버가 현재 클라이언트 접속을 끊습니다.
+  - 클라이언트는 현재 서버에서 접속이 끊깁니다.
+  - 데디케이티드 서버는 다른 서버로 이동할 수 없으므로, 맵은 반드시 로컬이어야합니다. (URL X)
+
+---
+> __"UWorld::ServerTravel"__
+
+  - 서버 전용입니다.
+  - 서버를 새 월드/레벨로 점프시킵니다.
+  - 접속된 모든 클라이언트도 따라갑니다.
+  - 멀티플레이어 게임에서 맵 사이 이동을 할 때 쓰는 방식으로, 서버에서 이 함수 호출을 담당합니다.
+  - 서버는 접속된 __모든 클라이언트 플레이어에 대해 APlayerController::ClientTravel 을 호출합니다.__
+
+---
+> __"APlayerController::ClientTravel"__
+  
+  - 클라이언트에서 호출되면, 새 서버로 이동합니다.
+  - 서버에서 호출되면, 특정 클라이언트더러 새 맵으로 이동하라 이릅니다. (현재 서버에 접속은 유지)
 
 ### Enabling Seamless Travel
 
+매끄러운 이동을 활성화시키려면, __"Transition Map(트랜지션 맵)"을__ 구성해야 합니다. 이는 UGameMapsSettings::TransitionMap프로퍼티를 통해 이루어집니다. 기본적으로 이 프로퍼티는 비어있는데, 게임에서 이 프로퍼티가 비어있으면 트랜지션 맵에 기본 맵이 생성됩니다.
+
+트랜지션 맵의 존재 이유는 __<ins>항상 (맵이 저장된) 월드가 로드되어 있으므로, 새 맵을 로드하기 전에 이전 맵을 해제시킬 수 없기 때문입니다.</ins>__ 맵이 매우 클 수가 있기 때문에, 이전 맵과 새 맵을 동시에 메모리에 두는 것은 좋지 않으니, 트랜지션 맵이 생긴 것입니다.
+
+이제 현재 맵에서 트랜지션 맵으로 이동한 다음, 거기서 최종 맵으로 이동하면 됩니다. 트랜지션 맵은 매우 작으므로, 현재 맵을 최종 맵으로 대체시키는 와중에 그다지 큰 부하가 걸리지 않습니다.
+
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Travel.png" height="250" title="Travel">
+
+트랜지션 맵 구성이 완료된 후 "AGameModeBase::bUseSeamlessTravel"을 true으로 설정하면, 매끄러운 이동이 작동합니다.
+
 ### Persisting Actors / Seamless Travel
+
+> __Seamless Travel__
+
+매끄러운(Seamless) 이동 실행시의 일반적인 흐름은 이렇습니다.
+
+  1. 트랜지션 레벨에 지속되는 액터를 마킹합니다.
+  2. 트랜지션 레벨로 이동합니다.
+  3. 최종 레벨에 지속되는 액터를 마킹합니다.
+  4. 최종 레벨로 이동합니다.
+
+---
+
+> __Persisting Actors (지속되는 액터들)__
+
+매끄러운 이동 사용시 현재 레벨에서 새 레벨로 (지속) 액터를 가지고 가는 것이 가능합니다. 인벤토리 아이템, 플레이어와 같은 특정 액터에 좋습니다.
+
+기본적으로 자동 지속되는 액터는 다음과 같습니다.
+
+  - GameMode 액터 (서버만)
+      - AGameModeBase::GetSeamlessTravelActorList 를 통해 추가된 액터
+  - 유효한 PlayerState 가 있는 모든 Controller (서버만)
+  - 모든 PlayerController (서버만)
+  - 모든 로컬 PlayerController (서버 및 클라이언트)
+  - 로컬 PlayerController 에서 호출된   
+      - APlayerController::GetSeamlessTravelActorList 를 통해 추가된 액터
+
+
+## [Online Subsystem Overview](https://docs.unrealengine.com/5.0/ko/online-subsystem-in-unreal-engine/)
+
+> __"Online Subsystem (온라인 서비스)" 기능을 사용하여 서버에 들어가는 것을 의미합니다.__
+
+"Online Subsystem" 및 그 인터페이스는 Steam, Xbox Live, Facebook 등의 __<ins>온라인 서비스 기능을 공통된 방식으로 액세스할 수 있는 방법을 제공합니다.</ins>__ 여러 플랫폼에 출시하거나 여러 온라인 서비스를 지원하는 게임을 만들 때, 온라인 서브시스템을 사용하면 개발자는 각 지원 서비스에 맞게 구성만 조정해 주면 됩니다.
+
+당신은 기본적으로 "SubsystemNULL"을 사용할 것입니다. 이를 통해 LAN 세션을 호스팅하거나 (서버 목록을 통해 세션을 찾고 LAN 네트워크에서 세션에 가입할 수 있음) IP를 통해 직접 가입할 수 있습니다. 그것이 당신에게 허락하지 않는 것은, 인터넷에서 그러한 세션을 진행하는 것입니다. __왜냐하면 클라이언트에게 서버/세션 목록을 제공하는 마스터 서버가 없기 때문입니다.__ 예를 들어, 스팀과 같은 하위 시스템에서는 인터넷을 통해 볼 수 있는 서버/세션도 호스팅할 수 있습니다. 자체 서브시스템/마스터 서버를 만들 수도 있지만, UE4 외부에서 많은 코딩이 필요합니다.
+
+### Online Subsystem Module
+
+---
+> __Design Philosophy (디자인 철학)__
+
+  "Online Subsystem"은 근본적으로 다양한 온라인 서비스와 비동기 통신을 처리하도록 설계되었습니다. 네트워크 연결 속도, 서버 지연시간, 백엔드 서비스 실행 시간 모두 로컬 머신이 알 수 없으므로, 이 시스템과의 상호작용에 시간이 얼마나 걸릴지도 예측할 수 없습니다. 
+  
+  이를 처리하기 위해 온라인 서브시스템은 모든 원격 작업에 __"Delegates(델리게이트)"를__ 사용하여 지원되는 비동기 기능이 사용될 때마다 해당 델리게이트가 호출되도록 합니다. 요청이 완료되면 응답하는 기능을 제공하는 것은 물론, 처리 중인(in-flight) 요청을 쿼리합니다. 또 델리게이트는 준수할 단일 코드 패스를 제공하므로, 개발자가 성공 또는 실패 조건을 잡아내는데 필요한 커스텀 코드를 작성할 필요가 없습니다.
+
+  모듈식 서비스별 인터페이스는 지원 기능끼리 그룹으로 묶습니다. 예를 들어, Friends Interface (친구 인터페이스)는 친구 목록 관련 모든 것을 처리하고, Achievements Interface (업적 인터페이스)는 업적 나열, 검사, 획득 등을 처리합니다. 지원하는 각 온라인 서비스의 각 기능 그룹에 대해 인터페이스가 존재하지만, 서비스가 지원되지 않는 특정 함수에 대해서는 단순히 false 가 반환될 수 있습니다. 이 디자인을 통해 개발자는 모든 온라인 서비스에 대해 동일한 코드를 작성할 수 있습니다.
+
+  하이 레벨에서 보다 복잡한 작업은 Online Asynchronous Task Manager (온라인 비동기 작업 관리자)를 사용하여 순차적 작업이나 다른 스레스에서 실행되는 작업을 지원합니다. 비동기 작업은 종속성을 설명하여, 관련이 없는 작업은 독립적으로 병렬 실행시키고, 순차적 작업은 순서대로 실행시킬 수 있습니다. 온라인 서브시스템 내 모든 인터페이스는 작업 일관성을 유지하기 위해 이러한 방식으로 작업을 예약합니다.
+
+---
+> __Use of Delegates__
+
+  <details><summary><span style = "color:green;">Set Delegates Code</span></summary> 
+
+  {% highlight cpp %}
+  // Define!!
+  DECLARE_DELEGATE(FDele_Single);
+	FDele_Single Fuc_DeleSingle;
+
+  // Bind & UnBind & Excute !!
+  Function->Fuc_DeleSingle.BindUFunction(this, FName("CallDeleFunc_Single"));
+  Fuc_DeleSingle.Unbind();
+  Fuc_DeleSingle.Execute();
+  {% endhighlight %}
+  </details>
+
+  위에서 설명한 것처럼 "Online Subsystem"은  __"Delegates"를__ 많이 사용합니다. "Delegates"를 존중하고 적절한 "Delegates"가 호명될 때까지 기다린 후 기능을 더 아래로 호출하는 것이 중요합니다.
+  
+  비동기 작업을 기다리지 않으면 충돌이 발생하고 예기치 않은 정의되지 않은 동작이 발생할 수 있습니다. 연결 해제 이벤트와 같은 연결 실패 시 "Delegates"를 기다리는 것이 특히 중요합니다. 작업이 완료되는 데 걸리는 시간은 이상적인 경우 순간적으로 보일 수 있지만, __시간 초과의 경우 거의 1분 이상 걸릴 수 있습니다.__
+
+  "Delegates Interface"는 매우 간단하며, 각 "Delegates"는 각 인터페이스 헤더의 맨 위에 명확하게 정의됩니다. 모든 대리자는 추가, 지우기 및 트리거 기능을 가집니다. (단, 대리인을 수동으로 트리거하는 것은 권장되지 않음) 
+
+  일반적으로 적절한 함수를 호출하기 직전에 "Delegates"를 add()한 다음 내부에서 "Delegates"를 Clear()합니다.
+
+---
+> __Basic Design__
+
+  기본 모듈인 OnlineSubsystem 은 엔진에 서비스별 모듈을 정의하고 등록합니다. 초기화 도중 온라인 서브시스템은 Engine.ini 파일에 정의된 기본 온라인 서비스 모듈을 로드 시도합니다. 온라인 서비스로의 모든 액세스는 이 모듈을 통해 이루어집니다.
+
+  {% highlight cpp %}
+  [OnlineSubsystem]
+  DefaultPlatformService=<Default Platform Identifier>
+  {% endhighlight %}
+
+  성공하면, 파라미터가 지정되지 않은 경우 정적 접근자를 통해 기본 온라인 서브시스템을 사용할 수 있습니다.
+
+  {% highlight cpp %}
+  static IOnlineSubsystem* Get(const FName& SubsystemName = NAME_None)
+  {% endhighlight %}
+
+  이 함수에 대한 호출이 요청하면 부가 서비스를 로드합니다. 잘못된 식별자나 모듈 로드 실패는 관대히 null 을 반환합니다.
+
+---
+> __[Interfaces](https://docs.unrealengine.com/5.0/en-US/online-subsystem-in-unreal-engine/)__
+
+  모든 플랫폼이 모든 인터페이스를 구현하지는 않으며, 각 서비스가 지원하는 기능에 따라 다릅니다. 이 인터페이스에는 __"프로필/업적/외부 UI/친구/리더보드/현재상태/구매"등과__ 같은 것들이 존재합니다. 자세한 내용은 위 [UE4 링크](https://docs.unrealengine.com/5.0/en-US/online-subsystem-in-unreal-engine/)를 통해 확인할 수 있습니다.
+
+### Sessions and Matchmaking
+
+## Basic Life-Time of a Session
