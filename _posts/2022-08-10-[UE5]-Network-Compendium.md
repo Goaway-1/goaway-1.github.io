@@ -1151,7 +1151,7 @@ Run Dedicated Server(전용 서버 실행)를 선택하지 않으면 첫 번째 
 
 |Start a Server||
 |--|--|
-|<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/OpenLevel.png" height="250" title="OpenLevel">|서버를 시작하려면 세션 시스템 없이 'Open Level' 노드를 사용하고 'Level Name'과 'Absolute' 옵션을 전달하면 됩니다. 또한 설명한 대로 게임 모드 클래스에서 검색할 수 있는 '?'로 구분된 더 많은 옵션을 전달할 수 있습니다. 세션 시스템이 없는 전용 서버는 프로젝트 설정의 '맵 & 노드' 탭에서 지정할 수 있는 올바른 맵에서 자동으로 시작됩니다.|
+|<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/OpenLevel.png" height="100" title="OpenLevel">|서버를 시작하려면 세션 시스템 없이 'Open Level' 노드를 사용하고 'Level Name'과 'Absolute' 옵션을 전달하면 됩니다. 또한 설명한 대로 게임 모드 클래스에서 검색할 수 있는 '?'로 구분된 더 많은 옵션을 전달할 수 있습니다. 세션 시스템이 없는 전용 서버는 프로젝트 설정의 '맵 & 노드' 탭에서 지정할 수 있는 올바른 맵에서 자동으로 시작됩니다.|
 
 <details><summary><span style = "color:green;">Start a Server Code</span></summary> 
 
@@ -1162,7 +1162,7 @@ UGameplayStatics::OpenLevel(GetWorld(), "LevelName", true, "listen");
 
 |Connect to Server||
 |--|--|
-|<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/ExecuteConsole.png" height="250" title="ExecuteConsole">|서버에 연결하려면 'Open IPADDRESS' 명령과 함께 'Execute Console Command' 노드를 사용하면 됩니다. 여기서 'IPADDRESS'는 서버의 실제 주소로 대체됩니다. 예를 들어 위젯 텍스트 상자를 통해 입력할 수 있습니다.|
+|<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/ExecuteConsole.png" height="100" title="ExecuteConsole">|서버에 연결하려면 'Open IPADDRESS' 명령과 함께 'Execute Console Command' 노드를 사용하면 됩니다. 여기서 'IPADDRESS'는 서버의 실제 주소로 대체됩니다. 예를 들어 위젯 텍스트 상자를 통해 입력할 수 있습니다.|
 
 <details><summary><span style = "color:green;">Connect to Server Code</span></summary> 
 
