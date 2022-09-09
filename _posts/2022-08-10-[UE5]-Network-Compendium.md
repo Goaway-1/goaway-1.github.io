@@ -1005,6 +1005,215 @@ Game Mode에서 bUseSeamlessTravel를 true로 하고 Transition map을 만든다
 
   모든 플랫폼이 모든 인터페이스를 구현하지는 않으며, 각 서비스가 지원하는 기능에 따라 다릅니다. 이 인터페이스에는 __"프로필/업적/외부 UI/친구/리더보드/현재상태/구매"등과__ 같은 것들이 존재합니다. 자세한 내용은 위 [UE4 링크](https://docs.unrealengine.com/5.0/en-US/online-subsystem-in-unreal-engine/)를 통해 확인할 수 있습니다.
 
-### Sessions and Matchmaking
+## Sessions and Matchmaking
 
-## Basic Life-Time of a Session
+> 게임 로비에서 참가할 세션을 검색하는 과정
+
+매치메이킹은 플레이어와 세션을 매치해 주는 프로세스를 말합니다. 세션은 기본적으로 서버에서 실행중인 게임의 인스턴스를 말하는 것으로, 여기에는 일정한 프로퍼티를 통해 공개적으로 홍보해서 게임을 플레이하고자 하는 플레이어가 검색하여 참가할 수 있도록 하는 공개 세션과, 초대를 받았거나 그 존재를 알고있는 사람만 참가할 수 있는 개인 세션이 있습니다.
+
+현재 플레이중인 모든 게임이 나열된 온라인 게임 로비를 그려봅시다. 목록의 각 게임은 세션, 또는 개별 온라인 매치입니다. 플레이어는 검색이나 기타 수단을 통해 세션을 알게 되고, 그 세션에 참가하여 매치를 플레이합니다.
+
+### Basic Life-Time of a Session
+
+세션의 기본적인 수명은 아래와 같습니다.
+
+  - 원하는 세팅으로 새로운 세션을 생성합니다.
+  - 플레이어의 매치 참가 요청을 기다립니다.
+  - 참여하고자 하는 플레이어를 등록시킵니다.
+  - 세션을 시작합니다.
+  - 매치를 플레이합니다.
+  - 세션을 종료합니다.
+  - 플레이어 등록을 해제합니다.
+    - 매치 유형을 변경하고자 하는 경우 또는 다른 플레이어 참가를 기다리려는 경우 세션을 업데이트합니다.
+    - 세션을 소멸시킵니다.
+
+
+### Session Interface
+
+"Session Interface"인 IOnlineSession는 __매치메이킹 수행,__ 플레이어가 온라인 게임을 찾아 참가할 수 있도록 하기 위해 __필요한 것들을 배후에 미리 구성하는 플랫폼 전용 함수성을 제공합니다.__ 여기에는 세션 관리, 검색이나 기타 방식을 통한 세션 찾기는 물론 그 세션 참가 및 나가기가 포함됩니다. 이는 OnlineSubsystem 에 의해 생성 및 소유되며, 즉 서버에만 존재한다는 뜻입니다.
+
+플랫폼마다 "Session Interface"클래스는 하나입니다. 새로운 플랫폼을 추가할 때, 새로운 유형의 "Session Interface"를 생성해야 합니다. 여기서 플랫폼이라 함은 하드웨어 플랫폼을 가리킵니다. __즉, 엔진이 현재 실행중인 플랫폼에 대한 "Session Interface"만 존재합니다.__
+
+"Session Interface"가 모든 세션 처리를 수행하는 반면, __게임은 보통 직접 상호작용하지 못합니다.__ 그 대신 게임 세션인 "AGameSession"이 "Session Interface"주변을 감싸는 게임 전용 래퍼(wrapper) 역할을 하며, 게임 코드는 세션과 상호작용할 필요가 있을 때 이를 호출 합니다. "AGameSession"은 게임 모드인 "AGameModeBase"에 의해 생성 및 소유되며, 마찬가지로 온라인 게임 실행시 __서버에만 존재합니다.__
+
+각 게임은 잠재적으로 다수의 게임 세션 유형을 가질 수 있지만, 한 번에 오직 하나만 사용됩니다. 게임이 둘 이상의 게임 세션 유형을 갖는 가장 흔한 경우는, 게임이 데디케이티드 서버를 사용할 때입니다.
+
+### Session Settings
+
+"Session Settings"은 "FOnlineSessionSettings"클래스에 의해 정의되며, 세션의 특징을 정의하는 프로퍼티 집합입니다. 
+
+기본 구현에서는 이와 같은 것들이 존재합니다.
+
+  - 허용되는 플레이어 수
+  - 광고되는 세션인지 개인 세션인지
+  - 랜 매치 세션인지
+  - 데디케이티드 서버인지 플레이어가 호스트하는 서버인지
+  - 초대가 허용되는지
+
+온라인 게임 로비를 예제로 들면, 각 게임은 세션이며, 별도의 세션 세팅이 있습니다. 예를 들어 어떤 세션은 플레이어 대 플레이어 (PvP) 일 수도 있고, 다른 세션은 협력 멀티플레이어 (Co-Op) 일 수도 있습니다. 각기 다른 세션에서 필요한 플레이어 수 같은 것도 제각각인 다른 맵 또는 플레이리스트를 플레이할 수 있습니다.
+
+### Session Management
+세션 인터페이스의 주요 임무중 하나는 세션 관리로, 여기에는 세션 셋업, 업데이트, 소멸(destroy)이 포함됩니다.
+
+
+#### Creating Sessions
+플레이어가 세션을 찾아 참가할 수 있으려면, 세션을 만들고 그 프로퍼티를 셋업해 줘야 할 뿐만 아니라, 그 프로퍼티 중 어느 것을 보이도록 하여 검색이 되도록 할지 결정해야 합니다.
+
+세션 생성은 IOnlineSession::CreateSession() 를 사용하며, 세션 세팅 세트를 받아 새로운 세션의 환경설정에 사용합니다. 세션이 생성되면, OnCreateSessionComplete 델리게이트가 발동됩니다.
+
+#### Updating Sessions
+세션 업데이트는 기존 세션의 세팅을 바꾸고자 할 때 일어나며, IOnlineSession::UpdateSession() 함수를 통해 수행됩니다. 예를 들어, 세션이 현재 8 명의 플레이어까지만 받도록 셋업되어 있는데, 다음 매치에서는 12 명까지 허용하도록 할 필요가 있다 칩시다. 세션을 업데이트하려면, UpdateSession() 에다 최대 플레이어가 12 명이라는 새로운 세션 세팅을 전달하여 호출해야 합니다.
+
+세션 업데이트 요청이 완료되면, OnUpdateSessionComplete 델리게이트가 발동됩니다. 이를 통해 세션 세팅 변경을 처리하는 데 필요한 환경설정 또는 초기화를 수행할 수 있는 기회가 제공됩니다.
+
+세션 업데이트는 보통 서버에서 매치 사이에 일어나지만, 클라이언트에서 세션 정보 동기화 상태를 유지하기 위해 일어나기도 합니다.
+
+
+#### Destroying Sessions
+세션이 종료되어 더이상 필요치 않으면, IOnlineSession::DestroySession() 함수를 사용하여 세션을 소멸시킵니다. 소멸 작업이 완료되면 OnDestroySessionComplete 델리게이트가 발동되어 정리할 수 있도록 합니다.
+
+
+### 매치메이킹 - 세션 찾기
+Online Subsystem 은 활성 세션에서 플레이어 대진표를 짜는 데 필요한 기본적인 요소들을 제공합니다. 기본 구현에 내장된 특수 유형 매치메이킹을 제공하는 것은 아닙니다. 하지만 매치메이킹 서비스를 제공하는 플랫폼에서의 구현은 해당 서비스로의 접근이 노출되어 있습니다. 본질적으로는 플레이어가 참가할 수 있는 세션을 찾는 프로세스입니다. 세션을 찾았으면, 플레이어는 세션에 참가 할 수 있습니다.
+
+#### Searching Sessions
+세션을 찾는 가장 간단한 방법은, 원하는 특정 세팅을 만족하는 세션을 검색하는 것입니다. 플레이어가 유저 인터페이스에서 선택한 필터 모음에 대한 반응일 수도 있고, 플레이어의 스킬이나 기타 요소를 토대로 한 자동 검색일 수도 있으며, 그 두 방법을 조합한 것일 수도 있습니다.
+
+세션 검색의 가장 기본적인 형태는, 가능한 모든 게임을 표시하고 플레이어가 플레이하고자 하는 게임 유형에 따라 필터를 적용한 뒤 거기에 맞는 세션 중 하나를 선택하여 참가하는 고전적인 방식입니다.
+
+세션을 검색하려면, IOnlineSession::FindSessions() 를 사용하여 검색하려는 세션 세팅에 대한 레퍼런스를 FOnlineSessionSearch 오브젝트로 전달합니다. 세션 세팅 레퍼런스의 SearchResults 멤버가 일치하는 세션으로 채워집니다. 검색이 완료되면 OnFindSessionsComplete 델리게이트가 발동됩니다. 이 델리게이트에서 검색 결과를 대상으로 반복처리할 수 있습니다.
+
+#### Joining Sessions
+플레이어가 참가할 세션이 결정된 이후, 참가 프로세스는 IOnlineSession::JoinSession() 를 호출하고 플레이어 수와 이름 및 참가할 세션 검색 결과를 전달하여 시작됩니다. 참가 프로세스가 완료되면, OnJoinSessionComplete 델리게이트가 발동됩니다. 플레이어를 매치에 들여보내는 로직이 들어있는 곳입니다. 먼저 매치 참가에 필요한 플랫폼 전용 접속 정보를 반환하는 IOnlineSession::GetResolvedConnectString() 를 호출해야 합니다. 이 함수에서 얻은 스트링을 APlayerController::ClientTravel() 또는 UWorld::Servertravel() 에 전달하여 플레이어를 매치에 들여보냅니다.
+
+
+### Cloud-Based Matchmaking
+클라우드 기반 매치메이킹이란 사용하게끔 내장된 매치메이킹 서비스를 말하며, 보통 플랫폼 전용입니다. 이러한 서비스 유형의 예로는, 마이크로소프트의 Xbox Live 서비스를 통해 사용가능한 TrueSkill 시스템을 들 수 있습니다.
+
+그것을 지원하는 플랫폼에서 매치메이킹을 시작하려면, IOnlineSession::Startmatchmaking() 를 호출하여 매치메이킹할 플레이어의 컨트롤러 번호, 세션 이름, 세션을 새로 만드는 경우 사용하려 세션 세팅, 검색 대상 세팅을 전달합니다. 매치메이킹이 완료되면 OnMatchmakingComplete 델리게이트가 발동됩니다. 여기서는 프로세스가 성공했는지 나타내는 부울과, 성공한 경우 참가할 세션 이름이 제공됩니다.
+
+진행중인 매치메이킹 작업은 IOnlineSession::CancelMatchmaking() 를 호출하여 처음에 매치메이킹 시작 호출시 전달했던 플레이어 컨트롤러 번호와 세션 이름을 전달합니다. 취소 작업이 완료되면 OnCancelMatchmakingComplete 델리게이트가 발동됩니다.
+
+
+### Following and Inviting Friends
+친구 개념을 지원하는 플랫폼에서, 플레이어는 친구의 세션을 따라가거나 친구를 세션에 초대하는 것이 가능합니다.
+
+친구 따라 세션으로 가는 것은 IOnlineSession:FindFriendSession() 를 호출하여 세션에 참가하고자 하는 로컬 플레이어 수 및 세션에 이미 있는 친구의 ID 를 전달합니다. 세션을 찾았고, 참가에 사용할 수 있는 검색 결과가 들어있는 경우 OnFindFriendSessionComplete 델리게이트가 발동됩니다.
+
+플레이어는 IOnlineSession:SendSessionInviteToFriend() 또는 IOnlineSession::SendSessionInviteToFriends() 를 사용하여 로컬 플레이어 수, 세션 이름, 초대할 플레이어 ID 를 전달하는 것으로 하나 이상의 친구를 현재 세션에 초대할 수도 있습니다. 친구가 초대에 응하면, 참가할 세션 검색 결과가 들어있는 OnSessionInviteAccepted 델리게이트가 발동됩니다.
+
+# How to Start a Multiplayer Game
+
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/SetNumberofPlayers.png" height="250" title="SetNumberofPlayers">
+
+멀티플레이 게임을 시작하는 가장 쉽고 간단한 방법은 Play의 메뉴에서 'Number of Players'를 설정하는 것입니다. 이렇게 하면 서버와 클라이언트 간에 네트워크 연결이 자동으로 생성됩니다. 따라서 'Number of Players'를 2로 설정한 상태에서 주 메뉴 레벨에서 게임을 시작하더라도 게임은 연결됩니다! 이것은 로컬 멀티플레이어 연결이 아닌, 항상 네트워크 연결입니다. 
+
+각 플레이 세션에 대해 새 창을 사용하여 에디터에서 플레이할 때, 각 창의 상단에 플레이어가 서버인지 클라이언트인지 표시되는 것이 보일 것입니다. 또 플레이 모드에 있을 때, 창을 움직이면 그 위치가 기억되어 다음 번 에디터에서 플레이 세션에 적용됩니다 (즉 창을 계속 이동하지 않아도 되니 테스팅이 쉬워집니다).
+
+## Advanced Setting
+
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/AdvancedSetting.png" height="250" title="AdvancedSetting">
+
+고급 설정을 사용하면 멀티 플레이에 관한 몇 가지 옵션을 추가로 지정할 수 있습니다. 다음 범주 중 하나를 사용하여 멀티플레이어 옵션을 설정할 수 있습니다. 다음 표에서는 멀티플레이어 옵션에 대해 하나씩 설명합니다.
+
+|Option|Description|
+|:--:|--|
+|Number of Players|플레이어 수 - 이 옵션은 게임 실행시 스폰시킬 플레이어 수를 정의합니다. 에디터와 리슨 서버는 플레이어로 치지만, 데디케이티드(전용) 서버는 치지 않으며, 클라이언트로 남은 플레이어 수를 메꿉니다.|
+|Server Game Option|서버 게임 옵션 - 서버에 URL 파라미터로 전달되는 부가 옵션을 지정할 수 있습니다.|
+|Run Dedicated Server|데디케이티드 서버 실행 - 체크하면 별도의 전용 서버가 실행됩니다. 체크하지 않으면 첫 플레이어는 리슨 서버 역할을 하여 나머지 플레이어가 거기에 접속합니다.|
+|Auto Connect To Server|게임이 클라이언트를 서버에 직접 연결해야 하는지 여부를 확인합니다. 즉, 게임 플레이를 테스트하고 싶을 때는 연결을 위한 메뉴 설정에 신경 쓰지 않고 확인할 수 있습니다. 반대로 메뉴가 있는 경우 비활성화할 수 있습니다.|
+|Route 1 Gamepad to 2 client|첫째 게임패드를 둘째 클라이언트로 전송 - 단일 프로세스로 다수의 플레이어 창을 실행중일 때, 게임 패드 입력 전송 방식을 정의하는 옵션입니다. 체크하지 않으면 (기본) 첫째 게임패드는 첫째 창에, 둘째는 둘째에 식으로 귀속됩니다. 첫째 창은 키보드/마우스로도 제어할 수 있기에, 두 명이 같은 컴퓨터로 테스트하는 경우 이 옵션을 켜 두면 편리합니다.|
+|Use Single Process|단일 프로세스 사용 - 언리얼 엔진 4 단일 인스턴스로 다수의 플레이어 창을 스폰시킵니다. 로드가 훨씬 빨라지지만, 문제가 생길 확률이 높아집니다. 체크 해제시 다른 옵션을 추가로 사용할 수 있게 됩니다.|
+|Crate Audio Device for Every Player|모든 플레이어에 대해 오디오 디바이스 생성 - 이 옵션을 켜면 모든 플레이어의 관점에서 보다 정확한 오디오 구현이 가능하나 CPU 사용량이 많아집니다.|
+|Play in Editor Description|에디터에서 플레이 설명 - 현재 적용된 멀티플레이어 세팅에 따라 플레이시 어떠한 설명을 할지입니다.|
+
+### Use Single Process
+
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/Multiplayer Options.png" height="250" title="Multiplayer Options">
+
+__"Use Single Process(단일 프로세스 사용)"이__ 체크되어 있으면, 다수의 창이 하나의 언리얼 엔진 4 인스턴스에 스폰됩니다. 이 옵션이 해제되어 있으면, 할당된 플레이어마다 UE4 인스턴스가 하나씩 실행되어, 추가적인 옵션이 사용 가능해 집니다.
+
+|Option|Description|
+|:--:|--|
+|Editor Multiplayer Mode|에디터 멀티플레이어 모드 - 에디터에서 플레이에 사용할 NetMode 입니다 (Play Offline 오프라인 플레이, Play As Listen Server 리슨 서버로 플레이, Play As Client 클라이언트로 플레이).|
+|Command Line Arguments|명령줄 인수 - 독립형 게임 인스턴스에 전달되는 부가 명령줄 옵션을 할당할 수 있습니다.|
+|Multiplayer Window Size|멀티플레이어 창 크기 (픽셀) - 부가 독립형 게임 인스턴스 스폰시 사용할 폭/높이를 정의합니다.|
+
+### Run as Dedicated Server
+
+<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/RunDedicatedServer.png" height="250" title="RunDedicatedServer">
+
+Run Dedicated Server(전용 서버 실행)를 선택하지 않으면 첫 번째 클라이언트는 "수신 대기 서버"가 됩니다. 선택한다면 전용서버가 만들어지고, 모든 플레이어는 클라이언트가 됩니다.
+
+## Start and Connect to a server
+
+서브시스템 및 세션 챕터에서는 세션 시스템을 통해 세션/서버를 설정하는 방법에 대해 이미 설명했지만, IP를 통해 정상적으로 시작하고 연결하는 방법에 대해서는 설명하지 않았습니다. 이는 아주 간단합니다.
+
+|Start a Server||
+|--|--|
+|<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/OpenLevel.png" height="250" title="OpenLevel">|서버를 시작하려면 세션 시스템 없이 'Open Level' 노드를 사용하고 'Level Name'과 'Absolute' 옵션을 전달하면 됩니다. 또한 설명한 대로 게임 모드 클래스에서 검색할 수 있는 '?'로 구분된 더 많은 옵션을 전달할 수 있습니다. 세션 시스템이 없는 전용 서버는 프로젝트 설정의 '맵 & 노드' 탭에서 지정할 수 있는 올바른 맵에서 자동으로 시작됩니다.|
+
+<details><summary><span style = "color:green;">Start a Server Code</span></summary> 
+
+{% highlight cpp %}
+UGameplayStatics::OpenLevel(GetWorld(), "LevelName", true, "listen");
+{% endhighlight %}
+</details>
+
+|Connect to Server||
+|--|--|
+|<img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network/ExecuteConsole.png" height="250" title="ExecuteConsole">|서버에 연결하려면 'Open IPADDRESS' 명령과 함께 'Execute Console Command' 노드를 사용하면 됩니다. 여기서 'IPADDRESS'는 서버의 실제 주소로 대체됩니다. 예를 들어 위젯 텍스트 상자를 통해 입력할 수 있습니다.|
+
+<details><summary><span style = "color:green;">Connect to Server Code</span></summary> 
+
+{% highlight cpp %}
+// Assuming you are not already in the PlayerController (if you are, just call ClientTravel directly) 
+APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0); 
+PlayerController->ClientTravel("IPADDRESS", ETravelType::TRAVEL_Absolute);
+{% endhighlight %}
+</details>
+
+### Starting via Command Line
+
+기본 명령입니다 (이 명령은 에디터를 사용하므로 쿠킹된 데이터가 필요치 않습니다):
+
+|Type|Command|
+|--|--|
+|Listen Server|UE4Editor.exe ProjectName MapName?Listen -game|
+|Dedicated Server|UE4Editor.exe ProjectName MapName -server -game -log|
+|Client|UE4Editor.exe ProjectName ServerIP -game|
+
+데디케이티드(전용) 서버는 기본적으로 제목이 없습니다. -log 를 붙이지 않으면, 데디케이티드 서버임을 나타내는 창이 보이지 않습니다.
+
+## Server Gameplay Flow
+
+UE4 멀티플레이어는 클라이언트-서버 모델을 기반으로 합니다. 즉 게임 스테이트에 대해 권위적인(모든 부분을 결정하는) 서버가 하나 있고, 거기에 접속된 클라이언트는 가급적 서버에 가깝게 추정해 냅니다.
+
+서버는 UE4 멀티플레이어의 중요한 부분입니다. 중요한 의사결정을 전부 내리고, 모든 권위적 상태가 저장되고, 클라이언트 접속을 처리하고, 새로운 맵으로 이동하며, 경기 시작이나 종료와 같은 전반적인 게임플레이 흐름을 담당합니다.
+
+게임플레이 흐름의 구동을 담당하는 것은 서버입니다. 새 맵으로 이동할 때가 되었음을, 게임플레이가 시작 및 종료되었음을, 액터 리플리케이션 업데이트 등과 함께 클라이언트에 알리는 것은 서버의 역할입니다.
+
+프레임워크 주요 부분 은 거의 이 문서의 범위를 벗어나는 것이지만, 특정 클래스 작업시 소개되는 부가적인 멀티플레이어 관련 뉘앙스에 대해서는 조금 이야기해 볼 수 있습니다.
+
+게임플레이 상태와 흐름은 일반적으로 GameMode 액터를 통해 구동됩니다. 서버에만 이 액터의 유효 사본이 저장됩니다 (클라이언트에는 사본이 전혀 저장되지 않습니다). 이러한 상태를 클라이언트에게 통신하기 위한 용도로 GameState 액터가 있어, GameMode 액터의 중요한 상태를 반영합니다. 이 GameState 액터는 각 클라이언트에게 리플리케이트 되도록 마킹되어 있습니다. 클라이언트는 이 GameState 액터에 대한 사본을 추정 저장하며, 이 액터를 참고로 하여 게임의 일반적인 상태를 알 수 있습니다.
+
+## Connection Process
+
+서버가 네트워킹 관점에서 무언가 흥미로운 작업을 하기 위해서는, 클라이언트 접속이 필요합니다!
+
+새 클라이언트가 처음으로 접속할 때, 몇 가지 일들이 벌어집니다. 먼저 클라이언트는 서버에 접속하겠다는 요청을 보냅니다. 서버는 이 요청을 처리한 다음, 서버가 접속을 거부하지 않으면 적합한 진행 정보를 포함해서 클라이언트에게 응답을 보냅니다.
+
+---
+
+__주요 단계는 이렇습니다:__
+
+1. 클라이언트가 접속 요청을 보냅니다.
+2. 서버가 수락하면, 현재 맵을 전송합니다.
+3. 서버는 클라이언트가 이 맵을 로드할 때까지 기다립니다.
+4. 로드가 되면, 서버 로컬에서 AGameModeBase::PreLogin 를 호출합니다.
+    - GameMode 에 접속을 거부할 수 있는 기회를 줍니다.
+5. 수락되면, 서버는 AGameModeBase::Login 을 호출합니다.
+    - 이 함수의 역할은 PlayerController 를 만든 다음 새로 접속된 클라이언트에 리플리케이트 시킵니다. 수신되면 이 PlayerController 가 클라이언트의 접속 과정에서 견본으로 사용되던 임시 PlayerController 를 대체합니다. 
+    - 여기서 APlayerController::BeginPlay 가 호출되는 것을 눈여겨 봅시다. 이 액터에서 RPC 함수를 호출하는 것은 아직 안전하지 않다는 점 참고하시구요. AGameModeBase::PostLogin 호출시까지 기다려야 합니다.
+6. 모든 것이 잘 돌아갔다는 가정하에 AGameModeBase::PostLogin 이 호출됩니다.
+    - 이제 서버가 이 PlayerController 에서 RPC 함수 호출을 시작해도 안전합니다.
