@@ -13,9 +13,6 @@
   {%- if jekyll.environment == 'production' and site.google_analytics -%}
   {%- include extensions/google-analytics.html -%}
   {%- endif -%}
-  {% if page.use_math %}
-    {% include mathjax_support.html %}
-  {% endif %}
   {%- include extensions/code-highlight.html -%}
   {%- include custom-head.html -%}
 </head>
