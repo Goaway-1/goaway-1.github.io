@@ -202,10 +202,13 @@ yat:
 #   follow_site_theme: true
 
 # Build settings
-# highlighter: none
+# highlighter: rouge
 markdown: kramdown
 kmarkdown:
   input: GFM
+lsi: false
+excerpt_separator: "\n\n"
+incremental: false
 
 plugins:
   - jekyll-feed
