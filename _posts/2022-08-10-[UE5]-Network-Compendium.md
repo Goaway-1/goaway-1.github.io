@@ -5,11 +5,6 @@ subtitle: Network in Unreal Engine
 categories: UE5
 tags: [UE5, UnrealEngine, C++]
 ---
-## Introduction
-
-이 포스트는 __"Cedric 'eXi' Neukirchen"이__ 제작하신 'Unreal Engine 4' Network Compendium을 읽고, 학습을 위해 한글로 번역한 것입니다. 저작권 및 각종 권한은 지은이에게 있음을 알립니다.
-
-This post reads the "Unreal Engine 4 Network Compendium" produced by __"Cedric 'eXi' Neukirchen"__ and translates it into Korean for learning. We inform you that the copyright and various rights belong to the author.
 
 ## Network in Unreal
 
