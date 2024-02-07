@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Effective C++ 3장 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.3.3">
+<meta property="og:title" content="Effective C++ 3장">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="들어가며 C++에서 자원은 메모리뿐만 아니라 파일 서술자, 뮤텍스 잠금, 그래픽 유저 인터페이스와 같이 수많은 자원이 존재한다. 이는 다 쓰고 난 후에는 “생성자/소멸자/객체 복사 함수”를 사용하여 해제한다. 항목 13 : 자원 관리에는 객체가 그만 자원 해제는 사용자가 직접 delete를 블록내에서 사용하여 객체의 자원을 해제할 수 있는데 이는 문제를 야기한다. 만약 delete가 호출되기 전에 retrun된다거나 사용하지는 않지만 goto문을 사용하여 건너뛰게 되는 경우이다. class Investment{...}; Investment* createInvestment(); // tr1::shared_ptr&lt;Investment&gt; CreateInvestment(); -&gt; 포인터의 반환은 문제가 발생할 수 있음(delete 호출을 호출자에서 해야하는데 잊을 수도) void f(){ Investment *pInv = CreateInvestment(); ... delete pInv; //혹시나 호출 안될 수도 있다. } 그렇기 때문에 자원을 객체에 넣고 소멸자가 자원 해제하는 방법을 사용하여 해결하며, 이 방법에는 2가지가 존재한다. 하지만 이 스마트 포인터의 소멸자에서는 delete[]가 아닌 delete를 사용하기 때문에 동적으로 할당한 배열에 대해 사용할 수 없다. (new를 사용한 모든 것) 스마트 포인터 : auto_ptr 포인터와 비슷한 스마트 포인터로 가리키고 있는 대상에 대해 소멸자가 자동으로 delete를 불러주도록 설계되어있다. void f(){ auto_ptr&lt;Investment&gt; pInv(CreateInvestment()); //팩토리 함수 호출 } //소멸자로 자동 소멸 이때 자동으로 delete하기 때문에 동일한 객체를 가르키는 auto_ptr의 개수가 둘 이상이라면 안되는데, 이를 막기 위해서 auto_ptr은 객체를 복사하면 원본 객체는 null로 만든다. 자원에 대한 유일한 소유권을 갖는다고 가정할 수 있다. 또한 중요한 2가지 특징이 존재한다. 자원을 획득한 후에 자원 관리 객체에게 넘긴다. CreateInvestment()로 인해 만들어진 자원은 auto_ptr 초기화에 사용되며, 이를 자원 획득 즉 초기화(RAII)라고 부른다. 즉 자원의 획득과 자원 관리 객체의 초기화가 동시에 이루어진다. 자원 관리 객체는 소멸자로 자원 해제한다. 블록을 어떻게 떠나던 자원 해제된다. 참조 카운팅 스마트 포인터 : shared_ptr auto_ptr의 대안으로 사용하는 참조 카운팅 방식 스마트 포인터(RCSP)로 특정 자원을 가르키는 외부 객체의 개수를 유지하고 있다가 그 개수가 0이 되면 해당 자원을 가르키는 자원을 자동으로 삭제하는 스마트 포인터이다. 동작은 가비지 컬렉션과 유사하지만 참조가 고리를 이루는 경우에는 없앨 수 없다. void f(){ tr1::shared_ptr&lt;Investment&gt; pInv(createInvestment()); } //소멸자로 자동 소멸 auto_ptr과 유사하지만 복사가 훨씬 자연스러워졌으며, auto_ptr을 사용할 수 없는 STL 컨테이너등의 환경에 쓸 수 있다. 잊지 말자 자원 누출을 막기 위해, 생성자 안에서 자원을 획득하고 소멸자에서 그것을 해제하는 RAII객체를 사용하자. 자원을 관리하는 객체를 써서 자원을 관리해라. 직접 호출하지 말고 RAII 클래스는 tr1::shared_ptr과 auto_ptr이다. 이 중 tr1::shared_ptr이 복사 시 동작이 직관적이기에 사용하기 좋다. 항목 14 : 자원 관리 클래스의 복사 동작에 고찰하자. 컴팡이러가 생성한 동작이 원하는 동작이 아니라면 스스로 자원 관리 클래스를 만들어야한다. 이때 복사 동작을 구현하는 것에 대해서 얘기하려고 한다. 먼저 아래는 Mutex타입을 조작하는 C API를 사용한다고 가정하자. Lock을 사용할때는 RAII의 방식에 맞게 사용하면 문제가 없지만, 복사를 하는 경우 구현에 있어 다양한 선택지가 존재한다. void lock(Mutex *pm); //pm 잠금 void unlock(Mutex *pm); //pm 해제 class Lock{ public: explicit Lock(Mutex *pm) : mutexPtr(pm) {lock(mutexPtr);} ~ Lock() {unlock(mutexPtr);} private: Mutex *mutePtr; } //Lock 사용 시 RAII방식에 맞게 사용 Mutex m; lock m1(&amp;m); //문제는 복사 Lock m11(&amp;m); //m을 잠금 Lock m12(m11); //m11을 m12로 복사 -&gt; 이때의 선택지가 4가지 존재 복사를 금지 RAII 객체가 복사되도록 허용하는 것 자체가 말이 안되는 경우가 존재하는데 위의 예시 또한 이 부류에 속한다. ‘사본’이라는 게 의미가 없기 때문이다. 그렇기 때문에 복사 함수를 private 멤버로 만들어서 복사를 막기만 하면 된다. class Lock: private Uncopyable{} 관리하고 있는 자원에 대해 참조 카운팅을 수행 자원을 사용하고 있는 마지막 객체가 소멸될 때까지 자원을 해제하지 않는게 바랍직한 경우에는 객체의 개수에 대한 카운트를 증사시키는 식으로 복사 함수를 구현해야한다. 이 방식이 tr1::shared_ptr이다. 하지만 tr1::shared_ptr을 데이터 멤버로 넣기만 하면 안된다. 이는 참조 카운트가 0이 될 때 삭제하기 대문에 원하는 잠금을 해제하려는 의도와는 다르다. 다행이도 delete는 지정을 허용하기 때문에 삭제자를 tr1::shared_ptr 생성자의 두 번째 매개변수(unlock)로 선택적으로 넣어주면 된다. 소멸자는 선언하지 않아도 자동으로 호출된다. class Lock{ public: explicit Lock(Mutex *pm) : mutexPtr(pm,unlock) {lock(mutexPtr.get());} ~ Lock() {unlock(mutexPtr);} private: tr1::shared_ptr&lt;Mutex&gt; mutePtr; } 관리하고 있는 자원을 복사 자원을 원하는 대로 복사하는 경우가 존재할 수 있는데, 객체가 둘러싸고 있는 자원까지 복사되어야 한다. 즉 ‘깊은 복사’를 수행하여 string과 같은 경우 새로운 힙 메모리를 할당해준다. 관리하고 있는 자원의 소유권을 옮김 흔한 경우는 아니지만 RAII객체는 딱 하나만 존재하도록 하기 위해서 RAII 객체가 복사될 때 자원의 소유권을 사본 쪽으로 옮기는 경우이다. auto_ptr의 복사 동작과 동일하며 기존 RAII객체에는 null이 할당된다. 잊지 말자 RAII 객체의 복사는 그 객체가 관리하는 자원의 복사 문제를 안고 가기 때문에, 그 자원을 어떻게 복사하느냐에 따라 RAII 객체의 복사 동작이 결정된다. RAII 클래스에 구현하는 일반적인 복사 동작은 복사를 금지하거나 참조 카운팅을 해주는 선에서 마무리하는 것이다. 이 외에도 방법은 있다. 항목 15 : 자원 관리 클래스에서 관리되는 자원은 외부에서 접근할 수 있도록 하자 자원관리 클래스는 실수로 터질 수 있는 자원의 누출을 막아주는 보호벽 역할을 한다. 하지만 실제 현장에서는 자원 관리 객체의 실제 자원을 건들여야하는 경우가 더러 존재한다. 자원 관리 클래스에 그냥 접근하면 “스마트 포인터”타입의 객체가 반환되는 문제가 발생한다. 이를 해결하기 위한 방안으로 명시적 변환과 암시적 변환 총 2가지가 존재한다. 둘 중 무엇을 선택할지에 대한 결정은 RAII 클래스의 용도와 사용 환경에 따라 달라지며, 암시적 변환보다는 명시적 변환 함수를 제공하는 쪽이 나을 때가 많다. 명시적 변환 (Explicit Conversion) 스마트 포인터는 명시적 반환을 수행하는 “get”이라는 멤버 함수를 제공하는데 이를 통해서 스마트 포인터 객체 내의 실제 포인터의 사본을 얻어낼 수 있다. tr1::shared_ptr&lt;Investment&gt; pInv(createInvestment()); int dats = daysHeld(pInv.get()); //명시적 반환 //직접 구현 자원 클래스 get() const {return 실제 자원;} 단점 : 반환할 때마다 함수를 호출해야하고, 이 때문에 자원이 누출될 가능성이 존재한다. 암시적 변환 (Implicit Conversion) 스마트 포인터는 역참조 연산자(operator-&gt;, operator*)도 오버로딩하고 있기 때문에 자신이 관리하는 실제 포인터에 대한 암시적 변환도 쉽게 할 수 있다. class Investment{ bool isTaxFree() const; }; bool taxable1 = !(pInv-&gt;isTaxFree()); //암시적 반환 //직접 구현 operator 자원 클래스() const {return 실제 자원;} 단점 : 아래와 같이 실수를 저지를 여지가 많아진다. Investment f1(); f2 = f1; //복사를 의도했으나, 실제 자원이 저장. ※ 참고로 RAII클래스는 데이터 은닉이 목적이 아니기 때문에 캡슐화에 위배되는 것을 고려하지 않아도 된다. 잊지 말자 실제 자원을 직접 접근해야 하는 기존 API들도 많기 때문에, RAII 클래스를 만들 때는 그 클래스가관리하는 자원을 얻을 수 있는 방법을 열어 주어야한다. 자원 접근은 명시적 변환 혹은 암시적 변환을 통해 가능하며, 안전성만 따지면 명시적 변환이 대체적으로 더 낫지만, 고객 편의성을 놓고 보면 암시적 변환이 괜찮다. 항목 16 : new 및 delete를 사용할 때는 형태를 반드시 맞추자 new연산자를 통해서 메모리를 할당할 때 단일 객체와 객체 배열에 대한 메모리 배치구조는 서로 다른데, 객체 배열을 위해 만들어지는 힙 메모리는 배열원소의 개수가 앞에 들어간다. 그 때문에 delete 연산자는 소멸자가 몇 번 호출되는지 알 수 있다. 즉 []을 delete뒤에 붙여줌으로서 ‘배열 코기 정보’가 있는 객체 배열에 대해 메모리를 해제한다는 뜻으로 간주하도록 한다. string *stringPtr1 = new string; string *stringPtr2 = new string[100]; delete stringPtr1; delete[] stringPtr1; 단순히 new 표현식에 []를 썼으면 대응되는 delete 표현식에도 []를 쓰면된다. 잊지 말자 new 표현식에 []를 썼으면, 대응되는 delete 표현식에도 []써야하고, 그렇지 않으면 []를 쓰지 말아야한다. (new가 기준) 항목 17 : new로 생성한 객체를 스마트 포인터에 저장하는 코드는 별도의 한 문장으로 만들자 processWidget(tr1::shared_ptr&lt;Widget&gt;(new Widget),priority()); 위와 같은 경우 매개변수내에서 스마트 포인터의 생성과 메모리 할당이 이루어지고 있는데 이는 자원을 흘릴 가능성이 존재한다. 본래는 “priority() -&gt; new Widget -&gt; tr1::shared_ptr”의 순서대로 진행되야 하지만, 컴파일러 제작사마다 연산 순서에 차이가 있기 때문에 순서가 바뀔 수가 있다. 그렇게 되면 포인터가 유실될 수 있다. 해결하기 위해서는 단순히 Widget을 생성해서 스마트 포인터에 저장하는 코드를 별도의 문장 하나로 만들고, 그 스마트 포인터를 processWidget에 넘기는 것이다. 이는 컴파일러의 재조정을 받을 여지가 적기 때문에 자원 누출 가능성이 없다. tr1::shared_ptr&lt;Widget&gt; pw(new Widget); processWidget(pw,priority()); 잊지 말자 new로 생성한 객체를 스마트 포인터로 넣는 코드는 별도의 한 문장으로 만즐다. 이것을 만족하지 않으면 예외가 발생될 때 디버깅하기 힘든 자원 누출이 초래될 수 있다. 출처 ※ Effective C++ 책의 내용을 개인적으로 요약한 것입니다. 책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다. 지음 : 스콧 마이어스 옮김 : 곽용재 출판 : Addison Wesley">
+<meta property="og:description" content="들어가며 C++에서 자원은 메모리뿐만 아니라 파일 서술자, 뮤텍스 잠금, 그래픽 유저 인터페이스와 같이 수많은 자원이 존재한다. 이는 다 쓰고 난 후에는 “생성자/소멸자/객체 복사 함수”를 사용하여 해제한다. 항목 13 : 자원 관리에는 객체가 그만 자원 해제는 사용자가 직접 delete를 블록내에서 사용하여 객체의 자원을 해제할 수 있는데 이는 문제를 야기한다. 만약 delete가 호출되기 전에 retrun된다거나 사용하지는 않지만 goto문을 사용하여 건너뛰게 되는 경우이다. class Investment{...}; Investment* createInvestment(); // tr1::shared_ptr&lt;Investment&gt; CreateInvestment(); -&gt; 포인터의 반환은 문제가 발생할 수 있음(delete 호출을 호출자에서 해야하는데 잊을 수도) void f(){ Investment *pInv = CreateInvestment(); ... delete pInv; //혹시나 호출 안될 수도 있다. } 그렇기 때문에 자원을 객체에 넣고 소멸자가 자원 해제하는 방법을 사용하여 해결하며, 이 방법에는 2가지가 존재한다. 하지만 이 스마트 포인터의 소멸자에서는 delete[]가 아닌 delete를 사용하기 때문에 동적으로 할당한 배열에 대해 사용할 수 없다. (new를 사용한 모든 것) 스마트 포인터 : auto_ptr 포인터와 비슷한 스마트 포인터로 가리키고 있는 대상에 대해 소멸자가 자동으로 delete를 불러주도록 설계되어있다. void f(){ auto_ptr&lt;Investment&gt; pInv(CreateInvestment()); //팩토리 함수 호출 } //소멸자로 자동 소멸 이때 자동으로 delete하기 때문에 동일한 객체를 가르키는 auto_ptr의 개수가 둘 이상이라면 안되는데, 이를 막기 위해서 auto_ptr은 객체를 복사하면 원본 객체는 null로 만든다. 자원에 대한 유일한 소유권을 갖는다고 가정할 수 있다. 또한 중요한 2가지 특징이 존재한다. 자원을 획득한 후에 자원 관리 객체에게 넘긴다. CreateInvestment()로 인해 만들어진 자원은 auto_ptr 초기화에 사용되며, 이를 자원 획득 즉 초기화(RAII)라고 부른다. 즉 자원의 획득과 자원 관리 객체의 초기화가 동시에 이루어진다. 자원 관리 객체는 소멸자로 자원 해제한다. 블록을 어떻게 떠나던 자원 해제된다. 참조 카운팅 스마트 포인터 : shared_ptr auto_ptr의 대안으로 사용하는 참조 카운팅 방식 스마트 포인터(RCSP)로 특정 자원을 가르키는 외부 객체의 개수를 유지하고 있다가 그 개수가 0이 되면 해당 자원을 가르키는 자원을 자동으로 삭제하는 스마트 포인터이다. 동작은 가비지 컬렉션과 유사하지만 참조가 고리를 이루는 경우에는 없앨 수 없다. void f(){ tr1::shared_ptr&lt;Investment&gt; pInv(createInvestment()); } //소멸자로 자동 소멸 auto_ptr과 유사하지만 복사가 훨씬 자연스러워졌으며, auto_ptr을 사용할 수 없는 STL 컨테이너등의 환경에 쓸 수 있다. 잊지 말자 자원 누출을 막기 위해, 생성자 안에서 자원을 획득하고 소멸자에서 그것을 해제하는 RAII객체를 사용하자. 자원을 관리하는 객체를 써서 자원을 관리해라. 직접 호출하지 말고 RAII 클래스는 tr1::shared_ptr과 auto_ptr이다. 이 중 tr1::shared_ptr이 복사 시 동작이 직관적이기에 사용하기 좋다. 항목 14 : 자원 관리 클래스의 복사 동작에 고찰하자. 컴팡이러가 생성한 동작이 원하는 동작이 아니라면 스스로 자원 관리 클래스를 만들어야한다. 이때 복사 동작을 구현하는 것에 대해서 얘기하려고 한다. 먼저 아래는 Mutex타입을 조작하는 C API를 사용한다고 가정하자. Lock을 사용할때는 RAII의 방식에 맞게 사용하면 문제가 없지만, 복사를 하는 경우 구현에 있어 다양한 선택지가 존재한다. void lock(Mutex *pm); //pm 잠금 void unlock(Mutex *pm); //pm 해제 class Lock{ public: explicit Lock(Mutex *pm) : mutexPtr(pm) {lock(mutexPtr);} ~ Lock() {unlock(mutexPtr);} private: Mutex *mutePtr; } //Lock 사용 시 RAII방식에 맞게 사용 Mutex m; lock m1(&amp;m); //문제는 복사 Lock m11(&amp;m); //m을 잠금 Lock m12(m11); //m11을 m12로 복사 -&gt; 이때의 선택지가 4가지 존재 복사를 금지 RAII 객체가 복사되도록 허용하는 것 자체가 말이 안되는 경우가 존재하는데 위의 예시 또한 이 부류에 속한다. ‘사본’이라는 게 의미가 없기 때문이다. 그렇기 때문에 복사 함수를 private 멤버로 만들어서 복사를 막기만 하면 된다. class Lock: private Uncopyable{} 관리하고 있는 자원에 대해 참조 카운팅을 수행 자원을 사용하고 있는 마지막 객체가 소멸될 때까지 자원을 해제하지 않는게 바랍직한 경우에는 객체의 개수에 대한 카운트를 증사시키는 식으로 복사 함수를 구현해야한다. 이 방식이 tr1::shared_ptr이다. 하지만 tr1::shared_ptr을 데이터 멤버로 넣기만 하면 안된다. 이는 참조 카운트가 0이 될 때 삭제하기 대문에 원하는 잠금을 해제하려는 의도와는 다르다. 다행이도 delete는 지정을 허용하기 때문에 삭제자를 tr1::shared_ptr 생성자의 두 번째 매개변수(unlock)로 선택적으로 넣어주면 된다. 소멸자는 선언하지 않아도 자동으로 호출된다. class Lock{ public: explicit Lock(Mutex *pm) : mutexPtr(pm,unlock) {lock(mutexPtr.get());} ~ Lock() {unlock(mutexPtr);} private: tr1::shared_ptr&lt;Mutex&gt; mutePtr; } 관리하고 있는 자원을 복사 자원을 원하는 대로 복사하는 경우가 존재할 수 있는데, 객체가 둘러싸고 있는 자원까지 복사되어야 한다. 즉 ‘깊은 복사’를 수행하여 string과 같은 경우 새로운 힙 메모리를 할당해준다. 관리하고 있는 자원의 소유권을 옮김 흔한 경우는 아니지만 RAII객체는 딱 하나만 존재하도록 하기 위해서 RAII 객체가 복사될 때 자원의 소유권을 사본 쪽으로 옮기는 경우이다. auto_ptr의 복사 동작과 동일하며 기존 RAII객체에는 null이 할당된다. 잊지 말자 RAII 객체의 복사는 그 객체가 관리하는 자원의 복사 문제를 안고 가기 때문에, 그 자원을 어떻게 복사하느냐에 따라 RAII 객체의 복사 동작이 결정된다. RAII 클래스에 구현하는 일반적인 복사 동작은 복사를 금지하거나 참조 카운팅을 해주는 선에서 마무리하는 것이다. 이 외에도 방법은 있다. 항목 15 : 자원 관리 클래스에서 관리되는 자원은 외부에서 접근할 수 있도록 하자 자원관리 클래스는 실수로 터질 수 있는 자원의 누출을 막아주는 보호벽 역할을 한다. 하지만 실제 현장에서는 자원 관리 객체의 실제 자원을 건들여야하는 경우가 더러 존재한다. 자원 관리 클래스에 그냥 접근하면 “스마트 포인터”타입의 객체가 반환되는 문제가 발생한다. 이를 해결하기 위한 방안으로 명시적 변환과 암시적 변환 총 2가지가 존재한다. 둘 중 무엇을 선택할지에 대한 결정은 RAII 클래스의 용도와 사용 환경에 따라 달라지며, 암시적 변환보다는 명시적 변환 함수를 제공하는 쪽이 나을 때가 많다. 명시적 변환 (Explicit Conversion) 스마트 포인터는 명시적 반환을 수행하는 “get”이라는 멤버 함수를 제공하는데 이를 통해서 스마트 포인터 객체 내의 실제 포인터의 사본을 얻어낼 수 있다. tr1::shared_ptr&lt;Investment&gt; pInv(createInvestment()); int dats = daysHeld(pInv.get()); //명시적 반환 //직접 구현 자원 클래스 get() const {return 실제 자원;} 단점 : 반환할 때마다 함수를 호출해야하고, 이 때문에 자원이 누출될 가능성이 존재한다. 암시적 변환 (Implicit Conversion) 스마트 포인터는 역참조 연산자(operator-&gt;, operator*)도 오버로딩하고 있기 때문에 자신이 관리하는 실제 포인터에 대한 암시적 변환도 쉽게 할 수 있다. class Investment{ bool isTaxFree() const; }; bool taxable1 = !(pInv-&gt;isTaxFree()); //암시적 반환 //직접 구현 operator 자원 클래스() const {return 실제 자원;} 단점 : 아래와 같이 실수를 저지를 여지가 많아진다. Investment f1(); f2 = f1; //복사를 의도했으나, 실제 자원이 저장. ※ 참고로 RAII클래스는 데이터 은닉이 목적이 아니기 때문에 캡슐화에 위배되는 것을 고려하지 않아도 된다. 잊지 말자 실제 자원을 직접 접근해야 하는 기존 API들도 많기 때문에, RAII 클래스를 만들 때는 그 클래스가관리하는 자원을 얻을 수 있는 방법을 열어 주어야한다. 자원 접근은 명시적 변환 혹은 암시적 변환을 통해 가능하며, 안전성만 따지면 명시적 변환이 대체적으로 더 낫지만, 고객 편의성을 놓고 보면 암시적 변환이 괜찮다. 항목 16 : new 및 delete를 사용할 때는 형태를 반드시 맞추자 new연산자를 통해서 메모리를 할당할 때 단일 객체와 객체 배열에 대한 메모리 배치구조는 서로 다른데, 객체 배열을 위해 만들어지는 힙 메모리는 배열원소의 개수가 앞에 들어간다. 그 때문에 delete 연산자는 소멸자가 몇 번 호출되는지 알 수 있다. 즉 []을 delete뒤에 붙여줌으로서 ‘배열 코기 정보’가 있는 객체 배열에 대해 메모리를 해제한다는 뜻으로 간주하도록 한다. string *stringPtr1 = new string; string *stringPtr2 = new string[100]; delete stringPtr1; delete[] stringPtr1; 단순히 new 표현식에 []를 썼으면 대응되는 delete 표현식에도 []를 쓰면된다. 잊지 말자 new 표현식에 []를 썼으면, 대응되는 delete 표현식에도 []써야하고, 그렇지 않으면 []를 쓰지 말아야한다. (new가 기준) 항목 17 : new로 생성한 객체를 스마트 포인터에 저장하는 코드는 별도의 한 문장으로 만들자 processWidget(tr1::shared_ptr&lt;Widget&gt;(new Widget),priority()); 위와 같은 경우 매개변수내에서 스마트 포인터의 생성과 메모리 할당이 이루어지고 있는데 이는 자원을 흘릴 가능성이 존재한다. 본래는 “priority() -&gt; new Widget -&gt; tr1::shared_ptr”의 순서대로 진행되야 하지만, 컴파일러 제작사마다 연산 순서에 차이가 있기 때문에 순서가 바뀔 수가 있다. 그렇게 되면 포인터가 유실될 수 있다. 해결하기 위해서는 단순히 Widget을 생성해서 스마트 포인터에 저장하는 코드를 별도의 문장 하나로 만들고, 그 스마트 포인터를 processWidget에 넘기는 것이다. 이는 컴파일러의 재조정을 받을 여지가 적기 때문에 자원 누출 가능성이 없다. tr1::shared_ptr&lt;Widget&gt; pw(new Widget); processWidget(pw,priority()); 잊지 말자 new로 생성한 객체를 스마트 포인터로 넣는 코드는 별도의 한 문장으로 만즐다. 이것을 만족하지 않으면 예외가 발생될 때 디버깅하기 힘든 자원 누출이 초래될 수 있다. 출처 ※ Effective C++ 책의 내용을 개인적으로 요약한 것입니다. 책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다. 지음 : 스콧 마이어스 옮김 : 곽용재 출판 : Addison Wesley">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/08/01/EffectiveC++-Effective-C++-3%EC%9E%A5.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/08/01/EffectiveC++-Effective-C++-3%EC%9E%A5.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2022-08-01T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="Effective C++ 3장">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2022-08-01T00:00:00+00:00","datePublished":"2022-08-01T00:00:00+00:00","description":"들어가며 C++에서 자원은 메모리뿐만 아니라 파일 서술자, 뮤텍스 잠금, 그래픽 유저 인터페이스와 같이 수많은 자원이 존재한다. 이는 다 쓰고 난 후에는 “생성자/소멸자/객체 복사 함수”를 사용하여 해제한다. 항목 13 : 자원 관리에는 객체가 그만 자원 해제는 사용자가 직접 delete를 블록내에서 사용하여 객체의 자원을 해제할 수 있는데 이는 문제를 야기한다. 만약 delete가 호출되기 전에 retrun된다거나 사용하지는 않지만 goto문을 사용하여 건너뛰게 되는 경우이다. class Investment{...}; Investment* createInvestment(); // tr1::shared_ptr&lt;Investment&gt; CreateInvestment(); -&gt; 포인터의 반환은 문제가 발생할 수 있음(delete 호출을 호출자에서 해야하는데 잊을 수도) void f(){ Investment *pInv = CreateInvestment(); ... delete pInv; //혹시나 호출 안될 수도 있다. } 그렇기 때문에 자원을 객체에 넣고 소멸자가 자원 해제하는 방법을 사용하여 해결하며, 이 방법에는 2가지가 존재한다. 하지만 이 스마트 포인터의 소멸자에서는 delete[]가 아닌 delete를 사용하기 때문에 동적으로 할당한 배열에 대해 사용할 수 없다. (new를 사용한 모든 것) 스마트 포인터 : auto_ptr 포인터와 비슷한 스마트 포인터로 가리키고 있는 대상에 대해 소멸자가 자동으로 delete를 불러주도록 설계되어있다. void f(){ auto_ptr&lt;Investment&gt; pInv(CreateInvestment()); //팩토리 함수 호출 } //소멸자로 자동 소멸 이때 자동으로 delete하기 때문에 동일한 객체를 가르키는 auto_ptr의 개수가 둘 이상이라면 안되는데, 이를 막기 위해서 auto_ptr은 객체를 복사하면 원본 객체는 null로 만든다. 자원에 대한 유일한 소유권을 갖는다고 가정할 수 있다. 또한 중요한 2가지 특징이 존재한다. 자원을 획득한 후에 자원 관리 객체에게 넘긴다. CreateInvestment()로 인해 만들어진 자원은 auto_ptr 초기화에 사용되며, 이를 자원 획득 즉 초기화(RAII)라고 부른다. 즉 자원의 획득과 자원 관리 객체의 초기화가 동시에 이루어진다. 자원 관리 객체는 소멸자로 자원 해제한다. 블록을 어떻게 떠나던 자원 해제된다. 참조 카운팅 스마트 포인터 : shared_ptr auto_ptr의 대안으로 사용하는 참조 카운팅 방식 스마트 포인터(RCSP)로 특정 자원을 가르키는 외부 객체의 개수를 유지하고 있다가 그 개수가 0이 되면 해당 자원을 가르키는 자원을 자동으로 삭제하는 스마트 포인터이다. 동작은 가비지 컬렉션과 유사하지만 참조가 고리를 이루는 경우에는 없앨 수 없다. void f(){ tr1::shared_ptr&lt;Investment&gt; pInv(createInvestment()); } //소멸자로 자동 소멸 auto_ptr과 유사하지만 복사가 훨씬 자연스러워졌으며, auto_ptr을 사용할 수 없는 STL 컨테이너등의 환경에 쓸 수 있다. 잊지 말자 자원 누출을 막기 위해, 생성자 안에서 자원을 획득하고 소멸자에서 그것을 해제하는 RAII객체를 사용하자. 자원을 관리하는 객체를 써서 자원을 관리해라. 직접 호출하지 말고 RAII 클래스는 tr1::shared_ptr과 auto_ptr이다. 이 중 tr1::shared_ptr이 복사 시 동작이 직관적이기에 사용하기 좋다. 항목 14 : 자원 관리 클래스의 복사 동작에 고찰하자. 컴팡이러가 생성한 동작이 원하는 동작이 아니라면 스스로 자원 관리 클래스를 만들어야한다. 이때 복사 동작을 구현하는 것에 대해서 얘기하려고 한다. 먼저 아래는 Mutex타입을 조작하는 C API를 사용한다고 가정하자. Lock을 사용할때는 RAII의 방식에 맞게 사용하면 문제가 없지만, 복사를 하는 경우 구현에 있어 다양한 선택지가 존재한다. void lock(Mutex *pm); //pm 잠금 void unlock(Mutex *pm); //pm 해제 class Lock{ public: explicit Lock(Mutex *pm) : mutexPtr(pm) {lock(mutexPtr);} ~ Lock() {unlock(mutexPtr);} private: Mutex *mutePtr; } //Lock 사용 시 RAII방식에 맞게 사용 Mutex m; lock m1(&amp;m); //문제는 복사 Lock m11(&amp;m); //m을 잠금 Lock m12(m11); //m11을 m12로 복사 -&gt; 이때의 선택지가 4가지 존재 복사를 금지 RAII 객체가 복사되도록 허용하는 것 자체가 말이 안되는 경우가 존재하는데 위의 예시 또한 이 부류에 속한다. ‘사본’이라는 게 의미가 없기 때문이다. 그렇기 때문에 복사 함수를 private 멤버로 만들어서 복사를 막기만 하면 된다. class Lock: private Uncopyable{} 관리하고 있는 자원에 대해 참조 카운팅을 수행 자원을 사용하고 있는 마지막 객체가 소멸될 때까지 자원을 해제하지 않는게 바랍직한 경우에는 객체의 개수에 대한 카운트를 증사시키는 식으로 복사 함수를 구현해야한다. 이 방식이 tr1::shared_ptr이다. 하지만 tr1::shared_ptr을 데이터 멤버로 넣기만 하면 안된다. 이는 참조 카운트가 0이 될 때 삭제하기 대문에 원하는 잠금을 해제하려는 의도와는 다르다. 다행이도 delete는 지정을 허용하기 때문에 삭제자를 tr1::shared_ptr 생성자의 두 번째 매개변수(unlock)로 선택적으로 넣어주면 된다. 소멸자는 선언하지 않아도 자동으로 호출된다. class Lock{ public: explicit Lock(Mutex *pm) : mutexPtr(pm,unlock) {lock(mutexPtr.get());} ~ Lock() {unlock(mutexPtr);} private: tr1::shared_ptr&lt;Mutex&gt; mutePtr; } 관리하고 있는 자원을 복사 자원을 원하는 대로 복사하는 경우가 존재할 수 있는데, 객체가 둘러싸고 있는 자원까지 복사되어야 한다. 즉 ‘깊은 복사’를 수행하여 string과 같은 경우 새로운 힙 메모리를 할당해준다. 관리하고 있는 자원의 소유권을 옮김 흔한 경우는 아니지만 RAII객체는 딱 하나만 존재하도록 하기 위해서 RAII 객체가 복사될 때 자원의 소유권을 사본 쪽으로 옮기는 경우이다. auto_ptr의 복사 동작과 동일하며 기존 RAII객체에는 null이 할당된다. 잊지 말자 RAII 객체의 복사는 그 객체가 관리하는 자원의 복사 문제를 안고 가기 때문에, 그 자원을 어떻게 복사하느냐에 따라 RAII 객체의 복사 동작이 결정된다. RAII 클래스에 구현하는 일반적인 복사 동작은 복사를 금지하거나 참조 카운팅을 해주는 선에서 마무리하는 것이다. 이 외에도 방법은 있다. 항목 15 : 자원 관리 클래스에서 관리되는 자원은 외부에서 접근할 수 있도록 하자 자원관리 클래스는 실수로 터질 수 있는 자원의 누출을 막아주는 보호벽 역할을 한다. 하지만 실제 현장에서는 자원 관리 객체의 실제 자원을 건들여야하는 경우가 더러 존재한다. 자원 관리 클래스에 그냥 접근하면 “스마트 포인터”타입의 객체가 반환되는 문제가 발생한다. 이를 해결하기 위한 방안으로 명시적 변환과 암시적 변환 총 2가지가 존재한다. 둘 중 무엇을 선택할지에 대한 결정은 RAII 클래스의 용도와 사용 환경에 따라 달라지며, 암시적 변환보다는 명시적 변환 함수를 제공하는 쪽이 나을 때가 많다. 명시적 변환 (Explicit Conversion) 스마트 포인터는 명시적 반환을 수행하는 “get”이라는 멤버 함수를 제공하는데 이를 통해서 스마트 포인터 객체 내의 실제 포인터의 사본을 얻어낼 수 있다. tr1::shared_ptr&lt;Investment&gt; pInv(createInvestment()); int dats = daysHeld(pInv.get()); //명시적 반환 //직접 구현 자원 클래스 get() const {return 실제 자원;} 단점 : 반환할 때마다 함수를 호출해야하고, 이 때문에 자원이 누출될 가능성이 존재한다. 암시적 변환 (Implicit Conversion) 스마트 포인터는 역참조 연산자(operator-&gt;, operator*)도 오버로딩하고 있기 때문에 자신이 관리하는 실제 포인터에 대한 암시적 변환도 쉽게 할 수 있다. class Investment{ bool isTaxFree() const; }; bool taxable1 = !(pInv-&gt;isTaxFree()); //암시적 반환 //직접 구현 operator 자원 클래스() const {return 실제 자원;} 단점 : 아래와 같이 실수를 저지를 여지가 많아진다. Investment f1(); f2 = f1; //복사를 의도했으나, 실제 자원이 저장. ※ 참고로 RAII클래스는 데이터 은닉이 목적이 아니기 때문에 캡슐화에 위배되는 것을 고려하지 않아도 된다. 잊지 말자 실제 자원을 직접 접근해야 하는 기존 API들도 많기 때문에, RAII 클래스를 만들 때는 그 클래스가관리하는 자원을 얻을 수 있는 방법을 열어 주어야한다. 자원 접근은 명시적 변환 혹은 암시적 변환을 통해 가능하며, 안전성만 따지면 명시적 변환이 대체적으로 더 낫지만, 고객 편의성을 놓고 보면 암시적 변환이 괜찮다. 항목 16 : new 및 delete를 사용할 때는 형태를 반드시 맞추자 new연산자를 통해서 메모리를 할당할 때 단일 객체와 객체 배열에 대한 메모리 배치구조는 서로 다른데, 객체 배열을 위해 만들어지는 힙 메모리는 배열원소의 개수가 앞에 들어간다. 그 때문에 delete 연산자는 소멸자가 몇 번 호출되는지 알 수 있다. 즉 []을 delete뒤에 붙여줌으로서 ‘배열 코기 정보’가 있는 객체 배열에 대해 메모리를 해제한다는 뜻으로 간주하도록 한다. string *stringPtr1 = new string; string *stringPtr2 = new string[100]; delete stringPtr1; delete[] stringPtr1; 단순히 new 표현식에 []를 썼으면 대응되는 delete 표현식에도 []를 쓰면된다. 잊지 말자 new 표현식에 []를 썼으면, 대응되는 delete 표현식에도 []써야하고, 그렇지 않으면 []를 쓰지 말아야한다. (new가 기준) 항목 17 : new로 생성한 객체를 스마트 포인터에 저장하는 코드는 별도의 한 문장으로 만들자 processWidget(tr1::shared_ptr&lt;Widget&gt;(new Widget),priority()); 위와 같은 경우 매개변수내에서 스마트 포인터의 생성과 메모리 할당이 이루어지고 있는데 이는 자원을 흘릴 가능성이 존재한다. 본래는 “priority() -&gt; new Widget -&gt; tr1::shared_ptr”의 순서대로 진행되야 하지만, 컴파일러 제작사마다 연산 순서에 차이가 있기 때문에 순서가 바뀔 수가 있다. 그렇게 되면 포인터가 유실될 수 있다. 해결하기 위해서는 단순히 Widget을 생성해서 스마트 포인터에 저장하는 코드를 별도의 문장 하나로 만들고, 그 스마트 포인터를 processWidget에 넘기는 것이다. 이는 컴파일러의 재조정을 받을 여지가 적기 때문에 자원 누출 가능성이 없다. tr1::shared_ptr&lt;Widget&gt; pw(new Widget); processWidget(pw,priority()); 잊지 말자 new로 생성한 객체를 스마트 포인터로 넣는 코드는 별도의 한 문장으로 만즐다. 이것을 만족하지 않으면 예외가 발생될 때 디버깅하기 힘든 자원 누출이 초래될 수 있다. 출처 ※ Effective C++ 책의 내용을 개인적으로 요약한 것입니다. 책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다. 지음 : 스콧 마이어스 옮김 : 곽용재 출판 : Addison Wesley","headline":"Effective C++ 3장","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/08/01/EffectiveC++-Effective-C++-3%EC%9E%A5.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/08/01/EffectiveC++-Effective-C++-3%EC%9E%A5.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+
+
+  </head>
+  
+  <body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">Effective C++ | 3장</h1>
+  <h2 class="post-subtitle">자원 관리</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2022-08-01T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Aug 01, 2022
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 10 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#Effective_C++">#Effective_C++</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#C++">#C++</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="들어가며">들어가며</h2>
+
+<p>C++에서 자원은 메모리뿐만 아니라 파일 서술자, 뮤텍스 잠금, 그래픽 유저 인터페이스와 같이 수많은 자원이 존재한다. 이는 다 쓰고 난 후에는 <strong>“생성자/소멸자/객체 복사 함수”를</strong> 사용하여 해제한다.</p>
+
+<h2 id="항목-13--자원-관리에는-객체가-그만">항목 13 : 자원 관리에는 객체가 그만</h2>
+
+<p>자원 해제는 사용자가 직접 delete를 블록내에서 사용하여 객체의 자원을 해제할 수 있는데 이는 문제를 야기한다. 만약 delete가 호출되기 전에 retrun된다거나 사용하지는 않지만 goto문을 사용하여 건너뛰게 되는 경우이다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Investment</span><span class="p">{...};</span>
+<span class="n">Investment</span><span class="o">*</span> <span class="nf">createInvestment</span><span class="p">();</span>
+<span class="c1">// tr1::shared_ptr&lt;Investment&gt; CreateInvestment();   -&gt; 포인터의 반환은 문제가 발생할 수 있음(delete 호출을 호출자에서 해야하는데 잊을 수도)</span>
+<span class="kt">void</span> <span class="nf">f</span><span class="p">(){</span>
+  <span class="n">Investment</span> <span class="o">*</span><span class="n">pInv</span> <span class="o">=</span> <span class="n">CreateInvestment</span><span class="p">();</span>    
+  <span class="p">...</span>
+  <span class="k">delete</span> <span class="n">pInv</span><span class="p">;</span>    <span class="c1">//혹시나 호출 안될 수도 있다.</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>그렇기 때문에  자원을 객체에 넣고 소멸자가 자원 해제하는 방법을 사용하여 해결하며, 이 방법에는 2가지가 존재한다. 하지만 이 스마트 포인터의 소멸자에서는 delete[]가 아닌 delete를 사용하기 때문에 동적으로 할당한 배열에 대해 사용할 수 없다. (new를 사용한 모든 것)</p>
+
+<blockquote>
+  <ol>
+    <li>스마트 포인터 : auto_ptr</li>
+  </ol>
+</blockquote>
+
+<p>포인터와 비슷한 스마트 포인터로 가리키고 있는 대상에 대해 소멸자가 자동으로 delete를 불러주도록 설계되어있다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kt">void</span> <span class="nf">f</span><span class="p">(){</span>
+    <span class="n">auto_ptr</span><span class="o">&lt;</span><span class="n">Investment</span><span class="o">&gt;</span> <span class="n">pInv</span><span class="p">(</span><span class="n">CreateInvestment</span><span class="p">());</span>  <span class="c1">//팩토리 함수 호출</span>
+  <span class="p">}</span> <span class="c1">//소멸자로 자동 소멸</span>
+</code></pre></div></div>
+
+<p>이때 자동으로 delete하기 때문에 동일한 객체를 가르키는 auto_ptr의 개수가 둘 이상이라면 안되는데, 이를 막기 위해서 auto_ptr은 객체를 복사하면 원본 객체는 null로 만든다. 자원에 대한 유일한 소유권을 갖는다고 가정할 수 있다. 또한 중요한 2가지 특징이 존재한다.</p>
+
+<ol>
+  <li>자원을 획득한 후에 자원 관리 객체에게 넘긴다.
+    <ul>
+      <li>CreateInvestment()로 인해 만들어진 자원은 auto_ptr 초기화에 사용되며, 이를 <strong>자원 획득 즉 초기화(RAII)라고</strong> 부른다.</li>
+      <li>즉 자원의 획득과 자원 관리 객체의 초기화가 동시에 이루어진다.</li>
+    </ul>
+  </li>
+  <li>자원 관리 객체는 소멸자로 자원 해제한다.
+    <ul>
+      <li>블록을 어떻게 떠나던 자원 해제된다.</li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+  <ol>
+    <li>참조 카운팅 스마트 포인터 : shared_ptr</li>
+  </ol>
+</blockquote>
+
+<p>auto_ptr의 대안으로 사용하는 참조 카운팅 방식 스마트 포인터(RCSP)로 특정 자원을 가르키는 외부 객체의 개수를 유지하고 있다가 그 개수가 0이 되면 해당 자원을 가르키는 자원을 자동으로 삭제하는 스마트 포인터이다. 동작은 가비지 컬렉션과 유사하지만 참조가 고리를 이루는 경우에는 없앨 수 없다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kt">void</span> <span class="nf">f</span><span class="p">(){</span>
+    <span class="n">tr1</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Investment</span><span class="o">&gt;</span> <span class="n">pInv</span><span class="p">(</span><span class="n">createInvestment</span><span class="p">());</span> 
+  <span class="p">}</span> <span class="c1">//소멸자로 자동 소멸</span>
+</code></pre></div></div>
+
+<p>auto_ptr과 유사하지만 복사가 훨씬 자연스러워졌으며, auto_ptr을 사용할 수 없는 STL 컨테이너등의 환경에 쓸 수 있다.</p>
+
+<h3 id="잊지-말자">잊지 말자</h3>
+
+<ul>
+  <li>자원 누출을 막기 위해, 생성자 안에서 자원을 획득하고 소멸자에서 그것을 해제하는 RAII객체를 사용하자.
+    <ul>
+      <li>자원을 관리하는 객체를 써서 자원을 관리해라. 직접 호출하지 말고</li>
+    </ul>
+  </li>
+  <li>RAII 클래스는 tr1::shared_ptr과 auto_ptr이다. 이 중 tr1::shared_ptr이 복사 시 동작이 직관적이기에 사용하기 좋다.</li>
+</ul>
+
+<h2 id="항목-14--자원-관리-클래스의-복사-동작에-고찰하자">항목 14 : 자원 관리 클래스의 복사 동작에 고찰하자.</h2>
+
+<p>컴팡이러가 생성한 동작이 원하는 동작이 아니라면 스스로 자원 관리 클래스를 만들어야한다. 이때 복사 동작을 구현하는 것에 대해서 얘기하려고 한다. 먼저 아래는 Mutex타입을 조작하는 C API를 사용한다고 가정하자. Lock을 사용할때는 RAII의 방식에 맞게 사용하면 문제가 없지만, <strong>복사를 하는 경우 구현에 있어 다양한 선택지가 존재한다.</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">lock</span><span class="p">(</span><span class="n">Mutex</span> <span class="o">*</span><span class="n">pm</span><span class="p">);</span>   <span class="c1">//pm 잠금</span>
+<span class="kt">void</span> <span class="nf">unlock</span><span class="p">(</span><span class="n">Mutex</span> <span class="o">*</span><span class="n">pm</span><span class="p">);</span> <span class="c1">//pm 해제</span>
+
+<span class="k">class</span> <span class="nc">Lock</span><span class="p">{</span>
+<span class="nl">public:</span>
+  <span class="k">explicit</span> <span class="n">Lock</span><span class="p">(</span><span class="n">Mutex</span> <span class="o">*</span><span class="n">pm</span><span class="p">)</span> <span class="o">:</span> <span class="n">mutexPtr</span><span class="p">(</span><span class="n">pm</span><span class="p">)</span> <span class="p">{</span><span class="n">lock</span><span class="p">(</span><span class="n">mutexPtr</span><span class="p">);}</span>
+  <span class="o">~</span> <span class="n">Lock</span><span class="p">()</span> <span class="p">{</span><span class="n">unlock</span><span class="p">(</span><span class="n">mutexPtr</span><span class="p">);}</span>
+<span class="k">private</span><span class="o">:</span>
+  <span class="n">Mutex</span> <span class="o">*</span><span class="n">mutePtr</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//Lock 사용 시 RAII방식에 맞게 사용</span>
+<span class="n">Mutex</span> <span class="n">m</span><span class="p">;</span>
+<span class="n">lock</span> <span class="nf">m1</span><span class="p">(</span><span class="o">&amp;</span><span class="n">m</span><span class="p">);</span>
+
+<span class="c1">//문제는 복사</span>
+<span class="n">Lock</span> <span class="nf">m11</span><span class="p">(</span><span class="o">&amp;</span><span class="n">m</span><span class="p">);</span>       <span class="c1">//m을 잠금</span>
+<span class="n">Lock</span> <span class="nf">m12</span><span class="p">(</span><span class="n">m11</span><span class="p">);</span>      <span class="c1">//m11을 m12로 복사 -&gt; 이때의 선택지가 4가지 존재</span>
+</code></pre></div></div>
+
+<blockquote>
+  <ol>
+    <li>복사를 금지</li>
+  </ol>
+</blockquote>
+
+<p>RAII 객체가 복사되도록 허용하는 것 자체가 말이 안되는 경우가 존재하는데 위의 예시 또한 이 부류에 속한다. <strong>‘사본’이라는</strong> 게 의미가 없기 때문이다. 그렇기 때문에 복사 함수를 private 멤버로 만들어서 복사를 막기만 하면 된다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">Lock</span><span class="o">:</span> <span class="k">private</span> <span class="n">Uncopyable</span><span class="p">{}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <ol>
+    <li>관리하고 있는 자원에 대해 참조 카운팅을 수행</li>
+  </ol>
+</blockquote>
+
+<p>자원을 사용하고 있는 마지막 객체가 소멸될 때까지 자원을 해제하지 않는게 바랍직한 경우에는 객체의 개수에 대한 카운트를 증사시키는 식으로 복사 함수를 구현해야한다. 이 방식이 tr1::shared_ptr이다.</p>
+
+<p>하지만 tr1::shared_ptr을 데이터 멤버로 넣기만 하면 안된다. 이는 참조 카운트가 0이 될 때 삭제하기 대문에 원하는 잠금을 해제하려는 의도와는 다르다. 다행이도 delete는 지정을 허용하기 때문에 <strong>삭제자를 tr1::shared_ptr 생성자의 두 번째 매개변수(unlock)로 선택적으로 넣어주면 된다. 소멸자는 선언하지 않아도 자동으로 호출된다.</strong></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">Lock</span><span class="p">{</span>
+  <span class="nl">public:</span>
+    <span class="k">explicit</span> <span class="n">Lock</span><span class="p">(</span><span class="n">Mutex</span> <span class="o">*</span><span class="n">pm</span><span class="p">)</span> <span class="o">:</span> <span class="n">mutexPtr</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span><span class="n">unlock</span><span class="p">)</span> <span class="p">{</span><span class="n">lock</span><span class="p">(</span><span class="n">mutexPtr</span><span class="p">.</span><span class="n">get</span><span class="p">());}</span>
+    <span class="o">~</span> <span class="n">Lock</span><span class="p">()</span> <span class="p">{</span><span class="n">unlock</span><span class="p">(</span><span class="n">mutexPtr</span><span class="p">);}</span>
+  <span class="k">private</span><span class="o">:</span>
+    <span class="n">tr1</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Mutex</span><span class="o">&gt;</span> <span class="n">mutePtr</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <ol>
+    <li>관리하고 있는 자원을 복사</li>
+  </ol>
+</blockquote>
+
+<p>자원을 원하는 대로 복사하는 경우가 존재할 수 있는데, 객체가 둘러싸고 있는 자원까지 복사되어야 한다. 즉 ‘깊은 복사’를 수행하여 string과 같은 경우 새로운 힙 메모리를 할당해준다.</p>
+
+<blockquote>
+  <ol>
+    <li>관리하고 있는 자원의 소유권을 옮김</li>
+  </ol>
+</blockquote>
+
+<p>흔한 경우는 아니지만 RAII객체는 딱 하나만 존재하도록 하기 위해서 RAII 객체가 복사될 때 자원의 소유권을 사본 쪽으로 옮기는 경우이다. auto_ptr의 복사 동작과 동일하며 기존 RAII객체에는 null이 할당된다.</p>
+
+<h3 id="잊지-말자-1">잊지 말자</h3>
+
+<ul>
+  <li>RAII 객체의 복사는 그 객체가 관리하는 자원의 복사 문제를 안고 가기 때문에, 그 자원을 어떻게 복사하느냐에 따라 RAII 객체의 복사 동작이 결정된다.</li>
+  <li>RAII 클래스에 구현하는 일반적인 복사 동작은 복사를 금지하거나 참조 카운팅을 해주는 선에서 마무리하는 것이다. 이 외에도 방법은 있다.</li>
+</ul>
+
+<h2 id="항목-15--자원-관리-클래스에서-관리되는-자원은-외부에서-접근할-수-있도록-하자">항목 15 : 자원 관리 클래스에서 관리되는 자원은 외부에서 접근할 수 있도록 하자</h2>
+
+<p>자원관리 클래스는 실수로 터질 수 있는 자원의 누출을 막아주는 보호벽 역할을 한다. 하지만 실제 현장에서는 자원 관리 객체의 실제 자원을 건들여야하는 경우가 더러 존재한다. 자원 관리 클래스에 그냥 접근하면 <strong>“스마트 포인터”타입의 객체가 반환되는</strong> 문제가 발생한다.</p>
+
+<p>이를 해결하기 위한 방안으로 명시적 변환과 암시적 변환 총 2가지가 존재한다. 둘 중 무엇을 선택할지에 대한 결정은 RAII 클래스의 용도와 사용 환경에 따라 달라지며, 암시적 변환보다는 명시적 변환 함수를 제공하는 쪽이 나을 때가 많다.</p>
+
+<blockquote>
+  <ol>
+    <li>명시적 변환 (Explicit Conversion)</li>
+  </ol>
+</blockquote>
+
+<p>스마트 포인터는 명시적 반환을 수행하는 “get”이라는 멤버 함수를 제공하는데 이를 통해서 스마트 포인터 객체 내의 실제 포인터의 사본을 얻어낼 수 있다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">tr1</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Investment</span><span class="o">&gt;</span> <span class="n">pInv</span><span class="p">(</span><span class="n">createInvestment</span><span class="p">());</span>
+  <span class="kt">int</span> <span class="n">dats</span> <span class="o">=</span> <span class="n">daysHeld</span><span class="p">(</span><span class="n">pInv</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>      <span class="c1">//명시적 반환</span>
+
+  <span class="c1">//직접 구현</span>
+  <span class="err">자원</span> <span class="err">클래스</span> <span class="n">get</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="err">실제</span> <span class="err">자원</span><span class="p">;}</span>
+</code></pre></div></div>
+
+<p><strong>단점</strong> : 반환할 때마다 함수를 호출해야하고, 이 때문에 자원이 누출될 가능성이 존재한다.</p>
+
+<blockquote>
+  <ol>
+    <li>암시적 변환 (Implicit Conversion)</li>
+  </ol>
+</blockquote>
+
+<p>스마트 포인터는 역참조 연산자(operator-&gt;, operator*)도 오버로딩하고 있기 때문에 자신이 관리하는 실제 포인터에 대한 암시적 변환도 쉽게 할 수 있다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">Investment</span><span class="p">{</span>
+    <span class="kt">bool</span> <span class="n">isTaxFree</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+  <span class="p">};</span>
+  <span class="kt">bool</span> <span class="n">taxable1</span> <span class="o">=</span> <span class="o">!</span><span class="p">(</span><span class="n">pInv</span><span class="o">-&gt;</span><span class="n">isTaxFree</span><span class="p">());</span>   <span class="c1">//암시적 반환</span>
+  
+  <span class="c1">//직접 구현</span>
+  <span class="k">operator</span> <span class="err">자원</span> <span class="err">클래스</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="err">실제</span> <span class="err">자원</span><span class="p">;}</span>
+</code></pre></div></div>
+
+<p><strong>단점</strong> : 아래와 같이 실수를 저지를 여지가 많아진다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">Investment</span> <span class="nf">f1</span><span class="p">();</span>
+
+  <span class="n">f2</span> <span class="o">=</span> <span class="n">f1</span><span class="p">;</span>    <span class="c1">//복사를 의도했으나, 실제 자원이 저장.</span>
+</code></pre></div></div>
+
+<hr>
+
+<p>※ 참고로 RAII클래스는 데이터 은닉이 목적이 아니기 때문에 캡슐화에 위배되는 것을 고려하지 않아도 된다.</p>
+
+<h3 id="잊지-말자-2">잊지 말자</h3>
+
+<ul>
+  <li>실제 자원을 직접 접근해야 하는 기존 API들도 많기 때문에, RAII 클래스를 만들 때는 그 클래스가관리하는 자원을 얻을 수 있는 방법을 열어 주어야한다.</li>
+  <li>자원 접근은 명시적 변환 혹은 암시적 변환을 통해 가능하며, 안전성만 따지면 명시적 변환이 대체적으로 더 낫지만, 고객 편의성을 놓고 보면 암시적 변환이 괜찮다.</li>
+</ul>
+
+<h2 id="항목-16--new-및-delete를-사용할-때는-형태를-반드시-맞추자">항목 16 : new 및 delete를 사용할 때는 형태를 반드시 맞추자</h2>
+
+<p>new연산자를 통해서 메모리를 할당할 때 단일 객체와 객체 배열에 대한 메모리 배치구조는 서로 다른데, 객체 배열을 위해 만들어지는 힙 메모리는 <strong>배열원소의 개수가 앞에 들어간다.</strong> 그 때문에 delete 연산자는 소멸자가 몇 번 호출되는지 알 수 있다.</p>
+
+<p>즉 []을 delete뒤에 붙여줌으로서 ‘배열 코기 정보’가 있는 객체 배열에 대해 메모리를 해제한다는 뜻으로 간주하도록 한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">string</span> <span class="o">*</span><span class="n">stringPtr1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">string</span><span class="p">;</span>
+  <span class="n">string</span> <span class="o">*</span><span class="n">stringPtr2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">string</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+  <span class="k">delete</span> <span class="n">stringPtr1</span><span class="p">;</span>
+  <span class="k">delete</span><span class="p">[]</span> <span class="n">stringPtr1</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>단순히 new 표현식에 []를 썼으면 대응되는 delete 표현식에도 []를 쓰면된다.</p>
+
+<h3 id="잊지-말자-3">잊지 말자</h3>
+
+<ul>
+  <li>new 표현식에 []를 썼으면, 대응되는 delete 표현식에도 []써야하고, 그렇지 않으면 []를 쓰지 말아야한다.  (new가 기준)</li>
+</ul>
+
+<h2 id="항목-17--new로-생성한-객체를-스마트-포인터에-저장하는-코드는-별도의-한-문장으로-만들자">항목 17 : new로 생성한 객체를 스마트 포인터에 저장하는 코드는 별도의 한 문장으로 만들자</h2>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">processWidget</span><span class="p">(</span><span class="n">tr1</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Widget</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="n">Widget</span><span class="p">),</span><span class="n">priority</span><span class="p">());</span>
+</code></pre></div></div>
+
+<p>위와 같은 경우 매개변수내에서 스마트 포인터의 생성과 메모리 할당이 이루어지고 있는데 이는 <strong>자원을 흘릴 가능성이 존재한다.</strong></p>
+
+<p>본래는 “priority() -&gt; new Widget -&gt; tr1::shared_ptr”의 순서대로 진행되야 하지만, 컴파일러 제작사마다 연산 순서에 차이가 있기 때문에 순서가 바뀔 수가 있다. 그렇게 되면 포인터가 유실될 수 있다.</p>
+
+<p>해결하기 위해서는 <strong>단순히 Widget을 생성해서 스마트 포인터에 저장하는 코드를 별도의 문장 하나로 만들고, 그 스마트 포인터를 processWidget에 넘기는 것이다.</strong> 이는 컴파일러의 재조정을 받을 여지가 적기 때문에 자원 누출 가능성이 없다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">tr1</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Widget</span><span class="o">&gt;</span> <span class="n">pw</span><span class="p">(</span><span class="k">new</span> <span class="n">Widget</span><span class="p">);</span>
+  <span class="n">processWidget</span><span class="p">(</span><span class="n">pw</span><span class="p">,</span><span class="n">priority</span><span class="p">());</span>
+</code></pre></div></div>
+
+<h3 id="잊지-말자-4">잊지 말자</h3>
+
+<ul>
+  <li>new로 생성한 객체를 스마트 포인터로 넣는 코드는 별도의 한 문장으로 만즐다. 이것을 만족하지 않으면 예외가 발생될 때 디버깅하기 힘든 자원 누출이 초래될 수 있다.</li>
+</ul>
+
+<h2 id="출처">출처</h2>
+<p>※ Effective C++ 책의 내용을 개인적으로 요약한 것입니다.
+  책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다.</p>
+<ul>
+  <li>지음 : 스콧 마이어스</li>
+  <li>옮김 : 곽용재</li>
+  <li>출판 : Addison Wesley</li>
+</ul>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/effective_c++/2022/07/25/EffectiveC++-Effective-C++-2%EC%9E%A5.html" title="Effective C++ | 2장">Effective C++ | 2장</a><a class="next" href="/jekyll-theme-yat/effective_c++/2022/08/03/EffectiveC++-Effective-C++-4%EC%9E%A5.html" title="Effective C++ | 4장">Effective C++ | 4장</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/algorithm/2023/02/15/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%A3%BC%EC%9A%94-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88.html" title="Effective C++ | 4장">알고리즘 | 주요 컨테이너</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/algorithm/2022/06/29/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%ED%81%AC%EB%9F%AC%EC%8A%A4%EC%BB%AC%EA%B3%BC-%ED%94%84%EB%A6%BC-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html" title="Effective C++ | 4장">알고리즘 | 크러스컬과 프림 알고리즘</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2023/02/13/UE5-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC%EB%A7%81.html" title="Effective C++ | 4장">UE5 | 프로파일링 (UE Insights)</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/11/UE5-Environment-Querying-System.html" title="Effective C++ | 4장">UE5 | Environment Querying System</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2024 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

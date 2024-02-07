@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>초보자들을 위한 언리얼 네트워크 2부 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.3.3">
+<meta property="og:title" content="초보자들을 위한 언리얼 네트워크 2부">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="지난번에 이어 2부입니다! 1부에서는 전체적인 프레임워크에 대해서 배웠다면, 2부에서는 실제로 프로그래밍에 있어 딱 필요한 정보인 ‘RPC’와 ‘Property Replication’에 대해서 준비해 봤습니다.">
+<meta property="og:description" content="지난번에 이어 2부입니다! 1부에서는 전체적인 프레임워크에 대해서 배웠다면, 2부에서는 실제로 프로그래밍에 있어 딱 필요한 정보인 ‘RPC’와 ‘Property Replication’에 대해서 준비해 봤습니다.">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/ue5/2024/01/16/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-2%EB%B6%80.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/ue5/2024/01/16/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-2%EB%B6%80.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2024-01-16T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="초보자들을 위한 언리얼 네트워크 2부">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2024-01-16T00:00:00+00:00","datePublished":"2024-01-16T00:00:00+00:00","description":"지난번에 이어 2부입니다! 1부에서는 전체적인 프레임워크에 대해서 배웠다면, 2부에서는 실제로 프로그래밍에 있어 딱 필요한 정보인 ‘RPC’와 ‘Property Replication’에 대해서 준비해 봤습니다.","headline":"초보자들을 위한 언리얼 네트워크 2부","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2024/01/16/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-2%EB%B6%80.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2024/01/16/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-2%EB%B6%80.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+
+
+  </head>
+  
+  <body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">초보자들을 위한 언리얼 네트워크 2부</h1>
+  <h2 class="post-subtitle">Unreal Engine Network Framework</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2024-01-16T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Jan 16, 2024
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 6 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#UE5">#UE5</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#UnrealEngine">#UnrealEngine</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <p>지난번에 이어 2부입니다! <a href="https://goaway-1.github.io/ue5/2024/01/08/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-1%EB%B6%80.html">1부</a>에서는 전체적인 프레임워크에 대해서 배웠다면, 2부에서는 실제로 프로그래밍에 있어 딱 필요한 정보인 ‘<strong><em>RPC</em></strong>’와 ‘<strong><em>Property Replication</em></strong>’에 대해서 준비해 봤습니다.</p>
+
+<h2 id="rpc">RPC</h2>
+
+<p>가장 먼저 ‘Remote Procedure Call’의 약자인 RPC로 원격 컴퓨터에 있는 함수를 호출할 수 있도록 만든 통신 프로토콜입니다. 엔진 독스에는 “로컬에서 호출되지만 다른 머신에서 원격 실행되는 함수”라고 설명되어 있는데요. 이 설명이 최고의 설명입니다. 쉽게 풀어쓰자면 “<strong><em>멀티플레이에서 서버와 클라이언트 간에 빠른 통신을 통해서 행동을 명령하고 정보를 주고받으며, 클라이언트에서 서버로 통신하는 유일한 수단</em></strong>”이라고 말할 수 있을 것 같습니다.</p>
+
+<p>일정 시간마다 정보를 동기화하는 ‘Property Replication’는 다르게, ‘RPC’는 즉각적으로 처리하기 때문에 비교적 빠른 속도로 진행되는데요. 그렇기 때문에 주로 사운드, 파티클등 핵심적인 기능과는 무관한 일시적 효과에 주로 사용됩니다.</p>
+
+<p>총알을 게임플레이에 있어 아주 중요한 요소이죠? 만약 클라이언트 1에서 총알을 발사한다고 가정한다면, 클라이언트에서 총알을 생성하는 것이 아닌, 서버에서 생성과 검증 작업이 필요합니다. 그렇기에 클라이언트에서는 서버에서 총알을 생성하도록 요청하고, 동기화하는 과정을 거치게 되죠. 바로 이게 “<strong><em>RPC</em></strong>”입니다. 만약 리슨 서버라면, 서버에서 각 클라이언트에게 요청하는 RPC가 있을 수도 있죠.</p>
+
+<h3 id="조건">조건</h3>
+
+<p>RPC를 실행하기 위해서는 ‘Actor’에서 함수가 호출되어야 하고, 해당 ‘Actor‘가 ‘Replicated’ 설정되어 있어야 합니다. 만약 움직임을 동기화한다면 ‘ReplicatesMovement’도 참으로 설정되어 있어야 하죠.</p>
+
+<h3 id="종류">종류</h3>
+
+<p>RPC의 종류는 ‘Server, Client, NetMulticast’ 3가지로 구분됩니다. ‘Server’는 말 그대로 서버로 요청하는 함수이고, ‘Client’는 클라이언트에서, ‘NetMulticast’는 서버와 모든 클라이언트에서 실행되는 함수입니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>액터 소유권</th>
+      <th>NetMulticast</th>
+      <th>서버</th>
+      <th>클라이언트</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>클라이언트</td>
+      <td>서버와 모든 클라이언트에서 실행</td>
+      <td>실행</td>
+      <td>액터의 소유 클라이언트에서 실행</td>
+    </tr>
+    <tr>
+      <td>서버</td>
+      <td>서버와 클라이언트에서 실행</td>
+      <td>실행</td>
+      <td>서버에서 실행</td>
+    </tr>
+    <tr>
+      <td>미소유</td>
+      <td>서버와 모든 클라이언트에서 실행</td>
+      <td>실행</td>
+      <td>서버에서 실행</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>액터 소유권</th>
+      <th>NetMulticast</th>
+      <th>서버</th>
+      <th>클라이언트</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>호출하는 클라이언트</td>
+      <td>호출하는 클라이언트에서 실행</td>
+      <td>실행</td>
+      <td>호출하는 클라이언트에서 실행</td>
+    </tr>
+    <tr>
+      <td>다른 클라이언트</td>
+      <td>호출하는 클라이언트에서 실행</td>
+      <td>X</td>
+      <td>호출하는 클라이언트에서 실행</td>
+    </tr>
+    <tr>
+      <td>서버</td>
+      <td>호출하는 클라이언트에서 실행</td>
+      <td>X</td>
+      <td>호출하는 클라이언트에서 실행</td>
+    </tr>
+    <tr>
+      <td>미소유</td>
+      <td>호출하는 클라이언트에서 실행</td>
+      <td>X</td>
+      <td>호출하는 클라이언트에서 실행</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>하지만 위 표를 보시면, 호출된 네트워크의 상태나 액터의 소유권에 따라 실행되는 위치가 달라지게되니까 참고해주세요.</p>
+
+<h3 id="사용방법">사용방법</h3>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">UFUNCTION</span><span class="p">(</span> <span class="n">Client</span> <span class="p">)</span>
+<span class="kt">void</span> <span class="nf">ClientRPCFunction</span><span class="p">();</span>
+
+<span class="n">UFUNCTION</span><span class="p">(</span> <span class="n">Server</span> <span class="p">)</span>
+<span class="kt">void</span> <span class="nf">ServerRPCFunction</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>그렇다면 RPC로 함수를 호출해 봅시다. 함수를 정의하는 헤더 파일에 ‘UFUNCTION’이라는 매크로와 함께 ‘Server, Client, NetMulticast’ 키워드들 중 하나를 붙여서 사용하면 됩니다. 이때 언리얼에서는 RPC를 사용하는 함수 앞에도 키워드를 작성하여 구분하는 것을 추천합니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">UFUNCTION</span><span class="p">(</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Reliable</span> <span class="p">)</span>
+<span class="kt">void</span> <span class="nf">ClientRPCFunction</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>부가적인 키워드로는 ‘<strong><em>reliable, unreliable</em></strong>’이 존재하는데요. 말 그대로 신뢰성에 대해서 명시하는 것입니다. ‘reliable’은 매우 중요하지만, 자주 호출되지 않는 함수, 충돌, 무기 발사 시작과 종료, 액터 스폰에 사용하고, ‘unreliable’은 서버에서 클라이언트의 함수를 호출하는 경우, 움직임과 같이 매 프레임마다 변경이 필요한 경우에 주로 사용합니다. 하지만 <strong>검증이 필요한 ‘reliable’은 느리기 때문에 되도록이면 ‘unrealiable’을 사용하는 것을 추천</strong>드립니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">UFUNCTION</span><span class="p">(</span> <span class="n">Server</span><span class="p">,</span> <span class="n">WithValidation</span> <span class="p">)</span>
+<span class="kt">void</span> <span class="nf">ServerRPCFunction</span><span class="p">(</span> <span class="n">int32</span> <span class="n">AddHealth</span> <span class="p">);</span>
+
+<span class="kt">bool</span> <span class="nf">SomeRPCFunction_Validate</span><span class="p">(</span> <span class="n">int32</span> <span class="n">AddHealth</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="n">AddHealth</span> <span class="o">&gt;</span> <span class="n">MAX_ADD_HEALTH</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>                       <span class="c1">// This will disconnect the caller</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>                              <span class="c1">// This will allow the RPC to be called</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">SomeRPCFunction_Implementation</span><span class="p">(</span> <span class="n">int32</span> <span class="n">AddHealth</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Health</span> <span class="o">+=</span> <span class="n">AddHealth</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>또한 인증과 관련된 키워드인 ‘WithValidation’이 존재하는데요. RPC를 진행하기 전에 악성 파라미터를 감지한 후에 이상이 있다면 연결을 중지하고 시스템에게 알려주는 역할을 합니다. 이 인증을 하는 내용을 구분하기 위해서 함수 구현부에서 위와 같이 ‘<strong>Implementation, Validate</strong>’ 2개의 함수를 추가로 구현해야 합니다.</p>
+
+<h2 id="property-replication">Property Replication</h2>
+
+<p>프로퍼티 리플리케이션이란 액터의 정보를 네트워크 내에 있는 다른 클라이언트에게 전달 및 동기화하는 작업을 의미하는데요. 게임 도중에 변경된 값에 대해 동기화를 진행할 때 사용합니다.</p>
+
+<p>RPC와 같이 데이터를 동기화하는 방법 중 한 가지이지만, RPC는 함수를 실행하는 것이 초점이라면, 이는 변수를 동기화하기 위해서 값을 전달하는 것에 주로 사용합니다. 추가로 빈도나 연관성, 우선권이라는 개념이 존재하는데, 이는 추후에 알아보도록 하겠습니다.</p>
+
+<h3 id="사용방법-1">사용방법</h3>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Header</span>
+<span class="n">UPROPERTY</span><span class="p">(</span> <span class="n">replicated</span> <span class="p">)</span>
+<span class="n">AActor</span> <span class="o">*</span> <span class="n">Owner</span><span class="p">;</span>
+
+<span class="c1">// Cpp</span>
+<span class="kt">void</span> <span class="err">클래스명</span><span class="o">::</span><span class="n">GetLifetimeReplicatedProps</span><span class="p">(</span> <span class="n">TArray</span><span class="o">&lt;</span> <span class="n">FLifetimeProperty</span> <span class="o">&gt;</span> <span class="o">&amp;</span> <span class="n">OutLifetimeProps</span> <span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+		<span class="c1">// 변경 시 동기화</span>
+	  <span class="n">DOREPLIFETIME</span><span class="p">(</span><span class="err">클래스명</span><span class="p">,</span> <span class="n">Owner</span><span class="p">);</span>
+
+		<span class="c1">// 조건 달성 여부에 따른 동기화</span>
+    <span class="n">DOREPLIFETIME_CONDITION</span><span class="p">(</span> <span class="err">클래스명</span><span class="p">,</span> <span class="n">ReplicatedMovement</span><span class="p">,</span> <span class="n">COND_SimulatedOnly</span> <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>사용 방법은 간단합니다. 변수를 정의하는 헤더 파일에 ‘UPROPERTY’라는 매크로와 함께 ‘replicated’라는 키워드를 붙여서 사용하고, 본문 ‘GetLifetimeReplicatedProps()’함수 내부에 명시해 주면 됩니다.</p>
+
+<p>명시할 때 사용하는 매크로는 ‘DOREPLIFETIME’로 값이 변경되면 항상 동기화를 처리합니다. 만약 조건에 따른 동기화가 필요하다면, ‘<a href="https://docs.unrealengine.com/5.3/ko/conditional-property-replication-in-unreal-engine/">DOREPLIFETIME_CONDITION</a>’을 사용할 수 있습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Header</span>
+<span class="n">UPROPERTY</span><span class="p">(</span><span class="n">ReplicatedUsing</span> <span class="o">=</span> <span class="n">OnRep_RotChanged</span><span class="p">)</span>
+<span class="kt">float</span> <span class="n">ServerRotationYaw</span><span class="p">;</span>
+
+<span class="n">UFUNCTION</span><span class="p">()</span>
+<span class="kt">void</span> <span class="nf">OnRep_RotChanged</span><span class="p">();</span>
+
+<span class="c1">// Cpp</span>
+<span class="kt">void</span> <span class="err">클래스명</span><span class="o">::</span><span class="n">OnRep_RotChanged</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="c1">// 부가적으로 실행하고 싶은 내용</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>만약 값이 변경되었을 때, 부가적으로 실행하고 싶은 내용이 있다면, ‘ReplicatedUsing’이라는 추가 키워드를 사용하면 됩니다. 이때 함수의 이름에는 ‘OnRep_’이라는 접두사를 붙이는 규칙을 가지고 있습니다.</p>
+
+<h2 id="property-replication-vs-netmulticast-rpc">Property Replication VS NetMulticast RPC</h2>
+
+<p>여기까지 했을 때, “Property Replication(PR)” 과 “NetMulticase RPC”이 굉장히 유사하다는 것을 알 수 있는데요. 서버와 모든 클라이언트가 지정함 함수를 호출할 수 있고, 지정한 데이터 전송을 보장합니다. 하지만 PR으로 설정한 데이터는 클라이언트에 반드시 동기화되지만, ‘RPC’는 호출한 타이밍에 클라이언트가 없으면 데이터를 받을 수 없다는 차이점이 있겠죠.</p>
+
+<p>정리해 보자면, ‘PR’은 게임에 영향을 미치는 데이터 동기화에 사용하고, ‘RPC’는 게임과 무관한 휘발성 데이터에 사용하는 것을 추천드립니다.</p>
+
+<h2 id="마무리">마무리</h2>
+
+<p>살짝의 팁을 드리자면, RPC는 요청이 들어오는 즉시 처리된다고 말씀드렸죠? 그렇기 때문에 너무 많이 사용하게 되면, 많은 트래픽을 요구하게 됩니다. 그렇기에 일정 주기마다 처리하는 ‘Property Replication’을 사용하는 것을 추천드립니다! 사용하기 쉽기도 하고요 ㅎㅎ</p>
+
+<p>여기까지 프로그래밍하는 데 있어 사용하는 ‘RPC’와 ‘Property Replication’에 대해서 학습했는데요. 사실… 정말 간단한 것만 작성해 봤습니다. 자세한 것들은 추후 속편에서 설명해 보겠습니다. 그럼 오늘도 화이팅입니다!</p>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/ue5/2024/01/08/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-1%EB%B6%80.html" title="초보자들을 위한 언리얼 네트워크 1부">초보자들을 위한 언리얼 네트워크 1부</a><a class="next" href="/jekyll-theme-yat/ue5/2024/02/07/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-3%EB%B6%80.html" title="초보자들을 위한 언리얼 네트워크 3부">초보자들을 위한 언리얼 네트워크 3부</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/effective_c++/2022/08/03/EffectiveC++-Effective-C++-4%EC%9E%A5.html" title="초보자들을 위한 언리얼 네트워크 3부">Effective C++ | 4장</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/game/2023/02/12/%EA%B2%8C%EC%9E%84%EC%9D%B4%EB%A1%A0-%EA%B2%8C%EC%9E%84-%EC%B5%9C%EC%A0%81%ED%99%94.html" title="초보자들을 위한 언리얼 네트워크 3부">게임 이론 | 게임 최적화</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2024/01/08/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-1%EB%B6%80.html" title="초보자들을 위한 언리얼 네트워크 3부">초보자들을 위한 언리얼 네트워크 1부</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/algorithm/2023/02/17/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-CPP.html" title="초보자들을 위한 언리얼 네트워크 3부">알고리즘 | CPP</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2024 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

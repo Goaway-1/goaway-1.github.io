@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>UE5 프로파일링 (UE Insights) | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.3.3">
+<meta property="og:title" content="UE5 프로파일링 (UE Insights)">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="프로파일링 프로파일링 : 문제점을 분석하여 원인을 파악하고, 최적화하는 과정 프로파일링은 꾸준히 하는 것이 가장 중요하며, 모든 개발을 마친 후에 하는 작업이 아니다. 또한 프로파일링 과정에 있어 병목지점을 가장 먼저 찾아 CPU. GPU, I/O, 네트워크, 메모리, 스레드링등 확인해야하고, 병목현상이 발생하는 곳은 테스트케이스를 만들어서 트랜드를 지속적으로 관리해주어야한다. 만약 ‘연산 최적화’, ‘단순화’등을 사용해도 최적화가 불가능하다면 별도의 스레드로 분리해서 병렬로 처리해야한다. 성능 지표 성능을 판별하기 위한 지표를 설정하기 위해서는 아래와 같이 구체적인 성능을 목표로 하고 개발 및 프로파일링을 해야한다. 레퍼런스 하드웨어 선정 목표 Frame Rate 지정 : 30Hz(33.3ms) or 60Hz(16.6ms) CPU 예산 (ms) : AI(5ms) + Animation(3ms) + … = 30ms GPU 에산 : 메테리얼, 폴리곤, 동적 라이트의 수 서버 : 동시 수용 가능한 접속사 체크 컴퓨터 구조 2차 저장장치 : 모든 데이터를 적게 사용하는 것이 좋기에 패키지의 사이즈를 최적화하여야 한다. SATA : 게임 실행 시 코드와 텍스처가 시스템 버스를 통해서 메모리로 이동하는데, 언리얼은 비동기식을 지원한다. ex) 비동기식 로딩으로 로딩 타임을 최소화할 수 있다. 시스템 메모리 : “2차 저장장치 &lt; 시스템 메모리 &lt; 캐시” 순서대로 접근속도가 빠르기 때문에, 캐시를 자주 사용하는 것이 중요하다. 이를 캐시히트라고 하는데, 같은 메모리 참조로직을 분산하지 않고, 한번에 처리하는 것이 중요하다. CPU : 게임로직, AI, 물리연산, 파티클, 블루프린트, Tick등의 계산이 이루어진다. GPU : 그래픽과 관련된 그림자, 폴리곤 연산, 벡터등의 계산이 이루어지며, 모든 코어가 같은 프로그램을 제어한다. 언리얼 프로파일링 언리얼 스레드 모델 언리얼은 멀티코어 환경에서의 최적화를 위해서 3개의 스레드로 구분되어 병렬처리가 가능하다. ‘Game, Rendering, RHI’로 구분되어 있으며, ‘Game’부터 순서대로 모델이 진행된다. 이때 ‘RHI’는 랜더링 커멘드 해석을 병렬로 처리하기 위한 목적으로 사용되고, 기기에 따라 존재여부가 결정된다. 보통 Game 스레드가 작업을 마친후에 해당 프레임이 렌더링될때까지 기다리게 되면, 빈 공간이 발생하여 효율적으로 사용하지 못하게된다. 그렇기에 언리얼엔진에서는 “멀티스레드”를 사용하여 다음 프레임까지 기다리지 않고, 바로 다음 프레임에 대한 작업을 미리 시작하여 효율적으로 사용한다. 프로파일링 실습 프로파일링 사전 작업 정확한 결과를 위해 다른 변수를 통제해야한다. PIE가 아닌 독립형 게임으로 실행 V-Sync, Smooth Framerate, Physics Sub Stepping, GC Verify, AI Logging을 OFF Test, Shipping 빌드로 실제 기기에서 프로파일링 큰 부분부터 작은 부분으로 범위를 좁히면서 진행 간단한 방법부터 진행 (Stat fps, Stat Unit, Stat Slow, Stat Game, Stat Game/GPU/SceneRendering/Character…) 레벨 프로파일링 레벨에 배치된 오브젝트에 대해서 프로파일링이 가능하며, 아래는 그 중 3가지 예시이다. Light Complexity : “view mode/optimization viewmodel/Light Complexity”에서 활성화할 수 있으며, 라이트의 복잡도를 확인할 수 있다. Quad overdraw : “view mode/optimization viewmodel/Quad overdraw”에서 활성화할 수 있으며, 픽셀의 복잡도를 확인할 수 있다. Statistics : “Tools/Audit/Statistics” 맵에 사용되는 오브젝트의 정보를 확인할 수 있다. Session Frontend 프로파일링 치트키를 통해서 문제점을 분석하고, ‘ShowFlog.~~’를 통해서 메쉬/이펙트등을 끄고, 켜고하는 방식을 통해서 진행한다. 스텟 커맨드는 상태를 확인하는데 유용하지만, 너무 많은 커멘드를 사용하면 과부화를 불러올 수 도 있기 때문에 필요한 커멘드만 활성화하여 작업을 진행한다. 아래와 같은 커멘드를 사용하며, 특히 ‘stat start/stopfile’을 사용하면, “Tools/Session Frontend”을 사용하여 더 자세한 정보를 확인할 수 있다. 커멘드 내용 stat unit 스레드, 렌더링등의 소요 시간을 표기 (병목현상 찾기 유용) stat graph 그래픽으로 표시 stat startfile 프로파일을 시작하며, 10초 정도 놔두면 여러 프레임에 걸친 안정된 평균치를 얻을 수 있다. stat stopfile 프로파일을 중지하고, ‘Saved/Profiling/UnrealStats’폴더에 저장된다. 위 그림처럼 플레이를 일시정지하거나 한 프레임씩 진행하는 코드를 통해서 더 나은 프로파일링을 할 수 있다. Unreal Insights 언리얼 엔진에서는 프로젝트에서 최적화가 필요한 영역을 식별하며, 애플리케이션의 이벤트를 높은 데이터 속도로 캡처할 수 있는 원격 측정 캡처이자 분석 툴세트인 “언리얼 인사이트 (Unreal Insight)”를 제공한다. ‘Engine\Binaries\Win64\Unrealinsights.exe’를 통해 실행하거나 에디터의 ‘Tools/UnrealInsights’에 가서 실행할 수 있다. Session Frontend를 확장한 개념으로 기존 콘솔 치트키를 사용하였던 단점을 보완하였다. 또한 단순히 프로파일링을 넘어 엔진 내부 동작을 기술하고, 타임라인 기반으로 분석해준다. ‘Tools/Run Unreal insights’를 통해서 실행할 수 있고, 실행 방법은 공식 문서와 공식 문서2를 참조 Unreal Insights 종류 타이밍 인사이트 CPU 및 GPU 트랙을 비록한 여러 트랙에서 프레임별 퍼포먼스 데이터를 확인 보고자 하는 시간 블록을 선택하여 “데이터를 집계, 정렬, 분류”하고 로그 출력할 수 있다. 메모리 인사이트 프로젝트의 메모리 사용 및 콜 스택 트레이싱을 확인할 수 있다. 네트워킹 인사이트 네트워크 트래픽을 분석, 최적화, 디버깅할 수 있다. 테스트 단계로 슬레이트 인사이트 특정 슬레이트와 UMG 업데이트의 근본 원인을 식별하는 툴을 제공하여, 개발자가 UI의 퍼모먼스를 개선 참고자료 넷마블_1 넷마블_2 공식 영상">
+<meta property="og:description" content="프로파일링 프로파일링 : 문제점을 분석하여 원인을 파악하고, 최적화하는 과정 프로파일링은 꾸준히 하는 것이 가장 중요하며, 모든 개발을 마친 후에 하는 작업이 아니다. 또한 프로파일링 과정에 있어 병목지점을 가장 먼저 찾아 CPU. GPU, I/O, 네트워크, 메모리, 스레드링등 확인해야하고, 병목현상이 발생하는 곳은 테스트케이스를 만들어서 트랜드를 지속적으로 관리해주어야한다. 만약 ‘연산 최적화’, ‘단순화’등을 사용해도 최적화가 불가능하다면 별도의 스레드로 분리해서 병렬로 처리해야한다. 성능 지표 성능을 판별하기 위한 지표를 설정하기 위해서는 아래와 같이 구체적인 성능을 목표로 하고 개발 및 프로파일링을 해야한다. 레퍼런스 하드웨어 선정 목표 Frame Rate 지정 : 30Hz(33.3ms) or 60Hz(16.6ms) CPU 예산 (ms) : AI(5ms) + Animation(3ms) + … = 30ms GPU 에산 : 메테리얼, 폴리곤, 동적 라이트의 수 서버 : 동시 수용 가능한 접속사 체크 컴퓨터 구조 2차 저장장치 : 모든 데이터를 적게 사용하는 것이 좋기에 패키지의 사이즈를 최적화하여야 한다. SATA : 게임 실행 시 코드와 텍스처가 시스템 버스를 통해서 메모리로 이동하는데, 언리얼은 비동기식을 지원한다. ex) 비동기식 로딩으로 로딩 타임을 최소화할 수 있다. 시스템 메모리 : “2차 저장장치 &lt; 시스템 메모리 &lt; 캐시” 순서대로 접근속도가 빠르기 때문에, 캐시를 자주 사용하는 것이 중요하다. 이를 캐시히트라고 하는데, 같은 메모리 참조로직을 분산하지 않고, 한번에 처리하는 것이 중요하다. CPU : 게임로직, AI, 물리연산, 파티클, 블루프린트, Tick등의 계산이 이루어진다. GPU : 그래픽과 관련된 그림자, 폴리곤 연산, 벡터등의 계산이 이루어지며, 모든 코어가 같은 프로그램을 제어한다. 언리얼 프로파일링 언리얼 스레드 모델 언리얼은 멀티코어 환경에서의 최적화를 위해서 3개의 스레드로 구분되어 병렬처리가 가능하다. ‘Game, Rendering, RHI’로 구분되어 있으며, ‘Game’부터 순서대로 모델이 진행된다. 이때 ‘RHI’는 랜더링 커멘드 해석을 병렬로 처리하기 위한 목적으로 사용되고, 기기에 따라 존재여부가 결정된다. 보통 Game 스레드가 작업을 마친후에 해당 프레임이 렌더링될때까지 기다리게 되면, 빈 공간이 발생하여 효율적으로 사용하지 못하게된다. 그렇기에 언리얼엔진에서는 “멀티스레드”를 사용하여 다음 프레임까지 기다리지 않고, 바로 다음 프레임에 대한 작업을 미리 시작하여 효율적으로 사용한다. 프로파일링 실습 프로파일링 사전 작업 정확한 결과를 위해 다른 변수를 통제해야한다. PIE가 아닌 독립형 게임으로 실행 V-Sync, Smooth Framerate, Physics Sub Stepping, GC Verify, AI Logging을 OFF Test, Shipping 빌드로 실제 기기에서 프로파일링 큰 부분부터 작은 부분으로 범위를 좁히면서 진행 간단한 방법부터 진행 (Stat fps, Stat Unit, Stat Slow, Stat Game, Stat Game/GPU/SceneRendering/Character…) 레벨 프로파일링 레벨에 배치된 오브젝트에 대해서 프로파일링이 가능하며, 아래는 그 중 3가지 예시이다. Light Complexity : “view mode/optimization viewmodel/Light Complexity”에서 활성화할 수 있으며, 라이트의 복잡도를 확인할 수 있다. Quad overdraw : “view mode/optimization viewmodel/Quad overdraw”에서 활성화할 수 있으며, 픽셀의 복잡도를 확인할 수 있다. Statistics : “Tools/Audit/Statistics” 맵에 사용되는 오브젝트의 정보를 확인할 수 있다. Session Frontend 프로파일링 치트키를 통해서 문제점을 분석하고, ‘ShowFlog.~~’를 통해서 메쉬/이펙트등을 끄고, 켜고하는 방식을 통해서 진행한다. 스텟 커맨드는 상태를 확인하는데 유용하지만, 너무 많은 커멘드를 사용하면 과부화를 불러올 수 도 있기 때문에 필요한 커멘드만 활성화하여 작업을 진행한다. 아래와 같은 커멘드를 사용하며, 특히 ‘stat start/stopfile’을 사용하면, “Tools/Session Frontend”을 사용하여 더 자세한 정보를 확인할 수 있다. 커멘드 내용 stat unit 스레드, 렌더링등의 소요 시간을 표기 (병목현상 찾기 유용) stat graph 그래픽으로 표시 stat startfile 프로파일을 시작하며, 10초 정도 놔두면 여러 프레임에 걸친 안정된 평균치를 얻을 수 있다. stat stopfile 프로파일을 중지하고, ‘Saved/Profiling/UnrealStats’폴더에 저장된다. 위 그림처럼 플레이를 일시정지하거나 한 프레임씩 진행하는 코드를 통해서 더 나은 프로파일링을 할 수 있다. Unreal Insights 언리얼 엔진에서는 프로젝트에서 최적화가 필요한 영역을 식별하며, 애플리케이션의 이벤트를 높은 데이터 속도로 캡처할 수 있는 원격 측정 캡처이자 분석 툴세트인 “언리얼 인사이트 (Unreal Insight)”를 제공한다. ‘Engine\Binaries\Win64\Unrealinsights.exe’를 통해 실행하거나 에디터의 ‘Tools/UnrealInsights’에 가서 실행할 수 있다. Session Frontend를 확장한 개념으로 기존 콘솔 치트키를 사용하였던 단점을 보완하였다. 또한 단순히 프로파일링을 넘어 엔진 내부 동작을 기술하고, 타임라인 기반으로 분석해준다. ‘Tools/Run Unreal insights’를 통해서 실행할 수 있고, 실행 방법은 공식 문서와 공식 문서2를 참조 Unreal Insights 종류 타이밍 인사이트 CPU 및 GPU 트랙을 비록한 여러 트랙에서 프레임별 퍼포먼스 데이터를 확인 보고자 하는 시간 블록을 선택하여 “데이터를 집계, 정렬, 분류”하고 로그 출력할 수 있다. 메모리 인사이트 프로젝트의 메모리 사용 및 콜 스택 트레이싱을 확인할 수 있다. 네트워킹 인사이트 네트워크 트래픽을 분석, 최적화, 디버깅할 수 있다. 테스트 단계로 슬레이트 인사이트 특정 슬레이트와 UMG 업데이트의 근본 원인을 식별하는 툴을 제공하여, 개발자가 UI의 퍼모먼스를 개선 참고자료 넷마블_1 넷마블_2 공식 영상">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/02/13/UE5-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC%EB%A7%81.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/02/13/UE5-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC%EB%A7%81.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2023-02-13T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="UE5 프로파일링 (UE Insights)">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2023-02-13T00:00:00+00:00","datePublished":"2023-02-13T00:00:00+00:00","description":"프로파일링 프로파일링 : 문제점을 분석하여 원인을 파악하고, 최적화하는 과정 프로파일링은 꾸준히 하는 것이 가장 중요하며, 모든 개발을 마친 후에 하는 작업이 아니다. 또한 프로파일링 과정에 있어 병목지점을 가장 먼저 찾아 CPU. GPU, I/O, 네트워크, 메모리, 스레드링등 확인해야하고, 병목현상이 발생하는 곳은 테스트케이스를 만들어서 트랜드를 지속적으로 관리해주어야한다. 만약 ‘연산 최적화’, ‘단순화’등을 사용해도 최적화가 불가능하다면 별도의 스레드로 분리해서 병렬로 처리해야한다. 성능 지표 성능을 판별하기 위한 지표를 설정하기 위해서는 아래와 같이 구체적인 성능을 목표로 하고 개발 및 프로파일링을 해야한다. 레퍼런스 하드웨어 선정 목표 Frame Rate 지정 : 30Hz(33.3ms) or 60Hz(16.6ms) CPU 예산 (ms) : AI(5ms) + Animation(3ms) + … = 30ms GPU 에산 : 메테리얼, 폴리곤, 동적 라이트의 수 서버 : 동시 수용 가능한 접속사 체크 컴퓨터 구조 2차 저장장치 : 모든 데이터를 적게 사용하는 것이 좋기에 패키지의 사이즈를 최적화하여야 한다. SATA : 게임 실행 시 코드와 텍스처가 시스템 버스를 통해서 메모리로 이동하는데, 언리얼은 비동기식을 지원한다. ex) 비동기식 로딩으로 로딩 타임을 최소화할 수 있다. 시스템 메모리 : “2차 저장장치 &lt; 시스템 메모리 &lt; 캐시” 순서대로 접근속도가 빠르기 때문에, 캐시를 자주 사용하는 것이 중요하다. 이를 캐시히트라고 하는데, 같은 메모리 참조로직을 분산하지 않고, 한번에 처리하는 것이 중요하다. CPU : 게임로직, AI, 물리연산, 파티클, 블루프린트, Tick등의 계산이 이루어진다. GPU : 그래픽과 관련된 그림자, 폴리곤 연산, 벡터등의 계산이 이루어지며, 모든 코어가 같은 프로그램을 제어한다. 언리얼 프로파일링 언리얼 스레드 모델 언리얼은 멀티코어 환경에서의 최적화를 위해서 3개의 스레드로 구분되어 병렬처리가 가능하다. ‘Game, Rendering, RHI’로 구분되어 있으며, ‘Game’부터 순서대로 모델이 진행된다. 이때 ‘RHI’는 랜더링 커멘드 해석을 병렬로 처리하기 위한 목적으로 사용되고, 기기에 따라 존재여부가 결정된다. 보통 Game 스레드가 작업을 마친후에 해당 프레임이 렌더링될때까지 기다리게 되면, 빈 공간이 발생하여 효율적으로 사용하지 못하게된다. 그렇기에 언리얼엔진에서는 “멀티스레드”를 사용하여 다음 프레임까지 기다리지 않고, 바로 다음 프레임에 대한 작업을 미리 시작하여 효율적으로 사용한다. 프로파일링 실습 프로파일링 사전 작업 정확한 결과를 위해 다른 변수를 통제해야한다. PIE가 아닌 독립형 게임으로 실행 V-Sync, Smooth Framerate, Physics Sub Stepping, GC Verify, AI Logging을 OFF Test, Shipping 빌드로 실제 기기에서 프로파일링 큰 부분부터 작은 부분으로 범위를 좁히면서 진행 간단한 방법부터 진행 (Stat fps, Stat Unit, Stat Slow, Stat Game, Stat Game/GPU/SceneRendering/Character…) 레벨 프로파일링 레벨에 배치된 오브젝트에 대해서 프로파일링이 가능하며, 아래는 그 중 3가지 예시이다. Light Complexity : “view mode/optimization viewmodel/Light Complexity”에서 활성화할 수 있으며, 라이트의 복잡도를 확인할 수 있다. Quad overdraw : “view mode/optimization viewmodel/Quad overdraw”에서 활성화할 수 있으며, 픽셀의 복잡도를 확인할 수 있다. Statistics : “Tools/Audit/Statistics” 맵에 사용되는 오브젝트의 정보를 확인할 수 있다. Session Frontend 프로파일링 치트키를 통해서 문제점을 분석하고, ‘ShowFlog.~~’를 통해서 메쉬/이펙트등을 끄고, 켜고하는 방식을 통해서 진행한다. 스텟 커맨드는 상태를 확인하는데 유용하지만, 너무 많은 커멘드를 사용하면 과부화를 불러올 수 도 있기 때문에 필요한 커멘드만 활성화하여 작업을 진행한다. 아래와 같은 커멘드를 사용하며, 특히 ‘stat start/stopfile’을 사용하면, “Tools/Session Frontend”을 사용하여 더 자세한 정보를 확인할 수 있다. 커멘드 내용 stat unit 스레드, 렌더링등의 소요 시간을 표기 (병목현상 찾기 유용) stat graph 그래픽으로 표시 stat startfile 프로파일을 시작하며, 10초 정도 놔두면 여러 프레임에 걸친 안정된 평균치를 얻을 수 있다. stat stopfile 프로파일을 중지하고, ‘Saved/Profiling/UnrealStats’폴더에 저장된다. 위 그림처럼 플레이를 일시정지하거나 한 프레임씩 진행하는 코드를 통해서 더 나은 프로파일링을 할 수 있다. Unreal Insights 언리얼 엔진에서는 프로젝트에서 최적화가 필요한 영역을 식별하며, 애플리케이션의 이벤트를 높은 데이터 속도로 캡처할 수 있는 원격 측정 캡처이자 분석 툴세트인 “언리얼 인사이트 (Unreal Insight)”를 제공한다. ‘Engine\\Binaries\\Win64\\Unrealinsights.exe’를 통해 실행하거나 에디터의 ‘Tools/UnrealInsights’에 가서 실행할 수 있다. Session Frontend를 확장한 개념으로 기존 콘솔 치트키를 사용하였던 단점을 보완하였다. 또한 단순히 프로파일링을 넘어 엔진 내부 동작을 기술하고, 타임라인 기반으로 분석해준다. ‘Tools/Run Unreal insights’를 통해서 실행할 수 있고, 실행 방법은 공식 문서와 공식 문서2를 참조 Unreal Insights 종류 타이밍 인사이트 CPU 및 GPU 트랙을 비록한 여러 트랙에서 프레임별 퍼포먼스 데이터를 확인 보고자 하는 시간 블록을 선택하여 “데이터를 집계, 정렬, 분류”하고 로그 출력할 수 있다. 메모리 인사이트 프로젝트의 메모리 사용 및 콜 스택 트레이싱을 확인할 수 있다. 네트워킹 인사이트 네트워크 트래픽을 분석, 최적화, 디버깅할 수 있다. 테스트 단계로 슬레이트 인사이트 특정 슬레이트와 UMG 업데이트의 근본 원인을 식별하는 툴을 제공하여, 개발자가 UI의 퍼모먼스를 개선 참고자료 넷마블_1 넷마블_2 공식 영상","headline":"UE5 프로파일링 (UE Insights)","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/02/13/UE5-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC%EB%A7%81.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/02/13/UE5-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC%EB%A7%81.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+
+
+  </head>
+  
+  <body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">UE5 | 프로파일링 (UE Insights)</h1>
+  <h2 class="post-subtitle">Assert</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2023-02-13T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Feb 13, 2023
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 4 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#UE5">#UE5</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#UnrealEngine">#UnrealEngine</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#C++">#C++</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="프로파일링">프로파일링</h2>
+
+<blockquote>
+  <p>프로파일링 : 문제점을 분석하여 원인을 파악하고, 최적화하는 과정</p>
+</blockquote>
+
+<p>프로파일링은 꾸준히 하는 것이 가장 중요하며, 모든 개발을 마친 후에 하는 작업이 아니다. 또한 프로파일링 과정에 있어 병목지점을 가장 먼저 찾아 CPU. GPU, I/O, 네트워크, 메모리, 스레드링등 확인해야하고, 병목현상이 발생하는 곳은 테스트케이스를 만들어서 트랜드를 지속적으로 관리해주어야한다. 만약 ‘연산 최적화’, ‘단순화’등을 사용해도 최적화가 불가능하다면 별도의 스레드로 분리해서 병렬로 처리해야한다.</p>
+
+<h3 id="성능-지표">성능 지표</h3>
+
+<p>성능을 판별하기 위한 지표를 설정하기 위해서는 아래와 같이 구체적인 성능을 목표로 하고 개발 및 프로파일링을 해야한다.</p>
+
+<ol>
+  <li>레퍼런스 하드웨어 선정</li>
+  <li>목표 Frame Rate 지정 : 30Hz(33.3ms) or 60Hz(16.6ms)</li>
+  <li>CPU 예산 (ms) : AI(5ms) + Animation(3ms) + … = 30ms</li>
+  <li>GPU 에산 : 메테리얼, 폴리곤, 동적 라이트의 수</li>
+  <li>서버 : 동시 수용 가능한 접속사 체크</li>
+</ol>
+
+<h3 id="컴퓨터-구조">컴퓨터 구조</h3>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Profiling/ComputerStruct.png" height="250" title="ComputerStruct"></p>
+
+<ul>
+  <li>2차 저장장치 : 모든 데이터를 적게 사용하는 것이 좋기에 패키지의 사이즈를 최적화하여야 한다.</li>
+  <li>SATA : 게임 실행 시 코드와 텍스처가 시스템 버스를 통해서 메모리로 이동하는데, 언리얼은 비동기식을 지원한다. ex) 비동기식 로딩으로 로딩 타임을 최소화할 수 있다.</li>
+  <li>시스템 메모리 : “2차 저장장치 &lt; 시스템 메모리 &lt; 캐시” 순서대로 접근속도가 빠르기 때문에, 캐시를 자주 사용하는 것이 중요하다. 이를 캐시히트라고 하는데, 같은 메모리 참조로직을 분산하지 않고, 한번에 처리하는 것이 중요하다.</li>
+  <li>CPU : 게임로직, AI, 물리연산, 파티클, 블루프린트, Tick등의 계산이 이루어진다.</li>
+  <li>GPU : 그래픽과 관련된 그림자, 폴리곤 연산, 벡터등의 계산이 이루어지며, 모든 코어가 같은 프로그램을 제어한다.</li>
+</ul>
+
+<h2 id="언리얼-프로파일링">언리얼 프로파일링</h2>
+
+<h3 id="언리얼-스레드-모델">언리얼 스레드 모델</h3>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Profiling/ThreadModel.png" height="250" title="ThreadModel"></p>
+
+<p>언리얼은 멀티코어 환경에서의 최적화를 위해서 3개의 스레드로 구분되어 병렬처리가 가능하다. ‘Game, Rendering, RHI’로 구분되어 있으며, ‘Game’부터 순서대로 모델이 진행된다. 이때 ‘RHI’는 랜더링 커멘드 해석을 병렬로 처리하기 위한 목적으로 사용되고, 기기에 따라 존재여부가 결정된다.</p>
+
+<p>보통 Game 스레드가 작업을 마친후에 해당 프레임이 렌더링될때까지 기다리게 되면, 빈 공간이 발생하여 효율적으로 사용하지 못하게된다. 그렇기에 언리얼엔진에서는 <ins>“멀티스레드”</ins>를 사용하여 다음 프레임까지 기다리지 않고, 바로 다음 프레임에 대한 작업을 미리 시작하여 효율적으로 사용한다.</p>
+
+<h2 id="프로파일링-실습">프로파일링 실습</h2>
+
+<h3 id="프로파일링-사전-작업">프로파일링 사전 작업</h3>
+
+<ol>
+  <li>정확한 결과를 위해 다른 변수를 통제해야한다.
+    <ul>
+      <li>PIE가 아닌 독립형 게임으로 실행</li>
+      <li>V-Sync, Smooth Framerate, Physics Sub Stepping, GC Verify, AI Logging을 OFF</li>
+      <li>Test, Shipping 빌드로 실제 기기에서 프로파일링</li>
+    </ul>
+  </li>
+  <li>큰 부분부터 작은 부분으로 범위를 좁히면서 진행
+    <ul>
+      <li>간단한 방법부터 진행 (Stat fps, Stat Unit, Stat Slow, Stat Game, Stat Game/GPU/SceneRendering/Character…)</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="레벨-프로파일링">레벨 프로파일링</h3>
+
+<p>레벨에 배치된 오브젝트에 대해서 프로파일링이 가능하며, 아래는 그 중 3가지 예시이다.</p>
+
+<ul>
+  <li>
+<strong>Light Complexity</strong> : “view mode/optimization viewmodel/Light Complexity”에서 활성화할 수 있으며, 라이트의 복잡도를 확인할 수 있다.</li>
+  <li>
+<strong>Quad overdraw</strong> : “view mode/optimization viewmodel/Quad overdraw”에서 활성화할 수 있으며, 픽셀의 복잡도를 확인할 수 있다.</li>
+  <li>
+<strong>Statistics</strong> : “Tools/Audit/Statistics” 맵에 사용되는 오브젝트의 정보를 확인할 수 있다.</li>
+</ul>
+
+<h3 id="session-frontend">Session Frontend</h3>
+
+<p>프로파일링 치트키를 통해서 문제점을 분석하고, ‘ShowFlog.~~’를 통해서 메쉬/이펙트등을 끄고, 켜고하는 방식을 통해서 진행한다. 스텟 커맨드는 상태를 확인하는데 유용하지만, 너무 많은 커멘드를 사용하면 과부화를 불러올 수 도 있기 때문에 필요한 커멘드만 활성화하여 작업을 진행한다. 아래와 같은 커멘드를 사용하며, 특히 ‘stat start/stopfile’을 사용하면, “Tools/Session Frontend”을 사용하여 더 자세한 정보를 확인할 수 있다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">커멘드</th>
+      <th style="text-align: left">내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><strong>stat unit</strong></td>
+      <td style="text-align: left">스레드, 렌더링등의 소요 시간을 표기 (병목현상 찾기 유용)</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>stat graph</strong></td>
+      <td style="text-align: left">그래픽으로 표시</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>stat startfile</strong></td>
+      <td style="text-align: left">프로파일을 시작하며, 10초 정도 놔두면 여러 프레임에 걸친 안정된 평균치를 얻을 수 있다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>stat stopfile</strong></td>
+      <td style="text-align: left">프로파일을 중지하고, ‘Saved/Profiling/UnrealStats’폴더에 저장된다.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Profiling/ComandKey.png" height="250" title="ComandKey"></p>
+
+<p>위 그림처럼 플레이를 일시정지하거나 한 프레임씩 진행하는 코드를 통해서 더 나은 프로파일링을 할 수 있다.</p>
+
+<h3 id="unreal-insights">Unreal Insights</h3>
+
+<p>언리얼 엔진에서는 프로젝트에서 최적화가 필요한 영역을 식별하며, 애플리케이션의 이벤트를 높은 데이터 속도로 캡처할 수 있는 원격 측정 캡처이자 분석 툴세트인 <ins>“언리얼 인사이트 (Unreal Insight)”</ins>를 제공한다. ‘Engine\Binaries\Win64\Unrealinsights.exe’를 통해 실행하거나 에디터의 ‘Tools/UnrealInsights’에 가서 실행할 수 있다.</p>
+
+<p>Session Frontend를 확장한 개념으로 기존 콘솔 치트키를 사용하였던 단점을 보완하였다. 또한 단순히 프로파일링을 넘어 엔진 내부 동작을 기술하고, 타임라인 기반으로 분석해준다.</p>
+
+<p>‘Tools/Run Unreal insights’를 통해서 실행할 수 있고, 실행 방법은 <a href="https://docs.unrealengine.com/5.0/ko/trace-quick-start-guide-in-unreal-engine/">공식 문서</a>와 <a href="https://docs.unrealengine.com/5.0/ko/unreal-insights-in-unreal-engine/">공식 문서2</a>를 참조</p>
+
+<h4 id="unreal-insights-종류">Unreal Insights 종류</h4>
+
+<ol>
+  <li>타이밍 인사이트
+    <ul>
+      <li>CPU 및 GPU 트랙을 비록한 여러 트랙에서 <ins>프레임별 퍼포먼스 데이터를 확인</ins>
+</li>
+      <li>보고자 하는 시간 블록을 선택하여 “데이터를 집계, 정렬, 분류”하고 로그 출력할 수 있다.</li>
+    </ul>
+  </li>
+  <li>메모리 인사이트
+    <ul>
+      <li>프로젝트의 메모리 사용 및 콜 스택 트레이싱을 확인할 수 있다.</li>
+    </ul>
+  </li>
+  <li>네트워킹 인사이트
+    <ul>
+      <li>네트워크 트래픽을 분석, 최적화, 디버깅할 수 있다.</li>
+      <li>테스트 단계로</li>
+    </ul>
+  </li>
+  <li>슬레이트 인사이트
+    <ul>
+      <li>특정 슬레이트와 UMG 업데이트의 근본 원인을 식별하는 툴을 제공하여, 개발자가 UI의 퍼모먼스를 개선</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="참고자료">참고자료</h2>
+
+<p><a href="https://netmarble.engineering/preparing-for-unreal-insight/">넷마블_1</a>
+<a href="https://netmarble.engineering/unreal-engine-profiler-unreal-insight/">넷마블_2</a>
+<a href="https://www.youtube.com/watch?v=hGLIqru5wnI">공식 영상</a></p>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/game/2023/02/12/%EA%B2%8C%EC%9E%84%EC%9D%B4%EB%A1%A0-%EA%B2%8C%EC%9E%84-%EC%B5%9C%EC%A0%81%ED%99%94.html" title="게임 이론 | 게임 최적화">게임 이론 | 게임 최적화</a><a class="next" href="/jekyll-theme-yat/algorithm/2023/02/14/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EA%B2%8C%EC%9E%84-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html" title="알고리즘 | 게임 알고리즘">알고리즘 | 게임 알고리즘</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/effective_c++/2022/07/25/EffectiveC++-Effective-C++-2%EC%9E%A5.html" title="알고리즘 | 게임 알고리즘">Effective C++ | 2장</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2024/01/06/UE5-Reflection-System.html" title="알고리즘 | 게임 알고리즘">Reflection System</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/algorithm/2022/09/12/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%95%8C%EC%93%B8%EC%8B%A0%EC%95%8C.html" title="알고리즘 | 게임 알고리즘">알고리즘 | 알쓸신알</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/14/UE5-%EB%AA%A8%EB%93%88.html" title="알고리즘 | 게임 알고리즘">UE5 | Moudel</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2024 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

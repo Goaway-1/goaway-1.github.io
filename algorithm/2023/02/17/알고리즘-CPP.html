@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>알고리즘 CPP | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.3.3">
+<meta property="og:title" content="알고리즘 CPP">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="객체지향프로그래밍 객체 지향 프로그래밍 (Object-Oriented Programming, OOP)란 어떤 프로그램의 일부분에 해당하는 작은 부품, 즉 객체를 먼저 만들고 이렇게 만들어진 여러 객체들을 조립해서 하나의 완성된 프로그램을 만드는 프로그래밍 방법론이다. 마치 자동차를 만들때, 여러 부품들로 나누어 개발하고, 합쳐 하나의 자동차를 만드는 것과 같다. ※ 절차 지향 프로그래밍 : 실행하고자 하는 절차대로 일련의 명령어를 나열한 프로그래밍 객체란 객체 지향 프로그래밍의 가장 기본적인 단위로 모든 사건은 객체들간의 상호작용을 통해서 발생한다. 이를 추상화하여 ‘속성’과 ‘기능’으로 분류한 후에 ‘변수’와 ‘함수’로 정의한다. 특징 가장 큰 특징은 “추상화, 상속, 다형성, 캡슐화”로 4가지로 구성된다. 먼저 “추상화(Abstraction)”는 실제로 객체화하는 것이 아닌 필요한 정보만을 중심으로 간소화하는 것을 의미한다. 즉, 추상 클래스에서는 어떤 객체가 수행해야하는 역할만을 규정해두고, 실질적인 구현은 해당 클래스를 상속받은 객체에서 구현하도록 프로그램을 설계하는 것을 의미한다. “상속(Ingeritance)”이란 상위 클래스의 기능을 하위 클래스가 사용할 수 있는 개념이다. 이는 여러 클래스에서 사용되는 기능을 하나의 클래스로 분리해서 사용할 수 있어 중복을 제거할 수 있다. “다형성(Polymorphism)”이란 객체간의 관계를 유연하게 해주는 것이 특징으로 어떤 객체의 속성이나 기능이 상황에 따라 여러가지 형태를 가질 수 있다는 뜻이다. 상속 관계에 있는 부모 클래스에서 이미 정의된 함수를 자식 클래스에서 다시 재정의(Overriding)할 수 있다. “캡술화(Encapsulation)”란 클래스 안에 서로 연관되어 있는 속성과 기능들을 하나의 캡슐로 만들어 데이터를 외부로부터 보호하는 것을 의미한다. 이를 통해서 외부로 부터 클래스에 정의된 속성과 기능들을 보호할 수 있고, 내부의 동작을 감추고 필요한 부분만 외부에 노출할 수 있다. 접근제어자 (public, privat. protected)를 통해서 제어한다. ※ 오버로딩(Overloading) : 같은 이름의 메서드 여러개를 가지면서 매개변수의 유형과 개수를 다르게하는 기술 ※ 오버라이딩(Overriding) : 상위 클래스가 가지고 있는 함수를 자식 클래스에서 재정의하여 사용하는 기술 장점 재사용성 : 상속을 통해서 코드의 재사용을 높일 수 있음 생산성 향상 : 객체는 독립적이기 때문에 개발의 생산성을 향상시킬 수 있음 자연스러운 모델링 : 실생활의 구조를 녹인 것이기에 자연스로움 단점 개발/실행속도 늦음 C++ 기존 C언어에 여러 가지 기능을 추가하여 만든 프로그래밍 언어로 ‘절차 지향적 언어’의 특징과 ‘객체 지향적 언어’를 동시에 사용 가능하다. C++ 통합 개발 환경 (IDE - Integrated Development Environment)이란 소스코드 작성, 컴파일, 디버깅 기능을 가지고 있는 것입니다. C나 C++의 통합개발환경으로는 비주얼 스튜디오, 비쥬얼 스튜디오 코드, devcpp 등이 있습니다. 특징 C언어의 문법적 체계를 계승했기에 C언어로 작성된 프로그램과의 호환성을 갖는다. 객체 지향 개념을 도입하여 재사용과 생산성, 캡슐화, 상속, 다형성등의 특징을 지닌다. 타입 체크를 엄격히 하기에 실행 시간 오류의 가능성을 줄여 디버깅을 돕는다. 객체 지향 개념의 도입으로 함수의 호출이 잦아기면 비효율적인데, 이를 막기 위해서 “인라인 함수”등을 사용한 함수 호출로 실행 시간의 효율성 저하를 최소화한다. 인라인 함수, 함수 중복(Overloading), 디폴트 매개 변수, 참조, 참조에 의한 호출, new&amp;delete, 재정의(Overriding), 제너릭 함수와 클래스 lnline : 재귀, static, 반복문, switch, goto는 허용되지 않는다.   컴파일 크기 늘어나고 속도 향상 캡슐화 : 캡슐 역할을 하는 것이 클래스(class)이며, 이를 통해 생겨난 것은 실체(instance)이다. 상속성 : 자식이 부모로부터 멤버를 받아 태어나며, 코드의 재사용성을 높여 생산성을 향상 다형성 : 하나의 기능이 경우에 따라 다르게 작동하는 현상   +더하기 연산으로 수를 더하거나, 문자열을 잇거나.. 링킹(linking) 컴파일 후 기계어로 구성된 목적 파일이 생성되어도 목적 파일은 바로 실행될 수 없다. 개발자가 작성한 C++이 다른 라이브러리등을 이용하는 경우 참조만 하고, 포함하지 않기 때문에 실행되지 않는다. 즉, 목적 파일(object file)은 온전한 실행 파일이 아니며, 이들과 결합되어야만 비로소 실행 가능한 파일이 된다. 여기서 “링킹(linginh)”이란 C++ 표준 라이브러리나 다른 파일 속에 있는 함수, 객체, 데이터를 포함하여 실행에 필요한 모든 기계어 코드를 확보하여 하나의 실행 파일로 만드는 과정이다. 이 결과 하나의 실행 파일(.exe)이 만들어진다. 얕은 복사 vs 깊은 복사 복사 함수를 따로 지정해주지 않으면, 얕은 복사를 실행하곤 하는데 이때 만약 변수가 포인터 변수일때는 해당 변수의 포인터 값을 그래도 복사하게 된다. 이렇게 되면 A객체를 복사한 B객체의 포인터 변수를 수정할때, A객체의 포인터 변수 또한 수정되게 된다. 이를 해결하는 것이 깊은 복사로 포인터 변수에 대해 새로운 주소를 할당하여, 오류를 막을 수 있다. 가상 함수 부모 클래스의 함수를 자식 클래스에서 재정의(오버라이딩)하기 위해서 만드는 함수이다. ‘virtual’이라는 키워드를 사용하며. 다형성을 구현할때 사용하며, 반드시 재정의를 해야하는 것은 아니다. 이외에 추상 클래스도 존재하는데, 이는 내용은 구현하지 않으며, 인스턴스화 할 수 없다. namespace와 std:: 개발자를 구분하거나 다른 사람이 개발한 소스/목적 파일을 가져와 사용하는 경우 이름에 대한 충돌이 발생할 수 있다. 이를 구분하기 위한 것이 이름공간 (namespace)이다. std란 C++ 표준 라이브러리에서 선언된 이름을 사용할때, 이를 접두어로 붙어야한다. 예를 들면 표준 입출력인 cout, cin, endl등이 있다. 이는 매우 번거롭기 때문에 “using” 지시어를 사용하여 이름 공간 접두어를 생략한다. using std::cout; // cout에 대해서만 std:: 생략 using namespace std; // std 이름 공간에 선언된 모든 이름에 std:: 생략 ※ 범위 지정 연산자 -&gt; :: 구조체 C언어와의 호환성을 위해 구조체(Struct)을 지원하며, 클래스와 동일한 구조와 기능적으로 동일하다. 딱 하나 다른 점은 “디폴트 접근 지정”이 클래스는 private이지만, 구조체는 public이다. 멤버 변수만 있는 자료 구조의 경우 구조체를 사용하기도 하지만, 굳이 C언어의 자산을 사용할 필요는 없다. 포인터 포인터를 이용한 객체 멤버 근하기 위해서 점(.) 연산자를 사용하지만, 객체 포인터로 멤버에 접근할때는 ‘-&gt;’연산자를 사용한다. d.getArea(); d-&gt;getArea(); (*d).getArea();">
+<meta property="og:description" content="객체지향프로그래밍 객체 지향 프로그래밍 (Object-Oriented Programming, OOP)란 어떤 프로그램의 일부분에 해당하는 작은 부품, 즉 객체를 먼저 만들고 이렇게 만들어진 여러 객체들을 조립해서 하나의 완성된 프로그램을 만드는 프로그래밍 방법론이다. 마치 자동차를 만들때, 여러 부품들로 나누어 개발하고, 합쳐 하나의 자동차를 만드는 것과 같다. ※ 절차 지향 프로그래밍 : 실행하고자 하는 절차대로 일련의 명령어를 나열한 프로그래밍 객체란 객체 지향 프로그래밍의 가장 기본적인 단위로 모든 사건은 객체들간의 상호작용을 통해서 발생한다. 이를 추상화하여 ‘속성’과 ‘기능’으로 분류한 후에 ‘변수’와 ‘함수’로 정의한다. 특징 가장 큰 특징은 “추상화, 상속, 다형성, 캡슐화”로 4가지로 구성된다. 먼저 “추상화(Abstraction)”는 실제로 객체화하는 것이 아닌 필요한 정보만을 중심으로 간소화하는 것을 의미한다. 즉, 추상 클래스에서는 어떤 객체가 수행해야하는 역할만을 규정해두고, 실질적인 구현은 해당 클래스를 상속받은 객체에서 구현하도록 프로그램을 설계하는 것을 의미한다. “상속(Ingeritance)”이란 상위 클래스의 기능을 하위 클래스가 사용할 수 있는 개념이다. 이는 여러 클래스에서 사용되는 기능을 하나의 클래스로 분리해서 사용할 수 있어 중복을 제거할 수 있다. “다형성(Polymorphism)”이란 객체간의 관계를 유연하게 해주는 것이 특징으로 어떤 객체의 속성이나 기능이 상황에 따라 여러가지 형태를 가질 수 있다는 뜻이다. 상속 관계에 있는 부모 클래스에서 이미 정의된 함수를 자식 클래스에서 다시 재정의(Overriding)할 수 있다. “캡술화(Encapsulation)”란 클래스 안에 서로 연관되어 있는 속성과 기능들을 하나의 캡슐로 만들어 데이터를 외부로부터 보호하는 것을 의미한다. 이를 통해서 외부로 부터 클래스에 정의된 속성과 기능들을 보호할 수 있고, 내부의 동작을 감추고 필요한 부분만 외부에 노출할 수 있다. 접근제어자 (public, privat. protected)를 통해서 제어한다. ※ 오버로딩(Overloading) : 같은 이름의 메서드 여러개를 가지면서 매개변수의 유형과 개수를 다르게하는 기술 ※ 오버라이딩(Overriding) : 상위 클래스가 가지고 있는 함수를 자식 클래스에서 재정의하여 사용하는 기술 장점 재사용성 : 상속을 통해서 코드의 재사용을 높일 수 있음 생산성 향상 : 객체는 독립적이기 때문에 개발의 생산성을 향상시킬 수 있음 자연스러운 모델링 : 실생활의 구조를 녹인 것이기에 자연스로움 단점 개발/실행속도 늦음 C++ 기존 C언어에 여러 가지 기능을 추가하여 만든 프로그래밍 언어로 ‘절차 지향적 언어’의 특징과 ‘객체 지향적 언어’를 동시에 사용 가능하다. C++ 통합 개발 환경 (IDE - Integrated Development Environment)이란 소스코드 작성, 컴파일, 디버깅 기능을 가지고 있는 것입니다. C나 C++의 통합개발환경으로는 비주얼 스튜디오, 비쥬얼 스튜디오 코드, devcpp 등이 있습니다. 특징 C언어의 문법적 체계를 계승했기에 C언어로 작성된 프로그램과의 호환성을 갖는다. 객체 지향 개념을 도입하여 재사용과 생산성, 캡슐화, 상속, 다형성등의 특징을 지닌다. 타입 체크를 엄격히 하기에 실행 시간 오류의 가능성을 줄여 디버깅을 돕는다. 객체 지향 개념의 도입으로 함수의 호출이 잦아기면 비효율적인데, 이를 막기 위해서 “인라인 함수”등을 사용한 함수 호출로 실행 시간의 효율성 저하를 최소화한다. 인라인 함수, 함수 중복(Overloading), 디폴트 매개 변수, 참조, 참조에 의한 호출, new&amp;delete, 재정의(Overriding), 제너릭 함수와 클래스 lnline : 재귀, static, 반복문, switch, goto는 허용되지 않는다.   컴파일 크기 늘어나고 속도 향상 캡슐화 : 캡슐 역할을 하는 것이 클래스(class)이며, 이를 통해 생겨난 것은 실체(instance)이다. 상속성 : 자식이 부모로부터 멤버를 받아 태어나며, 코드의 재사용성을 높여 생산성을 향상 다형성 : 하나의 기능이 경우에 따라 다르게 작동하는 현상   +더하기 연산으로 수를 더하거나, 문자열을 잇거나.. 링킹(linking) 컴파일 후 기계어로 구성된 목적 파일이 생성되어도 목적 파일은 바로 실행될 수 없다. 개발자가 작성한 C++이 다른 라이브러리등을 이용하는 경우 참조만 하고, 포함하지 않기 때문에 실행되지 않는다. 즉, 목적 파일(object file)은 온전한 실행 파일이 아니며, 이들과 결합되어야만 비로소 실행 가능한 파일이 된다. 여기서 “링킹(linginh)”이란 C++ 표준 라이브러리나 다른 파일 속에 있는 함수, 객체, 데이터를 포함하여 실행에 필요한 모든 기계어 코드를 확보하여 하나의 실행 파일로 만드는 과정이다. 이 결과 하나의 실행 파일(.exe)이 만들어진다. 얕은 복사 vs 깊은 복사 복사 함수를 따로 지정해주지 않으면, 얕은 복사를 실행하곤 하는데 이때 만약 변수가 포인터 변수일때는 해당 변수의 포인터 값을 그래도 복사하게 된다. 이렇게 되면 A객체를 복사한 B객체의 포인터 변수를 수정할때, A객체의 포인터 변수 또한 수정되게 된다. 이를 해결하는 것이 깊은 복사로 포인터 변수에 대해 새로운 주소를 할당하여, 오류를 막을 수 있다. 가상 함수 부모 클래스의 함수를 자식 클래스에서 재정의(오버라이딩)하기 위해서 만드는 함수이다. ‘virtual’이라는 키워드를 사용하며. 다형성을 구현할때 사용하며, 반드시 재정의를 해야하는 것은 아니다. 이외에 추상 클래스도 존재하는데, 이는 내용은 구현하지 않으며, 인스턴스화 할 수 없다. namespace와 std:: 개발자를 구분하거나 다른 사람이 개발한 소스/목적 파일을 가져와 사용하는 경우 이름에 대한 충돌이 발생할 수 있다. 이를 구분하기 위한 것이 이름공간 (namespace)이다. std란 C++ 표준 라이브러리에서 선언된 이름을 사용할때, 이를 접두어로 붙어야한다. 예를 들면 표준 입출력인 cout, cin, endl등이 있다. 이는 매우 번거롭기 때문에 “using” 지시어를 사용하여 이름 공간 접두어를 생략한다. using std::cout; // cout에 대해서만 std:: 생략 using namespace std; // std 이름 공간에 선언된 모든 이름에 std:: 생략 ※ 범위 지정 연산자 -&gt; :: 구조체 C언어와의 호환성을 위해 구조체(Struct)을 지원하며, 클래스와 동일한 구조와 기능적으로 동일하다. 딱 하나 다른 점은 “디폴트 접근 지정”이 클래스는 private이지만, 구조체는 public이다. 멤버 변수만 있는 자료 구조의 경우 구조체를 사용하기도 하지만, 굳이 C언어의 자산을 사용할 필요는 없다. 포인터 포인터를 이용한 객체 멤버 근하기 위해서 점(.) 연산자를 사용하지만, 객체 포인터로 멤버에 접근할때는 ‘-&gt;’연산자를 사용한다. d.getArea(); d-&gt;getArea(); (*d).getArea();">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/algorithm/2023/02/17/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-CPP.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/algorithm/2023/02/17/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-CPP.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2023-02-17T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="알고리즘 CPP">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2023-02-17T00:00:00+00:00","datePublished":"2023-02-17T00:00:00+00:00","description":"객체지향프로그래밍 객체 지향 프로그래밍 (Object-Oriented Programming, OOP)란 어떤 프로그램의 일부분에 해당하는 작은 부품, 즉 객체를 먼저 만들고 이렇게 만들어진 여러 객체들을 조립해서 하나의 완성된 프로그램을 만드는 프로그래밍 방법론이다. 마치 자동차를 만들때, 여러 부품들로 나누어 개발하고, 합쳐 하나의 자동차를 만드는 것과 같다. ※ 절차 지향 프로그래밍 : 실행하고자 하는 절차대로 일련의 명령어를 나열한 프로그래밍 객체란 객체 지향 프로그래밍의 가장 기본적인 단위로 모든 사건은 객체들간의 상호작용을 통해서 발생한다. 이를 추상화하여 ‘속성’과 ‘기능’으로 분류한 후에 ‘변수’와 ‘함수’로 정의한다. 특징 가장 큰 특징은 “추상화, 상속, 다형성, 캡슐화”로 4가지로 구성된다. 먼저 “추상화(Abstraction)”는 실제로 객체화하는 것이 아닌 필요한 정보만을 중심으로 간소화하는 것을 의미한다. 즉, 추상 클래스에서는 어떤 객체가 수행해야하는 역할만을 규정해두고, 실질적인 구현은 해당 클래스를 상속받은 객체에서 구현하도록 프로그램을 설계하는 것을 의미한다. “상속(Ingeritance)”이란 상위 클래스의 기능을 하위 클래스가 사용할 수 있는 개념이다. 이는 여러 클래스에서 사용되는 기능을 하나의 클래스로 분리해서 사용할 수 있어 중복을 제거할 수 있다. “다형성(Polymorphism)”이란 객체간의 관계를 유연하게 해주는 것이 특징으로 어떤 객체의 속성이나 기능이 상황에 따라 여러가지 형태를 가질 수 있다는 뜻이다. 상속 관계에 있는 부모 클래스에서 이미 정의된 함수를 자식 클래스에서 다시 재정의(Overriding)할 수 있다. “캡술화(Encapsulation)”란 클래스 안에 서로 연관되어 있는 속성과 기능들을 하나의 캡슐로 만들어 데이터를 외부로부터 보호하는 것을 의미한다. 이를 통해서 외부로 부터 클래스에 정의된 속성과 기능들을 보호할 수 있고, 내부의 동작을 감추고 필요한 부분만 외부에 노출할 수 있다. 접근제어자 (public, privat. protected)를 통해서 제어한다. ※ 오버로딩(Overloading) : 같은 이름의 메서드 여러개를 가지면서 매개변수의 유형과 개수를 다르게하는 기술 ※ 오버라이딩(Overriding) : 상위 클래스가 가지고 있는 함수를 자식 클래스에서 재정의하여 사용하는 기술 장점 재사용성 : 상속을 통해서 코드의 재사용을 높일 수 있음 생산성 향상 : 객체는 독립적이기 때문에 개발의 생산성을 향상시킬 수 있음 자연스러운 모델링 : 실생활의 구조를 녹인 것이기에 자연스로움 단점 개발/실행속도 늦음 C++ 기존 C언어에 여러 가지 기능을 추가하여 만든 프로그래밍 언어로 ‘절차 지향적 언어’의 특징과 ‘객체 지향적 언어’를 동시에 사용 가능하다. C++ 통합 개발 환경 (IDE - Integrated Development Environment)이란 소스코드 작성, 컴파일, 디버깅 기능을 가지고 있는 것입니다. C나 C++의 통합개발환경으로는 비주얼 스튜디오, 비쥬얼 스튜디오 코드, devcpp 등이 있습니다. 특징 C언어의 문법적 체계를 계승했기에 C언어로 작성된 프로그램과의 호환성을 갖는다. 객체 지향 개념을 도입하여 재사용과 생산성, 캡슐화, 상속, 다형성등의 특징을 지닌다. 타입 체크를 엄격히 하기에 실행 시간 오류의 가능성을 줄여 디버깅을 돕는다. 객체 지향 개념의 도입으로 함수의 호출이 잦아기면 비효율적인데, 이를 막기 위해서 “인라인 함수”등을 사용한 함수 호출로 실행 시간의 효율성 저하를 최소화한다. 인라인 함수, 함수 중복(Overloading), 디폴트 매개 변수, 참조, 참조에 의한 호출, new&amp;delete, 재정의(Overriding), 제너릭 함수와 클래스 lnline : 재귀, static, 반복문, switch, goto는 허용되지 않는다.   컴파일 크기 늘어나고 속도 향상 캡슐화 : 캡슐 역할을 하는 것이 클래스(class)이며, 이를 통해 생겨난 것은 실체(instance)이다. 상속성 : 자식이 부모로부터 멤버를 받아 태어나며, 코드의 재사용성을 높여 생산성을 향상 다형성 : 하나의 기능이 경우에 따라 다르게 작동하는 현상   +더하기 연산으로 수를 더하거나, 문자열을 잇거나.. 링킹(linking) 컴파일 후 기계어로 구성된 목적 파일이 생성되어도 목적 파일은 바로 실행될 수 없다. 개발자가 작성한 C++이 다른 라이브러리등을 이용하는 경우 참조만 하고, 포함하지 않기 때문에 실행되지 않는다. 즉, 목적 파일(object file)은 온전한 실행 파일이 아니며, 이들과 결합되어야만 비로소 실행 가능한 파일이 된다. 여기서 “링킹(linginh)”이란 C++ 표준 라이브러리나 다른 파일 속에 있는 함수, 객체, 데이터를 포함하여 실행에 필요한 모든 기계어 코드를 확보하여 하나의 실행 파일로 만드는 과정이다. 이 결과 하나의 실행 파일(.exe)이 만들어진다. 얕은 복사 vs 깊은 복사 복사 함수를 따로 지정해주지 않으면, 얕은 복사를 실행하곤 하는데 이때 만약 변수가 포인터 변수일때는 해당 변수의 포인터 값을 그래도 복사하게 된다. 이렇게 되면 A객체를 복사한 B객체의 포인터 변수를 수정할때, A객체의 포인터 변수 또한 수정되게 된다. 이를 해결하는 것이 깊은 복사로 포인터 변수에 대해 새로운 주소를 할당하여, 오류를 막을 수 있다. 가상 함수 부모 클래스의 함수를 자식 클래스에서 재정의(오버라이딩)하기 위해서 만드는 함수이다. ‘virtual’이라는 키워드를 사용하며. 다형성을 구현할때 사용하며, 반드시 재정의를 해야하는 것은 아니다. 이외에 추상 클래스도 존재하는데, 이는 내용은 구현하지 않으며, 인스턴스화 할 수 없다. namespace와 std:: 개발자를 구분하거나 다른 사람이 개발한 소스/목적 파일을 가져와 사용하는 경우 이름에 대한 충돌이 발생할 수 있다. 이를 구분하기 위한 것이 이름공간 (namespace)이다. std란 C++ 표준 라이브러리에서 선언된 이름을 사용할때, 이를 접두어로 붙어야한다. 예를 들면 표준 입출력인 cout, cin, endl등이 있다. 이는 매우 번거롭기 때문에 “using” 지시어를 사용하여 이름 공간 접두어를 생략한다. using std::cout; // cout에 대해서만 std:: 생략 using namespace std; // std 이름 공간에 선언된 모든 이름에 std:: 생략 ※ 범위 지정 연산자 -&gt; :: 구조체 C언어와의 호환성을 위해 구조체(Struct)을 지원하며, 클래스와 동일한 구조와 기능적으로 동일하다. 딱 하나 다른 점은 “디폴트 접근 지정”이 클래스는 private이지만, 구조체는 public이다. 멤버 변수만 있는 자료 구조의 경우 구조체를 사용하기도 하지만, 굳이 C언어의 자산을 사용할 필요는 없다. 포인터 포인터를 이용한 객체 멤버 근하기 위해서 점(.) 연산자를 사용하지만, 객체 포인터로 멤버에 접근할때는 ‘-&gt;’연산자를 사용한다. d.getArea(); d-&gt;getArea(); (*d).getArea();","headline":"알고리즘 CPP","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/algorithm/2023/02/17/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-CPP.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/algorithm/2023/02/17/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-CPP.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+
+
+  </head>
+  
+  <body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">알고리즘 | CPP</h1>
+  <h2 class="post-subtitle">CPP (C++)</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2023-02-17T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Feb 17, 2023
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 5 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#Algorithm">#Algorithm</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#C++">#C++</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="객체지향프로그래밍">객체지향프로그래밍</h2>
+
+<p>객체 지향 프로그래밍 (Object-Oriented Programming, OOP)란 어떤 프로그램의 일부분에 해당하는 작은 부품, 즉 객체를 먼저 만들고 이렇게 만들어진 여러 객체들을 조립해서 하나의 완성된 프로그램을 만드는 프로그래밍 방법론이다. 마치 자동차를 만들때, 여러 부품들로 나누어 개발하고, 합쳐 하나의 자동차를 만드는 것과 같다.</p>
+
+<p>※ 절차 지향 프로그래밍 : 실행하고자 하는 절차대로 일련의 명령어를 나열한 프로그래밍</p>
+
+<p>객체란 객체 지향 프로그래밍의 가장 기본적인 단위로 모든 사건은 객체들간의 상호작용을 통해서 발생한다. 이를 추상화하여 ‘속성’과 ‘기능’으로 분류한 후에 ‘변수’와 ‘함수’로 정의한다.</p>
+
+<h3 id="특징">특징</h3>
+
+<p>가장 큰 특징은 “추상화, 상속, 다형성, 캡슐화”로 4가지로 구성된다.</p>
+
+<p><strong>먼저 “추상화(Abstraction)”는 실제로 객체화하는 것이 아닌 필요한 정보만을 중심으로 간소화하는 것을 의미한다.</strong> 즉, 추상 클래스에서는 어떤 객체가 수행해야하는 역할만을 규정해두고, 실질적인 구현은 해당 클래스를 상속받은 객체에서 구현하도록 프로그램을 설계하는 것을 의미한다.</p>
+
+<p><strong>“상속(Ingeritance)”이란 상위 클래스의 기능을 하위 클래스가 사용할 수 있는 개념이다.</strong> 이는 여러 클래스에서 사용되는 기능을 하나의 클래스로 분리해서 사용할 수 있어 중복을 제거할 수 있다.</p>
+
+<p><strong>“다형성(Polymorphism)”이란 객체간의 관계를 유연하게 해주는 것이 특징으로 어떤 객체의 속성이나 기능이 상황에 따라 여러가지 형태를 가질 수 있다는 뜻이다.</strong> 상속 관계에 있는 부모 클래스에서 이미 정의된 함수를 자식 클래스에서 다시 재정의(Overriding)할 수 있다.</p>
+
+<p><strong>“캡술화(Encapsulation)”란 클래스 안에 서로 연관되어 있는 속성과 기능들을 하나의 캡슐로 만들어 데이터를 외부로부터 보호하는 것을 의미한다.</strong> 이를 통해서 외부로 부터 클래스에 정의된 속성과 기능들을 보호할 수 있고, 내부의 동작을 감추고 필요한 부분만 외부에 노출할 수 있다. 접근제어자 (public, privat. protected)를 통해서 제어한다.</p>
+
+<ul>
+  <li>※ 오버로딩(Overloading) : 같은 이름의 메서드 여러개를 가지면서 매개변수의 유형과 개수를 다르게하는 기술</li>
+  <li>※ 오버라이딩(Overriding) : 상위 클래스가 가지고 있는 함수를 자식 클래스에서 재정의하여 사용하는 기술</li>
+</ul>
+
+<h3 id="장점">장점</h3>
+
+<ul>
+  <li>재사용성 : 상속을 통해서 코드의 재사용을 높일 수 있음</li>
+  <li>생산성 향상 : 객체는 독립적이기 때문에 개발의 생산성을 향상시킬 수 있음</li>
+  <li>자연스러운 모델링 : 실생활의 구조를 녹인 것이기에 자연스로움</li>
+</ul>
+
+<h3 id="단점">단점</h3>
+
+<ul>
+  <li>개발/실행속도 늦음</li>
+</ul>
+
+<h2 id="c">C++</h2>
+
+<p>기존 C언어에 여러 가지 기능을 추가하여 만든 프로그래밍 언어로 ‘절차 지향적 언어’의 특징과 ‘객체 지향적 언어’를 동시에 사용 가능하다.</p>
+
+<p>C++ 통합 개발 환경 (IDE - Integrated Development Environment)이란 소스코드 작성, 컴파일, 디버깅 기능을 가지고 있는 것입니다. C나 C++의 통합개발환경으로는 비주얼 스튜디오, 비쥬얼 스튜디오 코드, devcpp 등이 있습니다.</p>
+
+<h3 id="특징-1">특징</h3>
+
+<ul>
+  <li>C언어의 문법적 체계를 계승했기에 C언어로 작성된 프로그램과의 호환성을 갖는다.</li>
+  <li>객체 지향 개념을 도입하여 재사용과 생산성, 캡슐화, 상속, 다형성등의 특징을 지닌다.</li>
+  <li>타입 체크를 엄격히 하기에 실행 시간 오류의 가능성을 줄여 디버깅을 돕는다.</li>
+  <li>객체 지향 개념의 도입으로 함수의 호출이 잦아기면 비효율적인데, 이를 막기 위해서 “인라인 함수”등을 사용한 함수 호출로 실행 시간의 효율성 저하를 최소화한다.
+    <ul>
+      <li>인라인 함수, 함수 중복(Overloading), 디폴트 매개 변수, 참조, 참조에 의한 호출, new&amp;delete, 재정의(Overriding), 제너릭 함수와 클래스</li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td colspan="2">lnline : 재귀, static, 반복문, switch, goto는 허용되지 않는다.</td>
+              
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li>캡슐화 : 캡슐 역할을 하는 것이 클래스(class)이며, 이를 통해 생겨난 것은 실체(instance)이다.</li>
+  <li>상속성 : 자식이 부모로부터 멤버를 받아 태어나며, 코드의 재사용성을 높여 생산성을 향상</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td colspan="2">다형성 : 하나의 기능이 경우에 따라 다르게 작동하는 현상</td>
+          
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h3 id="링킹linking">링킹(linking)</h3>
+
+<p>컴파일 후 기계어로 구성된 목적 파일이 생성되어도 목적 파일은 바로 실행될 수 없다. 개발자가 작성한 C++이 다른 라이브러리등을 이용하는 경우 참조만 하고, 포함하지 않기 때문에 실행되지 않는다.</p>
+
+<p>즉, 목적 파일(object file)은 온전한 실행 파일이 아니며, 이들과 결합되어야만 비로소 실행 가능한 파일이 된다. 여기서 “링킹(linginh)”이란 C++ 표준 라이브러리나 다른 파일 속에 있는 함수, 객체, 데이터를 포함하여 실행에 필요한 모든 기계어 코드를 확보하여 하나의 실행 파일로 만드는 과정이다. 이 결과 하나의 실행 파일(.exe)이 만들어진다.</p>
+
+<h3 id="얕은-복사-vs-깊은-복사">얕은 복사 vs 깊은 복사</h3>
+
+<p>복사 함수를 따로 지정해주지 않으면, 얕은 복사를 실행하곤 하는데 이때 만약 변수가 포인터 변수일때는 해당 변수의 포인터 값을 그래도 복사하게 된다. 이렇게 되면 A객체를 복사한 B객체의 포인터 변수를 수정할때, A객체의 포인터 변수 또한 수정되게 된다.</p>
+
+<p>이를 해결하는 것이 깊은 복사로 포인터 변수에 대해 새로운 주소를 할당하여, 오류를 막을 수 있다.</p>
+
+<h3 id="가상-함수">가상 함수</h3>
+
+<p>부모 클래스의 함수를 자식 클래스에서 재정의(오버라이딩)하기 위해서 만드는 함수이다. ‘virtual’이라는 키워드를 사용하며. 다형성을 구현할때 사용하며, 반드시 재정의를 해야하는 것은 아니다.</p>
+
+<p>이외에 추상 클래스도 존재하는데, 이는 내용은 구현하지 않으며, 인스턴스화 할 수 없다.</p>
+
+<h3 id="namespace와-std">namespace와 std::</h3>
+
+<p>개발자를 구분하거나 다른 사람이 개발한 소스/목적 파일을 가져와 사용하는 경우 이름에 대한 충돌이 발생할 수 있다. 이를 구분하기 위한 것이 이름공간 (namespace)이다.</p>
+
+<p>std란 C++ 표준 라이브러리에서 선언된 이름을 사용할때, 이를 접두어로 붙어야한다. 예를 들면 표준 입출력인 cout, cin, endl등이 있다. 이는 매우 번거롭기 때문에 “using” 지시어를 사용하여 이름 공간 접두어를 생략한다.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>        <span class="c1">// cout에 대해서만 std:: 생략</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>    <span class="c1">// std 이름 공간에 선언된 모든 이름에 std:: 생략</span>
+</code></pre></div></div>
+
+<ul>
+  <li>※ 범위 지정 연산자 -&gt; ::</li>
+</ul>
+
+<h3 id="구조체">구조체</h3>
+
+<p>C언어와의 호환성을 위해 구조체(Struct)을 지원하며, 클래스와 동일한 구조와 기능적으로 동일하다. 딱 하나 다른 점은 “디폴트 접근 지정”이 클래스는 private이지만, 구조체는 public이다.</p>
+
+<p>멤버 변수만 있는 자료 구조의 경우 구조체를 사용하기도 하지만, 굳이 C언어의 자산을 사용할 필요는 없다.</p>
+
+<h3 id="포인터">포인터</h3>
+
+<p>포인터를 이용한 객체 멤버 근하기 위해서 점(.) 연산자를 사용하지만, 객체 포인터로 멤버에 접근할때는 ‘-&gt;’연산자를 사용한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">d</span><span class="p">.</span><span class="n">getArea</span><span class="p">();</span>
+<span class="n">d</span><span class="o">-&gt;</span><span class="n">getArea</span><span class="p">();</span>
+<span class="p">(</span><span class="o">*</span><span class="n">d</span><span class="p">).</span><span class="n">getArea</span><span class="p">();</span>
+</code></pre></div></div>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/algorithm/2023/02/15/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%A3%BC%EC%9A%94-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88.html" title="알고리즘 | 주요 컨테이너">알고리즘 | 주요 컨테이너</a><a class="next" href="/jekyll-theme-yat/ue5/2023/02/28/UE5-%EB%94%94%EB%A0%89%ED%84%B0%EB%A6%AC-%EA%B5%AC%EC%A1%B0.html" title="UE5 | 디렉터리 구조">UE5 | 디렉터리 구조</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/game/2023/02/11/%EA%B2%8C%EC%9E%84%EC%9D%B4%EB%A1%A0-%EA%B2%8C%EC%9E%84-%EC%88%98%ED%95%99.html" title="UE5 | 디렉터리 구조">게임 이론 | 게임 수학</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2023/02/13/UE5-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC%EB%A7%81.html" title="UE5 | 디렉터리 구조">UE5 | 프로파일링 (UE Insights)</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/algorithm/2022/06/29/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%ED%81%AC%EB%9F%AC%EC%8A%A4%EC%BB%AC%EA%B3%BC-%ED%94%84%EB%A6%BC-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html" title="UE5 | 디렉터리 구조">알고리즘 | 크러스컬과 프림 알고리즘</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/13/UE5-%EC%96%B8%EB%A6%AC%EC%96%BC-%EC%84%9C%EB%B2%84-%EA%B3%B5%EB%B6%80.html" title="UE5 | 디렉터리 구조">UE5 | UE5 서버 공부</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2024 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

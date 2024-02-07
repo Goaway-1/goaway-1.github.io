@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>알고리즘 게임 알고리즘 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.3.3">
+<meta property="og:title" content="알고리즘 게임 알고리즘">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="A* 알고리즘 다익스트라 알고리즘과 유사한 알고리즘으로 모든 경로에 대한 최단 거리를 찾는 다익스트라와는 다르게 모든 경로를 다 찾지 않고, 출발지에서 목적지까지의 최단 경로를 파악하는 알고리즘이다. 최단 경로를 파악할때, 항상 목적지와 얼마나 가까운지를 파악하는데 이를 휴리스틱이라고 한다. 이 “휴리스틱”을 정의하는 방법에는 여러가지가 있는데, 어떤 방법을 사용하여 휴리스틱 함수를 구현하느냐에 따라서 A* 알고리즘의 효율성이 정해진다. 이 점이 다익스트라와 가장 큰 차이점이다. 피타고라스의 정의를 사용하여 대각선의 길이를 파악 가로, 세로의 남은 타일의 개수로 길이를 파악 게임에서는 2차원 지도에서 목표지점을 향해 플레이어가 이동하려는 최단 경로를 도출할 때 사용한다. 개요 어떤 노드에서 시작하여 온 거리(G)와 앞으로 목적지까지의 거리(H)를 더한 결과(F)가 가장 적은 노드를 선택하여 목적지까지 탐색하는 과정을 반복한다. 이를 위해서 열린 노드는 ‘priority_queue’에 저장하고, 닫힌 노드는 ‘queue’에 저장하여 관리한다. 이때 ‘priority_queue’의 우선 순위는 “F &gt; G &gt; H” 순서대로 정렬되도록 한다. 노드에는 “좌표, 부모노드, 거리(G), 거리(H), 결과(F)” 정보가 포함되며, 흐름은 아래와 같다. 참조하면 좋다. 열린목록의 노드를 꺼내어 접근할 수 있는 노드를 모두 검사 - 해당 노드가 닫힌목록에 있는 노드라면 무시 - 열린목록에 있다면 F값을 비교하여 더 작은 노드이 정보로 갱신 - 둘 다 없다면 열린목록에 삽입 1번에서 꺼낸 노드를 닫힌목록으로 이동 목표 노드가 열린목록에 들어왔다면 중지하고, 그렇지 않다면 1 ~ 3번과정을 반복 목표 노드로부터 부모노드를 역순으로 찾아 길을 완성 코드 TextFile1.txt 의 내용 : 행(4), 열(8), [1 0 0 1 0 0 0 0],[0 1 0 1 0 1 0 0],[0 1 0 0 0 1 0 0],[2 0 0 0 0 1 0 3] #include &lt;iostream&gt; #include &lt;vector&gt; #include &lt;string&gt; #include &lt;fstream&gt; #include &lt;stack&gt; #include &lt;queue&gt; #include &lt;set&gt; using namespace std; using Pair = pair&lt;int, int&gt;; using pPair = pair&lt;double, Pair&gt;; constexpr int MAX = 101; constexpr double INF = 1e9 + 7; // 직선 const int dx1[4] = { 0, 0, 1, -1 }; const int dy1[4] = { -1, 1, 0, 0 }; // 대각선 const int dx2[4] = { 1, -1, -1, 1 }; const int dy2[4] = { -1, 1, -1, 1 }; // 각 노드의 내용 struct Cell { int parent_x, parent_y; double f, g, h; }; // 현재 맵과 맵의 크기 char zmap[MAX][MAX]; int ROW = 0, COL = 0; // 현재좌표가 도착지점과 일치하다면 참, 아니면 거짓을 반환 bool isDestination(int row, int col, Pair dst) { if (row == dst.first &amp;&amp; col == dst.second) return true; return false; } // 현재좌표가 전체 맵안에 존재하면 , 아니면 거짓을 반환 bool isInRange(int row, int col) { return (row &gt;= 0 &amp;&amp; row &lt; ROW&amp;&amp; col &gt;= 0 &amp;&amp; col &lt; COL); } // 현재좌표가 벽이아니라면 참, 아니면 거짓을 반환 || 1이 벽 bool isUnBlocked(std::vector&lt;std::vector&lt;int&gt;&gt;&amp; map, int row, int col) { return (map[row][col] == 0); } // 현재좌표로부터 도착지점까지의 거리를 계산 (H 계산) double GethValue(int row, int col, Pair dst) { // 여러 방법이 존재하지만 여기서는 피타고라스의 정리를 사용하여 대각산 길이 계산 return (double)std::sqrt(std::pow(row - dst.first, 2) + std::pow(col - dst.second, 2)); } // backtracking을 이용하여 최단경로를 탐색 void tracePath(Cell cellDetails[MAX][MAX], Pair dst) { stack&lt;Pair&gt; s; int y = dst.first; int x = dst.second; s.push({ y, x }); // cellDetails의 x, y의 부모좌표가 모두 현재좌표와 동일할때까지 반복 while (!(cellDetails[y][x].parent_x == x &amp;&amp; cellDetails[y][x].parent_y == y)) { int tempy = cellDetails[y][x].parent_y; int tempx = cellDetails[y][x].parent_x; y = tempy; x = tempx; s.push({ y, x }); } while (!s.empty()) { zmap[s.top().first][s.top().second] = '*'; s.pop(); } } // a*알고리즘을 실행 bool aStarSearch(vector&lt;vector&lt;int&gt;&gt;&amp; map, Pair src, Pair dst) { if (!isInRange(src.first, src.second) || !isInRange(dst.first, dst.second)) return false; if (!isUnBlocked(map, src.first, src.second) || !isUnBlocked(map, dst.first, dst.second)) return false; if (isDestination(src.first, src.second, dst)) return false; // 닫힌 노드 bool closedList[MAX][MAX]; memset(closedList, false, sizeof(closedList)); // 열린 노드 set&lt;pPair&gt; openList; openList.insert({ 0.0, { src.second, src.first } }); // 계산 값이 저장되는 배열 Cell cellDetails[MAX][MAX]; /** 내용초기화 : 계산해야할 값부분은 INF로하고, 계산할 경로는 -1로 초기화 */ for (int i = 0; i &lt; ROW; ++i) { for (int j = 0; j &lt; COL; ++j) { cellDetails[i][j].f = cellDetails[i][j].g = cellDetails[i][j].h = INF; cellDetails[i][j].parent_x = cellDetails[i][j].parent_y = -1; } } // src의 좌표가 첫좌표가 된다. int sy = src.first; int sx = src.second; cellDetails[sy][sx].f = cellDetails[sy][sx].g = cellDetails[sy][sx].h = 0.0; cellDetails[sy][sx].parent_x = sx; cellDetails[sy][sx].parent_y = sy; /** 반복하여 진행 */ while (!openList.empty()) { pPair p = *openList.begin(); openList.erase(openList.begin()); int y = p.second.first; int x = p.second.second; closedList[y][x] = true; double ng, nf, nh; // 직선 for (int i = 0; i &lt; 4; ++i) { int ny = y + dy1[i]; int nx = x + dx1[i]; if (isInRange(ny, nx)) { if (isDestination(ny, nx, dst)) { cellDetails[ny][nx].parent_y = y; cellDetails[ny][nx].parent_x = x; tracePath(cellDetails, dst); return true; } // closedList를 방문여부 else if (!closedList[ny][nx] &amp;&amp; isUnBlocked(map, ny, nx)) { // 이부분 y x, ny nx 헷갈리는거 조심 ng = cellDetails[y][x].g + 1.0; nh = GethValue(ny, nx, dst); nf = ng + nh; // 만약 한번도 갱신이 안된f거나, 새로갱신될 f가 기존f보다 작을시 참 if (cellDetails[ny][nx].f == INF || cellDetails[ny][nx].f &gt; nf) { cellDetails[ny][nx].f = nf; cellDetails[ny][nx].g = ng; cellDetails[ny][nx].h = nh; cellDetails[ny][nx].parent_x = x; cellDetails[ny][nx].parent_y = y; openList.insert({ nf, { ny, nx } }); } } } } // 대각선 for (int i = 0; i &lt; 4; ++i) { int ny = y + dy2[i]; int nx = x + dx2[i]; if (isInRange(ny, nx)) { if (isDestination(ny, nx, dst)) { cellDetails[ny][nx].parent_y = y; cellDetails[ny][nx].parent_x = x; tracePath(cellDetails, dst); return true; } else if (!closedList[ny][nx] &amp;&amp; isUnBlocked(map, ny, nx)) { ng = cellDetails[y][x].g + 1.414; nh = GethValue(ny, nx, dst); nf = ng + nh; if (cellDetails[ny][nx].f == INF || cellDetails[ny][nx].f &gt; nf) { cellDetails[ny][nx].f = nf; cellDetails[ny][nx].g = ng; cellDetails[ny][nx].h = nh; cellDetails[ny][nx].parent_x = x; cellDetails[ny][nx].parent_y = y; openList.insert({ nf, { ny, nx } }); } } } } } return false; } // 현재 맵의 상태를 출력하는 함수 void PrintMap() { for (int i = 0; i &lt; ROW; ++i) { for (int j = 0; j &lt; COL; ++j) cout &lt;&lt; zmap[i][j]; cout &lt;&lt; '\n'; } } // 텍스트파일로부터 맵정보를 불러오는 함수 vector&lt;vector&lt;int&gt;&gt; fileload(string filepath) { ifstream ifs(filepath); int cur = 0; if (ifs.is_open()) { ifs &gt;&gt; ROW &gt;&gt; COL; vector&lt;vector&lt;int&gt;&gt; result(ROW, vector&lt;int&gt;(COL)); for (int i = 0; i &lt; ROW; ++i) for (int j = 0; j &lt; COL; ++j) ifs &gt;&gt; result[i][j]; return result; } return vector&lt;vector&lt;int&gt;&gt;(); } int main() { // 0: 빈 공간, 1: 벽, 2: 출발지점, 3: 도착지점 Pair src, dst; // 파일로 부터 맵정보 불러오기 vector&lt;vector&lt;int&gt;&gt; grid = fileload(&quot;\TextFile1.txt&quot;); if (grid.empty()) return -1; // 출발 &amp; 도착지점 설정 for (int i = 0; i &lt; ROW; ++i) { for (int j = 0; j &lt; COL; ++j) { if (grid[i][j] == 2 || grid[i][j] == 3) { if (grid[i][j] == 2) src = { i, j }; else if (grid[i][j] == 3) dst = { i, j }; grid[i][j] = 0; } } } // 문자로 저장 for (int i = 0; i &lt; ROW; ++i) for (int j = 0; j &lt; COL; ++j) zmap[i][j] = grid[i][j] + '0'; // A* 알고리즘 시작 if (aStarSearch(grid, src, dst)) PrintMap(); else cout &lt;&lt; &quot;실패&quot;; return 0; } 참조 블로그 블로그_2 블로그_3 : 언리얼에서의 구현 방법 GeeksforGeeks 유한상태기계 : FSM (Finite State Machines) 유한한 상태를 가지는 기계가 있다고 가정하고, 컴퓨터는 오로지 하나의 상태만 갖고 있을 수 있으며 각 상태별 동작과 상태끼리의 전이에 대한 내용을 설계하게 된다. 순서도와 비슷한 것이며, 입력에 따라 순서가 결정되는 “Mealy FSM”과 상태에 따라 순서가 결정되는 “Moore FSM”이 존재한다. 조건이 주어지고, 조건에 따라 어떠한 상태를 가지는 노드에서 다른 상태를 가지는 노드로 현재 상태를 변경한다. 게임 개발에서의 FSM은 유한 개의 상태를 가지고, 입력에 따라 어떤 상태에서 다른 상태로 전이되거나 또 다른 출력 같은 과정이 발생하는 장치를 나타낸 모델을 의미한다. ‘if-else’구문을 사용하지 않고, 시각적인 정보를 통해서 상태에 따라 동작을 쉽게 구분하고, 관리를 돕는다. 즉, 사용자와 게임 안의 액터와의 관계를 생각하면 된다. 위 그림처럼 Unity나 Unreal Engine을 사용하여 애니메이션 동작을 처리할 때 주로 사용한다. 이는 직접 게임을 개발할때 사용한 애니메이션의 흐름인데, 각 애니메이션을 실행하기 위해서 항상 플레이어의 상태를 참조하여 진행한다. 특징 유한한 개수의 상태를 갖는다. 외부로부터 입력을 받아들인다. 시간의 흐름에 따라 자신의 상태를 변화시킬 수 있다. 외부에서 입력받았을 때 특정한 규칙에 따라 자신의 상태를 변화시킬 수 있다. 계산 부담이 없고, 직관적이다. State을 나누고, 방향을 재분배하기 어려움이 존재해 확장에 제한이 존재한다. 참조 블로그 블로그 GeeksforGeeks 행동트리 : Behavior Tree FSM보다 일반화하여 계층적으로 상태를 구분하고, 자료구조에 쓰이는 트리형태로 확장성과 유연함을 가지고 있으며, 주로 AI 동작에 사용한다. (정지 -&gt; 발견 -&gt; 추격 -&gt; 순찰) 트리형태를 지니기 때문에 계층적으로 상태를 나누는 것에 집중하여 모델링한다. 특징 단순한 하부 구조를 가지고 있어, 작업을 나누기 쉽다. 모듈 재활용이 용이하고, 읽기 쉬워 유지보수가 간편하다. 노드의 탐색 순서가 행동에 영향을 미친다. 노드는 서로 간의 의존성이 없어야한다. (상황에 다른 차이) 애니메이션보다 AI는 다른 오브젝트에서 많은 정보를 얻어와야한다. 참조 블로그 Quadtree 알고리즘 쿼드트리 (QuadTree)란 트리 자료구조 중 하나로 부모 노드 아래에 자식 노드를 4개(Quad)씩 가지고 있는 트리이다. 공간에 대해서 재귀적인 호출로 4개의 자식노드로 지속적으로 분할할 수 있고, 4개씩 나누어야하기 대문에 크기는 짝수여야한다. 이는 필요없는 노드에 대해서 데이터를 제거할 수 있기 때문에, 처리해야하는 데이터의 양을 줄일 수 있다. 쿼드트리 공간 분할 (Quadtree Space Division) 공간 분할을 지형을 일정크기로 나누어 놓은 것을 의미하며, 이미지 용량, 충돌, 컬링 등 다양한 곳에서 최적화 기법으로 사용되고 있다. 주로 카메라 시야 범위 내에 들어오지 않은 오브젝트나 지형을 제외시키기 위해서 사용한다. 이뿐만 아니라 “Octree, BSP(Binary Space partitioning)”을 사용하며, 모두 트리 구조이다. 위 이미지와 같은 왼쪽 이미지를 압축한 결과는 가운데 그림과 같이 나타낼 수 있으며, 이를 압축하면 “(0(1101)1((0011)(0111)1(1110))” 이다. 충돌 알고리즘도 이와 같은 방법으로 최적화를 진행하게 되는데, 오브젝트들의 구역을 나눈 후 인접한 영역의 오브젝트들끼리만 충돌처리 알고리즘을 진행하여 처리해야할 데이터의 양을 줄일 수 있습니다. 코드 ```cpp #include&lt;stdio.h&gt; #include&lt;malloc.h&gt; #include&lt;memory.h&gt; void quadTree(char** data, int beginX, int beginY, int size){ // 병합 가능한지 체크 char beginData = data[beginY][beginX]; bool isCombinable = true; for (int y = beginY; y &lt; beginY + size; ++y) { for (int x = beginX; x &lt; beginX + size; ++x) { if (beginData != data[y][x]){ isCombinable = false; break; } } if (isCombinable == false) break; } // 병합이 가능하면 if (isCombinable){ printf(&quot;%c&quot;, beginData); return; } // 그게 아니라면 4개로 분할 int halfSize = (int)(size * 0.5f); printf(&quot;(&quot;); quadTree(data, beginX, beginY, halfSize); quadTree(data, beginX + halfSize, beginY, halfSize); quadTree(data, beginX, beginY + halfSize, halfSize); quadTree(data, beginX + halfSize, beginY + halfSize, halfSize); printf(&quot;)&quot;); } void main(){ int dataSize = 0; printf(&quot;데이터의 크기를 입력해주세요(2의 승수):&quot;); scanf(&quot;%d&quot;, &amp;dataSize); // 메모리 할당 char** data = (char**)malloc(sizeof(char*)*dataSize); for (int i = 0; i &lt; dataSize; ++i){ data[i] = (char*)malloc(sizeof(char)*(dataSize + 1)); memset(data[i], 0, sizeof(data[i])); } // 분할 printf(&quot;데이터를 입력해주세요.\n&quot;); for (int i = 0; i &lt; dataSize; ++i)scanf(&quot;%s&quot;, data[i]); quadTree(data, 0, 0, dataSize); // 메모리 해제 for (int i = 0; i &lt; dataSize; ++i)free(data[i]); free(data); } ``` 참조 블로그_쿼드트리 블로그_공간분할 예시">
+<meta property="og:description" content="A* 알고리즘 다익스트라 알고리즘과 유사한 알고리즘으로 모든 경로에 대한 최단 거리를 찾는 다익스트라와는 다르게 모든 경로를 다 찾지 않고, 출발지에서 목적지까지의 최단 경로를 파악하는 알고리즘이다. 최단 경로를 파악할때, 항상 목적지와 얼마나 가까운지를 파악하는데 이를 휴리스틱이라고 한다. 이 “휴리스틱”을 정의하는 방법에는 여러가지가 있는데, 어떤 방법을 사용하여 휴리스틱 함수를 구현하느냐에 따라서 A* 알고리즘의 효율성이 정해진다. 이 점이 다익스트라와 가장 큰 차이점이다. 피타고라스의 정의를 사용하여 대각선의 길이를 파악 가로, 세로의 남은 타일의 개수로 길이를 파악 게임에서는 2차원 지도에서 목표지점을 향해 플레이어가 이동하려는 최단 경로를 도출할 때 사용한다. 개요 어떤 노드에서 시작하여 온 거리(G)와 앞으로 목적지까지의 거리(H)를 더한 결과(F)가 가장 적은 노드를 선택하여 목적지까지 탐색하는 과정을 반복한다. 이를 위해서 열린 노드는 ‘priority_queue’에 저장하고, 닫힌 노드는 ‘queue’에 저장하여 관리한다. 이때 ‘priority_queue’의 우선 순위는 “F &gt; G &gt; H” 순서대로 정렬되도록 한다. 노드에는 “좌표, 부모노드, 거리(G), 거리(H), 결과(F)” 정보가 포함되며, 흐름은 아래와 같다. 참조하면 좋다. 열린목록의 노드를 꺼내어 접근할 수 있는 노드를 모두 검사 - 해당 노드가 닫힌목록에 있는 노드라면 무시 - 열린목록에 있다면 F값을 비교하여 더 작은 노드이 정보로 갱신 - 둘 다 없다면 열린목록에 삽입 1번에서 꺼낸 노드를 닫힌목록으로 이동 목표 노드가 열린목록에 들어왔다면 중지하고, 그렇지 않다면 1 ~ 3번과정을 반복 목표 노드로부터 부모노드를 역순으로 찾아 길을 완성 코드 TextFile1.txt 의 내용 : 행(4), 열(8), [1 0 0 1 0 0 0 0],[0 1 0 1 0 1 0 0],[0 1 0 0 0 1 0 0],[2 0 0 0 0 1 0 3] #include &lt;iostream&gt; #include &lt;vector&gt; #include &lt;string&gt; #include &lt;fstream&gt; #include &lt;stack&gt; #include &lt;queue&gt; #include &lt;set&gt; using namespace std; using Pair = pair&lt;int, int&gt;; using pPair = pair&lt;double, Pair&gt;; constexpr int MAX = 101; constexpr double INF = 1e9 + 7; // 직선 const int dx1[4] = { 0, 0, 1, -1 }; const int dy1[4] = { -1, 1, 0, 0 }; // 대각선 const int dx2[4] = { 1, -1, -1, 1 }; const int dy2[4] = { -1, 1, -1, 1 }; // 각 노드의 내용 struct Cell { int parent_x, parent_y; double f, g, h; }; // 현재 맵과 맵의 크기 char zmap[MAX][MAX]; int ROW = 0, COL = 0; // 현재좌표가 도착지점과 일치하다면 참, 아니면 거짓을 반환 bool isDestination(int row, int col, Pair dst) { if (row == dst.first &amp;&amp; col == dst.second) return true; return false; } // 현재좌표가 전체 맵안에 존재하면 , 아니면 거짓을 반환 bool isInRange(int row, int col) { return (row &gt;= 0 &amp;&amp; row &lt; ROW&amp;&amp; col &gt;= 0 &amp;&amp; col &lt; COL); } // 현재좌표가 벽이아니라면 참, 아니면 거짓을 반환 || 1이 벽 bool isUnBlocked(std::vector&lt;std::vector&lt;int&gt;&gt;&amp; map, int row, int col) { return (map[row][col] == 0); } // 현재좌표로부터 도착지점까지의 거리를 계산 (H 계산) double GethValue(int row, int col, Pair dst) { // 여러 방법이 존재하지만 여기서는 피타고라스의 정리를 사용하여 대각산 길이 계산 return (double)std::sqrt(std::pow(row - dst.first, 2) + std::pow(col - dst.second, 2)); } // backtracking을 이용하여 최단경로를 탐색 void tracePath(Cell cellDetails[MAX][MAX], Pair dst) { stack&lt;Pair&gt; s; int y = dst.first; int x = dst.second; s.push({ y, x }); // cellDetails의 x, y의 부모좌표가 모두 현재좌표와 동일할때까지 반복 while (!(cellDetails[y][x].parent_x == x &amp;&amp; cellDetails[y][x].parent_y == y)) { int tempy = cellDetails[y][x].parent_y; int tempx = cellDetails[y][x].parent_x; y = tempy; x = tempx; s.push({ y, x }); } while (!s.empty()) { zmap[s.top().first][s.top().second] = '*'; s.pop(); } } // a*알고리즘을 실행 bool aStarSearch(vector&lt;vector&lt;int&gt;&gt;&amp; map, Pair src, Pair dst) { if (!isInRange(src.first, src.second) || !isInRange(dst.first, dst.second)) return false; if (!isUnBlocked(map, src.first, src.second) || !isUnBlocked(map, dst.first, dst.second)) return false; if (isDestination(src.first, src.second, dst)) return false; // 닫힌 노드 bool closedList[MAX][MAX]; memset(closedList, false, sizeof(closedList)); // 열린 노드 set&lt;pPair&gt; openList; openList.insert({ 0.0, { src.second, src.first } }); // 계산 값이 저장되는 배열 Cell cellDetails[MAX][MAX]; /** 내용초기화 : 계산해야할 값부분은 INF로하고, 계산할 경로는 -1로 초기화 */ for (int i = 0; i &lt; ROW; ++i) { for (int j = 0; j &lt; COL; ++j) { cellDetails[i][j].f = cellDetails[i][j].g = cellDetails[i][j].h = INF; cellDetails[i][j].parent_x = cellDetails[i][j].parent_y = -1; } } // src의 좌표가 첫좌표가 된다. int sy = src.first; int sx = src.second; cellDetails[sy][sx].f = cellDetails[sy][sx].g = cellDetails[sy][sx].h = 0.0; cellDetails[sy][sx].parent_x = sx; cellDetails[sy][sx].parent_y = sy; /** 반복하여 진행 */ while (!openList.empty()) { pPair p = *openList.begin(); openList.erase(openList.begin()); int y = p.second.first; int x = p.second.second; closedList[y][x] = true; double ng, nf, nh; // 직선 for (int i = 0; i &lt; 4; ++i) { int ny = y + dy1[i]; int nx = x + dx1[i]; if (isInRange(ny, nx)) { if (isDestination(ny, nx, dst)) { cellDetails[ny][nx].parent_y = y; cellDetails[ny][nx].parent_x = x; tracePath(cellDetails, dst); return true; } // closedList를 방문여부 else if (!closedList[ny][nx] &amp;&amp; isUnBlocked(map, ny, nx)) { // 이부분 y x, ny nx 헷갈리는거 조심 ng = cellDetails[y][x].g + 1.0; nh = GethValue(ny, nx, dst); nf = ng + nh; // 만약 한번도 갱신이 안된f거나, 새로갱신될 f가 기존f보다 작을시 참 if (cellDetails[ny][nx].f == INF || cellDetails[ny][nx].f &gt; nf) { cellDetails[ny][nx].f = nf; cellDetails[ny][nx].g = ng; cellDetails[ny][nx].h = nh; cellDetails[ny][nx].parent_x = x; cellDetails[ny][nx].parent_y = y; openList.insert({ nf, { ny, nx } }); } } } } // 대각선 for (int i = 0; i &lt; 4; ++i) { int ny = y + dy2[i]; int nx = x + dx2[i]; if (isInRange(ny, nx)) { if (isDestination(ny, nx, dst)) { cellDetails[ny][nx].parent_y = y; cellDetails[ny][nx].parent_x = x; tracePath(cellDetails, dst); return true; } else if (!closedList[ny][nx] &amp;&amp; isUnBlocked(map, ny, nx)) { ng = cellDetails[y][x].g + 1.414; nh = GethValue(ny, nx, dst); nf = ng + nh; if (cellDetails[ny][nx].f == INF || cellDetails[ny][nx].f &gt; nf) { cellDetails[ny][nx].f = nf; cellDetails[ny][nx].g = ng; cellDetails[ny][nx].h = nh; cellDetails[ny][nx].parent_x = x; cellDetails[ny][nx].parent_y = y; openList.insert({ nf, { ny, nx } }); } } } } } return false; } // 현재 맵의 상태를 출력하는 함수 void PrintMap() { for (int i = 0; i &lt; ROW; ++i) { for (int j = 0; j &lt; COL; ++j) cout &lt;&lt; zmap[i][j]; cout &lt;&lt; '\n'; } } // 텍스트파일로부터 맵정보를 불러오는 함수 vector&lt;vector&lt;int&gt;&gt; fileload(string filepath) { ifstream ifs(filepath); int cur = 0; if (ifs.is_open()) { ifs &gt;&gt; ROW &gt;&gt; COL; vector&lt;vector&lt;int&gt;&gt; result(ROW, vector&lt;int&gt;(COL)); for (int i = 0; i &lt; ROW; ++i) for (int j = 0; j &lt; COL; ++j) ifs &gt;&gt; result[i][j]; return result; } return vector&lt;vector&lt;int&gt;&gt;(); } int main() { // 0: 빈 공간, 1: 벽, 2: 출발지점, 3: 도착지점 Pair src, dst; // 파일로 부터 맵정보 불러오기 vector&lt;vector&lt;int&gt;&gt; grid = fileload(&quot;\TextFile1.txt&quot;); if (grid.empty()) return -1; // 출발 &amp; 도착지점 설정 for (int i = 0; i &lt; ROW; ++i) { for (int j = 0; j &lt; COL; ++j) { if (grid[i][j] == 2 || grid[i][j] == 3) { if (grid[i][j] == 2) src = { i, j }; else if (grid[i][j] == 3) dst = { i, j }; grid[i][j] = 0; } } } // 문자로 저장 for (int i = 0; i &lt; ROW; ++i) for (int j = 0; j &lt; COL; ++j) zmap[i][j] = grid[i][j] + '0'; // A* 알고리즘 시작 if (aStarSearch(grid, src, dst)) PrintMap(); else cout &lt;&lt; &quot;실패&quot;; return 0; } 참조 블로그 블로그_2 블로그_3 : 언리얼에서의 구현 방법 GeeksforGeeks 유한상태기계 : FSM (Finite State Machines) 유한한 상태를 가지는 기계가 있다고 가정하고, 컴퓨터는 오로지 하나의 상태만 갖고 있을 수 있으며 각 상태별 동작과 상태끼리의 전이에 대한 내용을 설계하게 된다. 순서도와 비슷한 것이며, 입력에 따라 순서가 결정되는 “Mealy FSM”과 상태에 따라 순서가 결정되는 “Moore FSM”이 존재한다. 조건이 주어지고, 조건에 따라 어떠한 상태를 가지는 노드에서 다른 상태를 가지는 노드로 현재 상태를 변경한다. 게임 개발에서의 FSM은 유한 개의 상태를 가지고, 입력에 따라 어떤 상태에서 다른 상태로 전이되거나 또 다른 출력 같은 과정이 발생하는 장치를 나타낸 모델을 의미한다. ‘if-else’구문을 사용하지 않고, 시각적인 정보를 통해서 상태에 따라 동작을 쉽게 구분하고, 관리를 돕는다. 즉, 사용자와 게임 안의 액터와의 관계를 생각하면 된다. 위 그림처럼 Unity나 Unreal Engine을 사용하여 애니메이션 동작을 처리할 때 주로 사용한다. 이는 직접 게임을 개발할때 사용한 애니메이션의 흐름인데, 각 애니메이션을 실행하기 위해서 항상 플레이어의 상태를 참조하여 진행한다. 특징 유한한 개수의 상태를 갖는다. 외부로부터 입력을 받아들인다. 시간의 흐름에 따라 자신의 상태를 변화시킬 수 있다. 외부에서 입력받았을 때 특정한 규칙에 따라 자신의 상태를 변화시킬 수 있다. 계산 부담이 없고, 직관적이다. State을 나누고, 방향을 재분배하기 어려움이 존재해 확장에 제한이 존재한다. 참조 블로그 블로그 GeeksforGeeks 행동트리 : Behavior Tree FSM보다 일반화하여 계층적으로 상태를 구분하고, 자료구조에 쓰이는 트리형태로 확장성과 유연함을 가지고 있으며, 주로 AI 동작에 사용한다. (정지 -&gt; 발견 -&gt; 추격 -&gt; 순찰) 트리형태를 지니기 때문에 계층적으로 상태를 나누는 것에 집중하여 모델링한다. 특징 단순한 하부 구조를 가지고 있어, 작업을 나누기 쉽다. 모듈 재활용이 용이하고, 읽기 쉬워 유지보수가 간편하다. 노드의 탐색 순서가 행동에 영향을 미친다. 노드는 서로 간의 의존성이 없어야한다. (상황에 다른 차이) 애니메이션보다 AI는 다른 오브젝트에서 많은 정보를 얻어와야한다. 참조 블로그 Quadtree 알고리즘 쿼드트리 (QuadTree)란 트리 자료구조 중 하나로 부모 노드 아래에 자식 노드를 4개(Quad)씩 가지고 있는 트리이다. 공간에 대해서 재귀적인 호출로 4개의 자식노드로 지속적으로 분할할 수 있고, 4개씩 나누어야하기 대문에 크기는 짝수여야한다. 이는 필요없는 노드에 대해서 데이터를 제거할 수 있기 때문에, 처리해야하는 데이터의 양을 줄일 수 있다. 쿼드트리 공간 분할 (Quadtree Space Division) 공간 분할을 지형을 일정크기로 나누어 놓은 것을 의미하며, 이미지 용량, 충돌, 컬링 등 다양한 곳에서 최적화 기법으로 사용되고 있다. 주로 카메라 시야 범위 내에 들어오지 않은 오브젝트나 지형을 제외시키기 위해서 사용한다. 이뿐만 아니라 “Octree, BSP(Binary Space partitioning)”을 사용하며, 모두 트리 구조이다. 위 이미지와 같은 왼쪽 이미지를 압축한 결과는 가운데 그림과 같이 나타낼 수 있으며, 이를 압축하면 “(0(1101)1((0011)(0111)1(1110))” 이다. 충돌 알고리즘도 이와 같은 방법으로 최적화를 진행하게 되는데, 오브젝트들의 구역을 나눈 후 인접한 영역의 오브젝트들끼리만 충돌처리 알고리즘을 진행하여 처리해야할 데이터의 양을 줄일 수 있습니다. 코드 ```cpp #include&lt;stdio.h&gt; #include&lt;malloc.h&gt; #include&lt;memory.h&gt; void quadTree(char** data, int beginX, int beginY, int size){ // 병합 가능한지 체크 char beginData = data[beginY][beginX]; bool isCombinable = true; for (int y = beginY; y &lt; beginY + size; ++y) { for (int x = beginX; x &lt; beginX + size; ++x) { if (beginData != data[y][x]){ isCombinable = false; break; } } if (isCombinable == false) break; } // 병합이 가능하면 if (isCombinable){ printf(&quot;%c&quot;, beginData); return; } // 그게 아니라면 4개로 분할 int halfSize = (int)(size * 0.5f); printf(&quot;(&quot;); quadTree(data, beginX, beginY, halfSize); quadTree(data, beginX + halfSize, beginY, halfSize); quadTree(data, beginX, beginY + halfSize, halfSize); quadTree(data, beginX + halfSize, beginY + halfSize, halfSize); printf(&quot;)&quot;); } void main(){ int dataSize = 0; printf(&quot;데이터의 크기를 입력해주세요(2의 승수):&quot;); scanf(&quot;%d&quot;, &amp;dataSize); // 메모리 할당 char** data = (char**)malloc(sizeof(char*)*dataSize); for (int i = 0; i &lt; dataSize; ++i){ data[i] = (char*)malloc(sizeof(char)*(dataSize + 1)); memset(data[i], 0, sizeof(data[i])); } // 분할 printf(&quot;데이터를 입력해주세요.\n&quot;); for (int i = 0; i &lt; dataSize; ++i)scanf(&quot;%s&quot;, data[i]); quadTree(data, 0, 0, dataSize); // 메모리 해제 for (int i = 0; i &lt; dataSize; ++i)free(data[i]); free(data); } ``` 참조 블로그_쿼드트리 블로그_공간분할 예시">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/algorithm/2023/02/14/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EA%B2%8C%EC%9E%84-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/algorithm/2023/02/14/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EA%B2%8C%EC%9E%84-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2023-02-14T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="알고리즘 게임 알고리즘">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2023-02-14T00:00:00+00:00","datePublished":"2023-02-14T00:00:00+00:00","description":"A* 알고리즘 다익스트라 알고리즘과 유사한 알고리즘으로 모든 경로에 대한 최단 거리를 찾는 다익스트라와는 다르게 모든 경로를 다 찾지 않고, 출발지에서 목적지까지의 최단 경로를 파악하는 알고리즘이다. 최단 경로를 파악할때, 항상 목적지와 얼마나 가까운지를 파악하는데 이를 휴리스틱이라고 한다. 이 “휴리스틱”을 정의하는 방법에는 여러가지가 있는데, 어떤 방법을 사용하여 휴리스틱 함수를 구현하느냐에 따라서 A* 알고리즘의 효율성이 정해진다. 이 점이 다익스트라와 가장 큰 차이점이다. 피타고라스의 정의를 사용하여 대각선의 길이를 파악 가로, 세로의 남은 타일의 개수로 길이를 파악 게임에서는 2차원 지도에서 목표지점을 향해 플레이어가 이동하려는 최단 경로를 도출할 때 사용한다. 개요 어떤 노드에서 시작하여 온 거리(G)와 앞으로 목적지까지의 거리(H)를 더한 결과(F)가 가장 적은 노드를 선택하여 목적지까지 탐색하는 과정을 반복한다. 이를 위해서 열린 노드는 ‘priority_queue’에 저장하고, 닫힌 노드는 ‘queue’에 저장하여 관리한다. 이때 ‘priority_queue’의 우선 순위는 “F &gt; G &gt; H” 순서대로 정렬되도록 한다. 노드에는 “좌표, 부모노드, 거리(G), 거리(H), 결과(F)” 정보가 포함되며, 흐름은 아래와 같다. 참조하면 좋다. 열린목록의 노드를 꺼내어 접근할 수 있는 노드를 모두 검사 - 해당 노드가 닫힌목록에 있는 노드라면 무시 - 열린목록에 있다면 F값을 비교하여 더 작은 노드이 정보로 갱신 - 둘 다 없다면 열린목록에 삽입 1번에서 꺼낸 노드를 닫힌목록으로 이동 목표 노드가 열린목록에 들어왔다면 중지하고, 그렇지 않다면 1 ~ 3번과정을 반복 목표 노드로부터 부모노드를 역순으로 찾아 길을 완성 코드 TextFile1.txt 의 내용 : 행(4), 열(8), [1 0 0 1 0 0 0 0],[0 1 0 1 0 1 0 0],[0 1 0 0 0 1 0 0],[2 0 0 0 0 1 0 3] #include &lt;iostream&gt; #include &lt;vector&gt; #include &lt;string&gt; #include &lt;fstream&gt; #include &lt;stack&gt; #include &lt;queue&gt; #include &lt;set&gt; using namespace std; using Pair = pair&lt;int, int&gt;; using pPair = pair&lt;double, Pair&gt;; constexpr int MAX = 101; constexpr double INF = 1e9 + 7; // 직선 const int dx1[4] = { 0, 0, 1, -1 }; const int dy1[4] = { -1, 1, 0, 0 }; // 대각선 const int dx2[4] = { 1, -1, -1, 1 }; const int dy2[4] = { -1, 1, -1, 1 }; // 각 노드의 내용 struct Cell { int parent_x, parent_y; double f, g, h; }; // 현재 맵과 맵의 크기 char zmap[MAX][MAX]; int ROW = 0, COL = 0; // 현재좌표가 도착지점과 일치하다면 참, 아니면 거짓을 반환 bool isDestination(int row, int col, Pair dst) { if (row == dst.first &amp;&amp; col == dst.second) return true; return false; } // 현재좌표가 전체 맵안에 존재하면 , 아니면 거짓을 반환 bool isInRange(int row, int col) { return (row &gt;= 0 &amp;&amp; row &lt; ROW&amp;&amp; col &gt;= 0 &amp;&amp; col &lt; COL); } // 현재좌표가 벽이아니라면 참, 아니면 거짓을 반환 || 1이 벽 bool isUnBlocked(std::vector&lt;std::vector&lt;int&gt;&gt;&amp; map, int row, int col) { return (map[row][col] == 0); } // 현재좌표로부터 도착지점까지의 거리를 계산 (H 계산) double GethValue(int row, int col, Pair dst) { // 여러 방법이 존재하지만 여기서는 피타고라스의 정리를 사용하여 대각산 길이 계산 return (double)std::sqrt(std::pow(row - dst.first, 2) + std::pow(col - dst.second, 2)); } // backtracking을 이용하여 최단경로를 탐색 void tracePath(Cell cellDetails[MAX][MAX], Pair dst) { stack&lt;Pair&gt; s; int y = dst.first; int x = dst.second; s.push({ y, x }); // cellDetails의 x, y의 부모좌표가 모두 현재좌표와 동일할때까지 반복 while (!(cellDetails[y][x].parent_x == x &amp;&amp; cellDetails[y][x].parent_y == y)) { int tempy = cellDetails[y][x].parent_y; int tempx = cellDetails[y][x].parent_x; y = tempy; x = tempx; s.push({ y, x }); } while (!s.empty()) { zmap[s.top().first][s.top().second] = &#39;*&#39;; s.pop(); } } // a*알고리즘을 실행 bool aStarSearch(vector&lt;vector&lt;int&gt;&gt;&amp; map, Pair src, Pair dst) { if (!isInRange(src.first, src.second) || !isInRange(dst.first, dst.second)) return false; if (!isUnBlocked(map, src.first, src.second) || !isUnBlocked(map, dst.first, dst.second)) return false; if (isDestination(src.first, src.second, dst)) return false; // 닫힌 노드 bool closedList[MAX][MAX]; memset(closedList, false, sizeof(closedList)); // 열린 노드 set&lt;pPair&gt; openList; openList.insert({ 0.0, { src.second, src.first } }); // 계산 값이 저장되는 배열 Cell cellDetails[MAX][MAX]; /** 내용초기화 : 계산해야할 값부분은 INF로하고, 계산할 경로는 -1로 초기화 */ for (int i = 0; i &lt; ROW; ++i) { for (int j = 0; j &lt; COL; ++j) { cellDetails[i][j].f = cellDetails[i][j].g = cellDetails[i][j].h = INF; cellDetails[i][j].parent_x = cellDetails[i][j].parent_y = -1; } } // src의 좌표가 첫좌표가 된다. int sy = src.first; int sx = src.second; cellDetails[sy][sx].f = cellDetails[sy][sx].g = cellDetails[sy][sx].h = 0.0; cellDetails[sy][sx].parent_x = sx; cellDetails[sy][sx].parent_y = sy; /** 반복하여 진행 */ while (!openList.empty()) { pPair p = *openList.begin(); openList.erase(openList.begin()); int y = p.second.first; int x = p.second.second; closedList[y][x] = true; double ng, nf, nh; // 직선 for (int i = 0; i &lt; 4; ++i) { int ny = y + dy1[i]; int nx = x + dx1[i]; if (isInRange(ny, nx)) { if (isDestination(ny, nx, dst)) { cellDetails[ny][nx].parent_y = y; cellDetails[ny][nx].parent_x = x; tracePath(cellDetails, dst); return true; } // closedList를 방문여부 else if (!closedList[ny][nx] &amp;&amp; isUnBlocked(map, ny, nx)) { // 이부분 y x, ny nx 헷갈리는거 조심 ng = cellDetails[y][x].g + 1.0; nh = GethValue(ny, nx, dst); nf = ng + nh; // 만약 한번도 갱신이 안된f거나, 새로갱신될 f가 기존f보다 작을시 참 if (cellDetails[ny][nx].f == INF || cellDetails[ny][nx].f &gt; nf) { cellDetails[ny][nx].f = nf; cellDetails[ny][nx].g = ng; cellDetails[ny][nx].h = nh; cellDetails[ny][nx].parent_x = x; cellDetails[ny][nx].parent_y = y; openList.insert({ nf, { ny, nx } }); } } } } // 대각선 for (int i = 0; i &lt; 4; ++i) { int ny = y + dy2[i]; int nx = x + dx2[i]; if (isInRange(ny, nx)) { if (isDestination(ny, nx, dst)) { cellDetails[ny][nx].parent_y = y; cellDetails[ny][nx].parent_x = x; tracePath(cellDetails, dst); return true; } else if (!closedList[ny][nx] &amp;&amp; isUnBlocked(map, ny, nx)) { ng = cellDetails[y][x].g + 1.414; nh = GethValue(ny, nx, dst); nf = ng + nh; if (cellDetails[ny][nx].f == INF || cellDetails[ny][nx].f &gt; nf) { cellDetails[ny][nx].f = nf; cellDetails[ny][nx].g = ng; cellDetails[ny][nx].h = nh; cellDetails[ny][nx].parent_x = x; cellDetails[ny][nx].parent_y = y; openList.insert({ nf, { ny, nx } }); } } } } } return false; } // 현재 맵의 상태를 출력하는 함수 void PrintMap() { for (int i = 0; i &lt; ROW; ++i) { for (int j = 0; j &lt; COL; ++j) cout &lt;&lt; zmap[i][j]; cout &lt;&lt; &#39;\\n&#39;; } } // 텍스트파일로부터 맵정보를 불러오는 함수 vector&lt;vector&lt;int&gt;&gt; fileload(string filepath) { ifstream ifs(filepath); int cur = 0; if (ifs.is_open()) { ifs &gt;&gt; ROW &gt;&gt; COL; vector&lt;vector&lt;int&gt;&gt; result(ROW, vector&lt;int&gt;(COL)); for (int i = 0; i &lt; ROW; ++i) for (int j = 0; j &lt; COL; ++j) ifs &gt;&gt; result[i][j]; return result; } return vector&lt;vector&lt;int&gt;&gt;(); } int main() { // 0: 빈 공간, 1: 벽, 2: 출발지점, 3: 도착지점 Pair src, dst; // 파일로 부터 맵정보 불러오기 vector&lt;vector&lt;int&gt;&gt; grid = fileload(&quot;\\TextFile1.txt&quot;); if (grid.empty()) return -1; // 출발 &amp; 도착지점 설정 for (int i = 0; i &lt; ROW; ++i) { for (int j = 0; j &lt; COL; ++j) { if (grid[i][j] == 2 || grid[i][j] == 3) { if (grid[i][j] == 2) src = { i, j }; else if (grid[i][j] == 3) dst = { i, j }; grid[i][j] = 0; } } } // 문자로 저장 for (int i = 0; i &lt; ROW; ++i) for (int j = 0; j &lt; COL; ++j) zmap[i][j] = grid[i][j] + &#39;0&#39;; // A* 알고리즘 시작 if (aStarSearch(grid, src, dst)) PrintMap(); else cout &lt;&lt; &quot;실패&quot;; return 0; } 참조 블로그 블로그_2 블로그_3 : 언리얼에서의 구현 방법 GeeksforGeeks 유한상태기계 : FSM (Finite State Machines) 유한한 상태를 가지는 기계가 있다고 가정하고, 컴퓨터는 오로지 하나의 상태만 갖고 있을 수 있으며 각 상태별 동작과 상태끼리의 전이에 대한 내용을 설계하게 된다. 순서도와 비슷한 것이며, 입력에 따라 순서가 결정되는 “Mealy FSM”과 상태에 따라 순서가 결정되는 “Moore FSM”이 존재한다. 조건이 주어지고, 조건에 따라 어떠한 상태를 가지는 노드에서 다른 상태를 가지는 노드로 현재 상태를 변경한다. 게임 개발에서의 FSM은 유한 개의 상태를 가지고, 입력에 따라 어떤 상태에서 다른 상태로 전이되거나 또 다른 출력 같은 과정이 발생하는 장치를 나타낸 모델을 의미한다. ‘if-else’구문을 사용하지 않고, 시각적인 정보를 통해서 상태에 따라 동작을 쉽게 구분하고, 관리를 돕는다. 즉, 사용자와 게임 안의 액터와의 관계를 생각하면 된다. 위 그림처럼 Unity나 Unreal Engine을 사용하여 애니메이션 동작을 처리할 때 주로 사용한다. 이는 직접 게임을 개발할때 사용한 애니메이션의 흐름인데, 각 애니메이션을 실행하기 위해서 항상 플레이어의 상태를 참조하여 진행한다. 특징 유한한 개수의 상태를 갖는다. 외부로부터 입력을 받아들인다. 시간의 흐름에 따라 자신의 상태를 변화시킬 수 있다. 외부에서 입력받았을 때 특정한 규칙에 따라 자신의 상태를 변화시킬 수 있다. 계산 부담이 없고, 직관적이다. State을 나누고, 방향을 재분배하기 어려움이 존재해 확장에 제한이 존재한다. 참조 블로그 블로그 GeeksforGeeks 행동트리 : Behavior Tree FSM보다 일반화하여 계층적으로 상태를 구분하고, 자료구조에 쓰이는 트리형태로 확장성과 유연함을 가지고 있으며, 주로 AI 동작에 사용한다. (정지 -&gt; 발견 -&gt; 추격 -&gt; 순찰) 트리형태를 지니기 때문에 계층적으로 상태를 나누는 것에 집중하여 모델링한다. 특징 단순한 하부 구조를 가지고 있어, 작업을 나누기 쉽다. 모듈 재활용이 용이하고, 읽기 쉬워 유지보수가 간편하다. 노드의 탐색 순서가 행동에 영향을 미친다. 노드는 서로 간의 의존성이 없어야한다. (상황에 다른 차이) 애니메이션보다 AI는 다른 오브젝트에서 많은 정보를 얻어와야한다. 참조 블로그 Quadtree 알고리즘 쿼드트리 (QuadTree)란 트리 자료구조 중 하나로 부모 노드 아래에 자식 노드를 4개(Quad)씩 가지고 있는 트리이다. 공간에 대해서 재귀적인 호출로 4개의 자식노드로 지속적으로 분할할 수 있고, 4개씩 나누어야하기 대문에 크기는 짝수여야한다. 이는 필요없는 노드에 대해서 데이터를 제거할 수 있기 때문에, 처리해야하는 데이터의 양을 줄일 수 있다. 쿼드트리 공간 분할 (Quadtree Space Division) 공간 분할을 지형을 일정크기로 나누어 놓은 것을 의미하며, 이미지 용량, 충돌, 컬링 등 다양한 곳에서 최적화 기법으로 사용되고 있다. 주로 카메라 시야 범위 내에 들어오지 않은 오브젝트나 지형을 제외시키기 위해서 사용한다. 이뿐만 아니라 “Octree, BSP(Binary Space partitioning)”을 사용하며, 모두 트리 구조이다. 위 이미지와 같은 왼쪽 이미지를 압축한 결과는 가운데 그림과 같이 나타낼 수 있으며, 이를 압축하면 “(0(1101)1((0011)(0111)1(1110))” 이다. 충돌 알고리즘도 이와 같은 방법으로 최적화를 진행하게 되는데, 오브젝트들의 구역을 나눈 후 인접한 영역의 오브젝트들끼리만 충돌처리 알고리즘을 진행하여 처리해야할 데이터의 양을 줄일 수 있습니다. 코드 ```cpp #include&lt;stdio.h&gt; #include&lt;malloc.h&gt; #include&lt;memory.h&gt; void quadTree(char** data, int beginX, int beginY, int size){ // 병합 가능한지 체크 char beginData = data[beginY][beginX]; bool isCombinable = true; for (int y = beginY; y &lt; beginY + size; ++y) { for (int x = beginX; x &lt; beginX + size; ++x) { if (beginData != data[y][x]){ isCombinable = false; break; } } if (isCombinable == false) break; } // 병합이 가능하면 if (isCombinable){ printf(&quot;%c&quot;, beginData); return; } // 그게 아니라면 4개로 분할 int halfSize = (int)(size * 0.5f); printf(&quot;(&quot;); quadTree(data, beginX, beginY, halfSize); quadTree(data, beginX + halfSize, beginY, halfSize); quadTree(data, beginX, beginY + halfSize, halfSize); quadTree(data, beginX + halfSize, beginY + halfSize, halfSize); printf(&quot;)&quot;); } void main(){ int dataSize = 0; printf(&quot;데이터의 크기를 입력해주세요(2의 승수):&quot;); scanf(&quot;%d&quot;, &amp;dataSize); // 메모리 할당 char** data = (char**)malloc(sizeof(char*)*dataSize); for (int i = 0; i &lt; dataSize; ++i){ data[i] = (char*)malloc(sizeof(char)*(dataSize + 1)); memset(data[i], 0, sizeof(data[i])); } // 분할 printf(&quot;데이터를 입력해주세요.\\n&quot;); for (int i = 0; i &lt; dataSize; ++i)scanf(&quot;%s&quot;, data[i]); quadTree(data, 0, 0, dataSize); // 메모리 해제 for (int i = 0; i &lt; dataSize; ++i)free(data[i]); free(data); } ``` 참조 블로그_쿼드트리 블로그_공간분할 예시","headline":"알고리즘 게임 알고리즘","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/algorithm/2023/02/14/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EA%B2%8C%EC%9E%84-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/algorithm/2023/02/14/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EA%B2%8C%EC%9E%84-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+
+
+  </head>
+  
+  <body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">알고리즘 | 게임 알고리즘</h1>
+  <h2 class="post-subtitle">Game Algorithm</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2023-02-14T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Feb 14, 2023
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 21 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#Algorithm">#Algorithm</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#C++">#C++</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="a-알고리즘">A* 알고리즘</h2>
+
+<p>다익스트라 알고리즘과 유사한 알고리즘으로 모든 경로에 대한 최단 거리를 찾는 다익스트라와는 다르게 모든 경로를 다 찾지 않고, 출발지에서 목적지까지의 최단 경로를 파악하는 알고리즘이다.</p>
+
+<p>최단 경로를 파악할때, 항상 목적지와 얼마나 가까운지를 파악하는데 이를 휴리스틱이라고 한다.
+이 <strong>“휴리스틱”을</strong> 정의하는 방법에는 여러가지가 있는데, 어떤 방법을 사용하여 휴리스틱 함수를 구현하느냐에 따라서 A* 알고리즘의 효율성이 정해진다. 이 점이 다익스트라와 가장 큰 차이점이다.</p>
+
+<ol>
+  <li>피타고라스의 정의를 사용하여 대각선의 길이를 파악</li>
+  <li>가로, 세로의 남은 타일의 개수로 길이를 파악</li>
+</ol>
+
+<p>게임에서는 2차원 지도에서 목표지점을 향해 플레이어가 이동하려는 최단 경로를 도출할 때 사용한다.</p>
+
+<h3 id="개요">개요</h3>
+
+<p>어떤 노드에서 시작하여 온 거리(G)와 앞으로 목적지까지의 거리(H)를 더한 결과(F)가 가장 적은 노드를 선택하여 목적지까지 탐색하는 과정을 반복한다. 이를 위해서 열린 노드는 ‘priority_queue’에 저장하고, 닫힌 노드는 ‘queue’에 저장하여 관리한다. <ins>이때 ‘priority_queue’의 우선 순위는 <strong>“F &gt; G &gt; H”</strong> 순서대로 정렬되도록 한다.</ins></p>
+
+<p>노드에는 <ins><strong>“좌표, 부모노드, 거리(G), 거리(H), 결과(F)”</strong></ins> 정보가 포함되며, 흐름은 아래와 같다. <a href="https://puzi.tistory.com/23">참조</a>하면 좋다.</p>
+
+<ol>
+  <li>열린목록의 노드를 꺼내어 접근할 수 있는 노드를 모두 검사
+     - 해당 노드가 닫힌목록에 있는 노드라면 무시
+     - 열린목록에 있다면 F값을 비교하여 더 작은 노드이 정보로 갱신
+     - 둘 다 없다면 열린목록에 삽입</li>
+  <li>1번에서 꺼낸 노드를 닫힌목록으로 이동</li>
+  <li>목표 노드가 열린목록에 들어왔다면 중지하고, 그렇지 않다면 1 ~ 3번과정을 반복</li>
+  <li>목표 노드로부터 부모노드를 역순으로 찾아 길을 완성</li>
+</ol>
+
+<h3 id="코드">코드</h3>
+
+<ul>
+  <li>
+    <p>TextFile1.txt 의 내용 : 행(4), 열(8), [1 0 0 1 0 0 0 0],[0 1 0 1 0 1 0 0],[0 1 0 0 0 1 0 0],[2 0 0 0 0 1 0 3]</p>
+
+    <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;fstream&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;stack&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;queue&gt;</span><span class="cp">
+</span>  <span class="cp">#include</span> <span class="cpf">&lt;set&gt;</span><span class="cp">
+</span>
+  <span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">Pair</span> <span class="o">=</span> <span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">pPair</span> <span class="o">=</span> <span class="n">pair</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span> <span class="n">Pair</span><span class="o">&gt;</span><span class="p">;</span>
+
+  <span class="k">constexpr</span> <span class="kt">int</span> <span class="n">MAX</span> <span class="o">=</span> <span class="mi">101</span><span class="p">;</span>
+  <span class="k">constexpr</span> <span class="kt">double</span> <span class="n">INF</span> <span class="o">=</span> <span class="mf">1e9</span> <span class="o">+</span> <span class="mi">7</span><span class="p">;</span>
+
+  <span class="c1">// 직선</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">dx1</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="p">};</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">dy1</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="p">};</span>
+
+  <span class="c1">// 대각선</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">dx2</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="p">};</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">dy2</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="p">};</span>
+
+  <span class="c1">// 각 노드의 내용</span>
+  <span class="k">struct</span> <span class="nc">Cell</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">parent_x</span><span class="p">,</span> <span class="n">parent_y</span><span class="p">;</span>
+      <span class="kt">double</span> <span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="c1">// 현재 맵과 맵의 크기</span>
+  <span class="kt">char</span> <span class="n">zmap</span><span class="p">[</span><span class="n">MAX</span><span class="p">][</span><span class="n">MAX</span><span class="p">];</span>
+  <span class="kt">int</span> <span class="n">ROW</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">COL</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="c1">// 현재좌표가 도착지점과 일치하다면 참, 아니면 거짓을 반환</span>
+  <span class="kt">bool</span> <span class="nf">isDestination</span><span class="p">(</span><span class="kt">int</span> <span class="n">row</span><span class="p">,</span> <span class="kt">int</span> <span class="n">col</span><span class="p">,</span> <span class="n">Pair</span> <span class="n">dst</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">==</span> <span class="n">dst</span><span class="p">.</span><span class="n">first</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">==</span> <span class="n">dst</span><span class="p">.</span><span class="n">second</span><span class="p">)</span> <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+      <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 현재좌표가 전체 맵안에 존재하면 , 아니면 거짓을 반환</span>
+  <span class="kt">bool</span> <span class="nf">isInRange</span><span class="p">(</span><span class="kt">int</span> <span class="n">row</span><span class="p">,</span> <span class="kt">int</span> <span class="n">col</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">row</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">ROW</span><span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">COL</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 현재좌표가 벽이아니라면 참, 아니면 거짓을 반환 || 1이 벽</span>
+  <span class="kt">bool</span> <span class="nf">isUnBlocked</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">map</span><span class="p">,</span> <span class="kt">int</span> <span class="n">row</span><span class="p">,</span> <span class="kt">int</span> <span class="n">col</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">map</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 현재좌표로부터 도착지점까지의 거리를 계산 (H 계산) </span>
+  <span class="kt">double</span> <span class="nf">GethValue</span><span class="p">(</span><span class="kt">int</span> <span class="n">row</span><span class="p">,</span> <span class="kt">int</span> <span class="n">col</span><span class="p">,</span> <span class="n">Pair</span> <span class="n">dst</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// 여러 방법이 존재하지만 여기서는 피타고라스의 정리를 사용하여 대각산 길이 계산</span>
+      <span class="k">return</span> <span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">pow</span><span class="p">(</span><span class="n">row</span> <span class="o">-</span> <span class="n">dst</span><span class="p">.</span><span class="n">first</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">std</span><span class="o">::</span><span class="n">pow</span><span class="p">(</span><span class="n">col</span> <span class="o">-</span> <span class="n">dst</span><span class="p">.</span><span class="n">second</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>
+  <span class="p">}</span>
+
+  <span class="c1">// backtracking을 이용하여 최단경로를 탐색</span>
+  <span class="kt">void</span> <span class="nf">tracePath</span><span class="p">(</span><span class="n">Cell</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">MAX</span><span class="p">][</span><span class="n">MAX</span><span class="p">],</span> <span class="n">Pair</span> <span class="n">dst</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">stack</span><span class="o">&lt;</span><span class="n">Pair</span><span class="o">&gt;</span> <span class="n">s</span><span class="p">;</span>
+      <span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">dst</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+      <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">dst</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+
+      <span class="n">s</span><span class="p">.</span><span class="n">push</span><span class="p">({</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="p">});</span>
+      <span class="c1">// cellDetails의 x, y의 부모좌표가 모두 현재좌표와 동일할때까지 반복</span>
+      <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">cellDetails</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">].</span><span class="n">parent_x</span> <span class="o">==</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">].</span><span class="n">parent_y</span> <span class="o">==</span> <span class="n">y</span><span class="p">))</span> <span class="p">{</span>
+          <span class="kt">int</span> <span class="n">tempy</span> <span class="o">=</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">].</span><span class="n">parent_y</span><span class="p">;</span>
+          <span class="kt">int</span> <span class="n">tempx</span> <span class="o">=</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">].</span><span class="n">parent_x</span><span class="p">;</span>
+          <span class="n">y</span> <span class="o">=</span> <span class="n">tempy</span><span class="p">;</span>
+          <span class="n">x</span> <span class="o">=</span> <span class="n">tempx</span><span class="p">;</span>
+          <span class="n">s</span><span class="p">.</span><span class="n">push</span><span class="p">({</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="p">});</span>
+      <span class="p">}</span>
+
+      <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">s</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+          <span class="n">zmap</span><span class="p">[</span><span class="n">s</span><span class="p">.</span><span class="n">top</span><span class="p">().</span><span class="n">first</span><span class="p">][</span><span class="n">s</span><span class="p">.</span><span class="n">top</span><span class="p">().</span><span class="n">second</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'*'</span><span class="p">;</span>
+          <span class="n">s</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1">// a*알고리즘을 실행</span>
+  <span class="kt">bool</span> <span class="nf">aStarSearch</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">map</span><span class="p">,</span> <span class="n">Pair</span> <span class="n">src</span><span class="p">,</span> <span class="n">Pair</span> <span class="n">dst</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">isInRange</span><span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">first</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">second</span><span class="p">)</span> <span class="o">||</span> <span class="o">!</span><span class="n">isInRange</span><span class="p">(</span><span class="n">dst</span><span class="p">.</span><span class="n">first</span><span class="p">,</span> <span class="n">dst</span><span class="p">.</span><span class="n">second</span><span class="p">))</span> <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">isUnBlocked</span><span class="p">(</span><span class="n">map</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">first</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">second</span><span class="p">)</span> <span class="o">||</span> <span class="o">!</span><span class="n">isUnBlocked</span><span class="p">(</span><span class="n">map</span><span class="p">,</span> <span class="n">dst</span><span class="p">.</span><span class="n">first</span><span class="p">,</span> <span class="n">dst</span><span class="p">.</span><span class="n">second</span><span class="p">))</span> <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">isDestination</span><span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">first</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">second</span><span class="p">,</span> <span class="n">dst</span><span class="p">))</span> <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+
+      <span class="c1">// 닫힌 노드</span>
+      <span class="kt">bool</span> <span class="n">closedList</span><span class="p">[</span><span class="n">MAX</span><span class="p">][</span><span class="n">MAX</span><span class="p">];</span>			
+      <span class="n">memset</span><span class="p">(</span><span class="n">closedList</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">closedList</span><span class="p">));</span>
+
+      <span class="c1">// 열린 노드</span>
+      <span class="n">set</span><span class="o">&lt;</span><span class="n">pPair</span><span class="o">&gt;</span> <span class="n">openList</span><span class="p">;</span>
+      <span class="n">openList</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">{</span> <span class="n">src</span><span class="p">.</span><span class="n">second</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">first</span> <span class="p">}</span> <span class="p">});</span>
+
+      <span class="c1">// 계산 값이 저장되는 배열</span>
+      <span class="n">Cell</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">MAX</span><span class="p">][</span><span class="n">MAX</span><span class="p">];</span>			
+		
+      <span class="cm">/** 내용초기화 : 계산해야할 값부분은 INF로하고, 계산할 경로는 -1로 초기화 */</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">ROW</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">COL</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">cellDetails</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">].</span><span class="n">f</span> <span class="o">=</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">].</span><span class="n">g</span> <span class="o">=</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">].</span><span class="n">h</span> <span class="o">=</span> <span class="n">INF</span><span class="p">;</span>
+              <span class="n">cellDetails</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">].</span><span class="n">parent_x</span> <span class="o">=</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">].</span><span class="n">parent_y</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+
+      <span class="c1">// src의 좌표가 첫좌표가 된다.</span>
+      <span class="kt">int</span> <span class="n">sy</span> <span class="o">=</span> <span class="n">src</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+      <span class="kt">int</span> <span class="n">sx</span> <span class="o">=</span> <span class="n">src</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+      <span class="n">cellDetails</span><span class="p">[</span><span class="n">sy</span><span class="p">][</span><span class="n">sx</span><span class="p">].</span><span class="n">f</span> <span class="o">=</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">sy</span><span class="p">][</span><span class="n">sx</span><span class="p">].</span><span class="n">g</span> <span class="o">=</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">sy</span><span class="p">][</span><span class="n">sx</span><span class="p">].</span><span class="n">h</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+      <span class="n">cellDetails</span><span class="p">[</span><span class="n">sy</span><span class="p">][</span><span class="n">sx</span><span class="p">].</span><span class="n">parent_x</span> <span class="o">=</span> <span class="n">sx</span><span class="p">;</span>
+      <span class="n">cellDetails</span><span class="p">[</span><span class="n">sy</span><span class="p">][</span><span class="n">sx</span><span class="p">].</span><span class="n">parent_y</span> <span class="o">=</span> <span class="n">sy</span><span class="p">;</span>
+
+      <span class="cm">/** 반복하여 진행 */</span>
+      <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">openList</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+          <span class="n">pPair</span> <span class="n">p</span> <span class="o">=</span> <span class="o">*</span><span class="n">openList</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+          <span class="n">openList</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">openList</span><span class="p">.</span><span class="n">begin</span><span class="p">());</span>
+
+          <span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+          <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+          <span class="n">closedList</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+
+          <span class="kt">double</span> <span class="n">ng</span><span class="p">,</span> <span class="n">nf</span><span class="p">,</span> <span class="n">nh</span><span class="p">;</span>
+
+          <span class="c1">// 직선</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+              <span class="kt">int</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">dy1</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+              <span class="kt">int</span> <span class="n">nx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">dx1</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+              <span class="k">if</span> <span class="p">(</span><span class="n">isInRange</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">))</span> <span class="p">{</span>
+                  <span class="k">if</span> <span class="p">(</span><span class="n">isDestination</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">dst</span><span class="p">))</span> <span class="p">{</span>
+                      <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">parent_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+                      <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">parent_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+                      <span class="n">tracePath</span><span class="p">(</span><span class="n">cellDetails</span><span class="p">,</span> <span class="n">dst</span><span class="p">);</span>
+                      <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+                  <span class="p">}</span>
+
+                  <span class="c1">//  closedList를 방문여부</span>
+                  <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="o">!</span><span class="n">closedList</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">isUnBlocked</span><span class="p">(</span><span class="n">map</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">))</span> <span class="p">{</span>
+                      <span class="c1">// 이부분 y x, ny nx 헷갈리는거 조심</span>
+                      <span class="n">ng</span> <span class="o">=</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">].</span><span class="n">g</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">;</span>
+                      <span class="n">nh</span> <span class="o">=</span> <span class="n">GethValue</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">dst</span><span class="p">);</span>
+                      <span class="n">nf</span> <span class="o">=</span> <span class="n">ng</span> <span class="o">+</span> <span class="n">nh</span><span class="p">;</span>
+
+                      <span class="c1">// 만약 한번도 갱신이 안된f거나, 새로갱신될 f가 기존f보다 작을시 참</span>
+                      <span class="k">if</span> <span class="p">(</span><span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">f</span> <span class="o">==</span> <span class="n">INF</span> <span class="o">||</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">f</span> <span class="o">&gt;</span> <span class="n">nf</span><span class="p">)</span> <span class="p">{</span>
+                          <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">f</span> <span class="o">=</span> <span class="n">nf</span><span class="p">;</span>
+                          <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">g</span> <span class="o">=</span> <span class="n">ng</span><span class="p">;</span>
+                          <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">h</span> <span class="o">=</span> <span class="n">nh</span><span class="p">;</span>
+                          <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">parent_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+                          <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">parent_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+                          <span class="n">openList</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span> <span class="n">nf</span><span class="p">,</span> <span class="p">{</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span> <span class="p">}</span> <span class="p">});</span>
+                      <span class="p">}</span>
+                  <span class="p">}</span>
+              <span class="p">}</span>
+          <span class="p">}</span>
+
+          <span class="c1">// 대각선</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+              <span class="kt">int</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">dy2</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+              <span class="kt">int</span> <span class="n">nx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">dx2</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+              <span class="k">if</span> <span class="p">(</span><span class="n">isInRange</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">))</span> <span class="p">{</span>
+                  <span class="k">if</span> <span class="p">(</span><span class="n">isDestination</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">dst</span><span class="p">))</span> <span class="p">{</span>
+                      <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">parent_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+                      <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">parent_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+                      <span class="n">tracePath</span><span class="p">(</span><span class="n">cellDetails</span><span class="p">,</span> <span class="n">dst</span><span class="p">);</span>
+                      <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+                  <span class="p">}</span>
+                  <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="o">!</span><span class="n">closedList</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">isUnBlocked</span><span class="p">(</span><span class="n">map</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">))</span> <span class="p">{</span>
+                      <span class="n">ng</span> <span class="o">=</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">].</span><span class="n">g</span> <span class="o">+</span> <span class="mf">1.414</span><span class="p">;</span>
+                      <span class="n">nh</span> <span class="o">=</span> <span class="n">GethValue</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">dst</span><span class="p">);</span>
+                      <span class="n">nf</span> <span class="o">=</span> <span class="n">ng</span> <span class="o">+</span> <span class="n">nh</span><span class="p">;</span>
+
+                      <span class="k">if</span> <span class="p">(</span><span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">f</span> <span class="o">==</span> <span class="n">INF</span> <span class="o">||</span> <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">f</span> <span class="o">&gt;</span> <span class="n">nf</span><span class="p">)</span> <span class="p">{</span>
+                          <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">f</span> <span class="o">=</span> <span class="n">nf</span><span class="p">;</span>
+                          <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">g</span> <span class="o">=</span> <span class="n">ng</span><span class="p">;</span>
+                          <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">h</span> <span class="o">=</span> <span class="n">nh</span><span class="p">;</span>
+                          <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">parent_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+                          <span class="n">cellDetails</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">].</span><span class="n">parent_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+                          <span class="n">openList</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span> <span class="n">nf</span><span class="p">,</span> <span class="p">{</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span> <span class="p">}</span> <span class="p">});</span>
+                      <span class="p">}</span>
+                  <span class="p">}</span>
+              <span class="p">}</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+
+      <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 현재 맵의 상태를 출력하는 함수</span>
+  <span class="kt">void</span> <span class="nf">PrintMap</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">ROW</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">COL</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">zmap</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+          <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 텍스트파일로부터 맵정보를 불러오는 함수</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">fileload</span><span class="p">(</span><span class="n">string</span> <span class="n">filepath</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">ifstream</span> <span class="n">ifs</span><span class="p">(</span><span class="n">filepath</span><span class="p">);</span>
+      <span class="kt">int</span> <span class="n">cur</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="n">ifs</span><span class="p">.</span><span class="n">is_open</span><span class="p">())</span> <span class="p">{</span>
+          <span class="n">ifs</span> <span class="o">&gt;&gt;</span> <span class="n">ROW</span> <span class="o">&gt;&gt;</span> <span class="n">COL</span><span class="p">;</span>
+          <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">result</span><span class="p">(</span><span class="n">ROW</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">COL</span><span class="p">));</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">ROW</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">COL</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="n">ifs</span> <span class="o">&gt;&gt;</span> <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+
+          <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="k">return</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span> <span class="c1">// 0: 빈 공간, 1: 벽, 2: 출발지점, 3: 도착지점 </span>
+      <span class="n">Pair</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">;</span>
+
+      <span class="c1">// 파일로 부터 맵정보 불러오기 </span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">grid</span> <span class="o">=</span> <span class="n">fileload</span><span class="p">(</span><span class="s">"\TextFile1.txt"</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">grid</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+
+      <span class="c1">// 출발 &amp; 도착지점 설정 </span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">ROW</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">COL</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span> <span class="o">||</span> <span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+                  <span class="k">if</span> <span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="n">src</span> <span class="o">=</span> <span class="p">{</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="p">};</span>
+                  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span> <span class="n">dst</span> <span class="o">=</span> <span class="p">{</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="p">};</span>
+                  <span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+              <span class="p">}</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+
+      <span class="c1">// 문자로 저장</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">ROW</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">COL</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="n">zmap</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="sc">'0'</span><span class="p">;</span>
+
+      <span class="c1">// A* 알고리즘 시작</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">aStarSearch</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">))</span> <span class="n">PrintMap</span><span class="p">();</span>
+      <span class="k">else</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"실패"</span><span class="p">;</span>
+
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="참조">참조</h3>
+
+<ul>
+  <li><a href="https://puzi.tistory.com/23">블로그</a></li>
+  <li><a href="https://velog.io/@dpmawile/astar">블로그_2</a></li>
+  <li><a href="https://hyo-ue4study.tistory.com/92">블로그_3 : 언리얼에서의 구현 방법</a></li>
+  <li><a href="https://www.geeksforgeeks.org/a-search-algorithm/">GeeksforGeeks</a></li>
+</ul>
+
+<h2 id="유한상태기계--fsm-finite-state-machines">유한상태기계 : FSM (Finite State Machines)</h2>
+
+<p>유한한 상태를 가지는 기계가 있다고 가정하고, 컴퓨터는 오로지 하나의 상태만 갖고 있을 수 있으며 각 상태별 동작과 상태끼리의 전이에 대한 내용을 설계하게 된다. 순서도와 비슷한 것이며, 입력에 따라 순서가 결정되는 “Mealy FSM”과 상태에 따라 순서가 결정되는 “Moore FSM”이 존재한다.</p>
+
+<p>조건이 주어지고, 조건에 따라 어떠한 상태를 가지는 노드에서 다른 상태를 가지는 노드로 현재 상태를 변경한다.</p>
+
+<p>게임 개발에서의 FSM은 유한 개의 상태를 가지고, 입력에 따라 어떤 상태에서 다른 상태로 전이되거나 또 다른 출력 같은 과정이 발생하는 장치를 나타낸 모델을 의미한다. ‘if-else’구문을 사용하지 않고, 시각적인 정보를 통해서 상태에 따라 동작을 쉽게 구분하고, 관리를 돕는다.</p>
+
+<p><img src="https://github.com/Goaway-1/Naruto/blob/master/Image/Block_Anim.png?raw=true" alt="애니메이션 동작"></p>
+
+<p>즉, 사용자와 게임 안의 액터와의 관계를 생각하면 된다. 위 그림처럼 Unity나 Unreal Engine을 사용하여 애니메이션 동작을 처리할 때 주로 사용한다. 이는 직접 게임을 개발할때 사용한 애니메이션의 흐름인데, 각 애니메이션을 실행하기 위해서 항상 플레이어의 상태를 참조하여 진행한다.</p>
+
+<h3 id="특징">특징</h3>
+
+<ul>
+  <li>유한한 개수의 상태를 갖는다.</li>
+  <li>외부로부터 입력을 받아들인다.</li>
+  <li>시간의 흐름에 따라 자신의 상태를 변화시킬 수 있다.</li>
+  <li>외부에서 입력받았을 때 특정한 규칙에 따라 자신의 상태를 변화시킬 수 있다.</li>
+  <li>계산 부담이 없고, 직관적이다.</li>
+  <li>State을 나누고, 방향을 재분배하기 어려움이 존재해 확장에 제한이 존재한다.</li>
+</ul>
+
+<h3 id="참조-1">참조</h3>
+
+<ul>
+  <li><a href="https://luv-n-interest.tistory.com/778">블로그</a></li>
+  <li><a href="https://showmiso.tistory.com/156">블로그</a></li>
+  <li><a href="https://www.geeksforgeeks.org/reliable-data-transfer-rdt-3-0/">GeeksforGeeks</a></li>
+</ul>
+
+<h2 id="행동트리--behavior-tree">행동트리 : Behavior Tree</h2>
+
+<p>FSM보다 일반화하여 계층적으로 상태를 구분하고, 자료구조에 쓰이는 트리형태로 확장성과 유연함을 가지고 있으며, 주로 AI 동작에 사용한다. (정지 -&gt; 발견 -&gt; 추격 -&gt; 순찰)</p>
+
+<p>트리형태를 지니기 때문에 계층적으로 상태를 나누는 것에 집중하여 모델링한다.</p>
+
+<h3 id="특징-1">특징</h3>
+
+<ul>
+  <li>단순한 하부 구조를 가지고 있어, 작업을 나누기 쉽다.</li>
+  <li>모듈 재활용이 용이하고, 읽기 쉬워 유지보수가 간편하다.</li>
+  <li>노드의 탐색 순서가 행동에 영향을 미친다.</li>
+  <li>노드는 서로 간의 의존성이 없어야한다. (상황에 다른 차이)</li>
+  <li>애니메이션보다 AI는 다른 오브젝트에서 많은 정보를 얻어와야한다.</li>
+</ul>
+
+<h3 id="참조-2">참조</h3>
+
+<ul>
+  <li><a href="https://velog.io/@al_potato/%EA%B2%8C%EC%9E%84-Behavior-Tree-VS-FSM">블로그</a></li>
+</ul>
+
+<h2 id="quadtree-알고리즘">Quadtree 알고리즘</h2>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Algorithm/quadtree.png" height="250" title="quadtree"></p>
+
+<p>쿼드트리 (QuadTree)란 트리 자료구조 중 하나로 부모 노드 아래에 자식 노드를 4개(Quad)씩 가지고 있는 트리이다. 공간에 대해서 재귀적인 호출로 4개의 자식노드로 지속적으로 분할할 수 있고, 4개씩 나누어야하기 대문에 크기는 짝수여야한다. 이는 필요없는 노드에 대해서 데이터를 제거할 수 있기 때문에, 처리해야하는 데이터의 양을 줄일 수 있다.</p>
+
+<h3 id="쿼드트리-공간-분할-quadtree-space-division">쿼드트리 공간 분할 (Quadtree Space Division)</h3>
+
+<p>공간 분할을 지형을 일정크기로 나누어 놓은 것을 의미하며, 이미지 용량, 충돌, 컬링 등 다양한 곳에서 최적화 기법으로 사용되고 있다. 주로 카메라 시야 범위 내에 들어오지 않은 오브젝트나 지형을 제외시키기 위해서 사용한다. 이뿐만 아니라 “Octree, BSP(Binary Space partitioning)”을 사용하며, 모두 트리 구조이다.</p>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Algorithm/quadtree_2.png" height="250" title="quadtree_2"></p>
+
+<p>위 이미지와 같은 왼쪽 이미지를 압축한 결과는 가운데 그림과 같이 나타낼 수 있으며, 이를 압축하면 “(0(1101)1((0011)(0111)1(1110))” 이다.</p>
+
+<p>충돌 알고리즘도 이와 같은 방법으로 최적화를 진행하게 되는데, 오브젝트들의 구역을 나눈 후 인접한 영역의 오브젝트들끼리만 충돌처리 알고리즘을 진행하여 처리해야할 데이터의 양을 줄일 수 있습니다.</p>
+
+<h3 id="코드-1">코드</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>```cpp
+#include&lt;stdio.h&gt;
+#include&lt;malloc.h&gt;
+#include&lt;memory.h&gt;
+
+void quadTree(char** data, int beginX, int beginY, int size){
+	// 병합 가능한지 체크
+	char beginData = data[beginY][beginX];
+	bool isCombinable = true;
+	for (int y = beginY; y &lt; beginY + size; ++y) {
+		for (int x = beginX; x &lt; beginX + size; ++x) {
+			if (beginData != data[y][x]){
+				isCombinable = false;
+				break;
+			}
+		}
+		if (isCombinable == false)  break;
+	}
+
+	// 병합이 가능하면
+	if (isCombinable){
+		printf("%c", beginData);
+		return;
+	}
+
+	// 그게 아니라면 4개로 분할
+	int halfSize = (int)(size * 0.5f);
+	printf("(");
+	quadTree(data, beginX, beginY, halfSize);
+	quadTree(data, beginX + halfSize, beginY, halfSize);
+	quadTree(data, beginX, beginY + halfSize, halfSize);
+	quadTree(data, beginX + halfSize, beginY + halfSize, halfSize);
+	printf(")");
+}
+void main(){
+	int dataSize = 0;
+	printf("데이터의 크기를 입력해주세요(2의 승수):");
+	scanf("%d", &amp;dataSize);
+
+	// 메모리 할당
+	char** data = (char**)malloc(sizeof(char*)*dataSize);
+	for (int i = 0; i &lt; dataSize; ++i){
+		data[i] = (char*)malloc(sizeof(char)*(dataSize + 1));
+		memset(data[i], 0, sizeof(data[i]));
+	}
+	
+	// 분할
+	printf("데이터를 입력해주세요.\n");
+	for (int i = 0; i &lt; dataSize; ++i)scanf("%s", data[i]);
+	quadTree(data, 0, 0, dataSize);
+	
+	// 메모리 해제
+	for (int i = 0; i &lt; dataSize; ++i)free(data[i]);
+	free(data);
+}
+```
+</code></pre></div></div>
+
+<h2 id="참조-3">참조</h2>
+
+<p><a href="https://chessire.tistory.com/entry/%EC%BF%BC%EB%93%9C%ED%8A%B8%EB%A6%ACQuad-tree">블로그_쿼드트리</a>
+<a href="https://chickenceo.tistory.com/8">블로그_공간분할</a>
+<a href="https://gamedevelopment.tutsplus.com/tutorials/quick-tip-use-quadtrees-to-detect-likely-collisions-in-2d-space--gamedev-374">예시</a></p>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/ue5/2023/02/13/UE5-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC%EB%A7%81.html" title="UE5 | 프로파일링 (UE Insights)">UE5 | 프로파일링 (UE Insights)</a><a class="next" href="/jekyll-theme-yat/algorithm/2023/02/15/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%A3%BC%EC%9A%94-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88.html" title="알고리즘 | 주요 컨테이너">알고리즘 | 주요 컨테이너</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/algorithm/2022/09/12/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%95%8C%EC%93%B8%EC%8B%A0%EC%95%8C.html" title="알고리즘 | 주요 컨테이너">알고리즘 | 알쓸신알</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/effective_c++/2022/07/19/EffectiveC++-Effective-C++-1%EC%9E%A5.html" title="알고리즘 | 주요 컨테이너">Effective C++ | 1장</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/11/UE5-Environment-Querying-System.html" title="알고리즘 | 주요 컨테이너">UE5 | Environment Querying System</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/2022/05/15/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8C%85.html" title="알고리즘 | 주요 컨테이너">첫 포스팅</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2024 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

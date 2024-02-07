@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>UE5 디렉터리 구조 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.3.3">
+<meta property="og:title" content="UE5 디렉터리 구조">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="디렉터리 구조 언리얼 엔진이 설치된 엔진 디렉터리와 프로젝트 디렉터리로 구분되며, 두 디렉터리에는 ‘공통 디렉터리’가 포함되고, 추가로 엔진 디렉터리는 ‘루트와 엔진 전용 디렉터리’를 포함한다. 루트,엔진 전용 디렉터리 엔진 디렉터리에 포함된 내용들로, ‘루트, 엔진 전용’ 디렉터리의 파일들을 합친 것이다. 폴더 내용 Engine 엔진을 이루는 모든 소스 코드, 콘텐츠 등이 포함 Templates 새 프로젝트 생성시 사용할 수 있는 프로젝트 템플릿 모음 FeaturePacks, Samples 스타트 콘텐츠 모음 (추가 설치 필요) GenerateProjectFiles.bat Visual Studio 에서 엔진과 게임 작업시 필요한 UE4 솔루션 및 프로젝트 파일 생성시 사용 (추가 설치 필요) UE4Games.uprojectdirs 엔진이 하위 디렉터리의 프로젝트르 발견할 수 있도록 도와주는 헬퍼 파일 (추가 설치 필요) Documentation - 엔진 문서 소스와 퍼블리시된 파일. - HTML : 퍼블리시된 HTML 문서 파일. - Source : 소스 마크다운 문서 파일. Extras 부가 헬퍼, 유틸리티 파일. Visual Studio의 Custom Visualizer를 Eidtor에서 사용하기 위한 설정 값 저장 Plugins 엔진에 사용되는 플러그인 Programs - UE4 루트 디렉터리에 저장된 프로젝트와 “UnrealFrontend, UnrealHeaderTool” 등의 기타 언리얼 프로그램용 환경설정 파일과 로그 파일 존재. - 빌드툴과 헤더툴이 존재하며, 빌딩의 자동화를 위한 도구. (참조) Shaders 엔진에 대한 셰이더 소스 (.usf) 파일 ※ 본인은 “GenerateProjectFiles.bat, UE4Games.uprojectdirs”파일을 찾아볼 수 없었는데, 언리얼엔진 공식 깃허브에 가면 확인할 수 있다. 공통 디렉터리 폴더 내용 Binaries 컴파일 도중 생성되는 실행 파일이나 기타 파일이 포함 Build 엔진이나 게임을 빌드하는 데 필요한 파일, 플랫폼별 빌드를 만드는 데 필요한 파일 포함 Config - 엔진 행위를 제어하는 값 설정용 환경설정 파일. 게임 프로젝트 Config 파일에 설정된 값은 Engine\Config 디렉터리에 설정된 값을 덮어씀. - 에디터, 게임, 하드웨어등 기본 설정값들이 어떻게 사용되는지 유추 가능. - 지워도 상관없지만, 설정해둔 값들이 모두 삭제되고, 지우고 나서 실행해도 다시 생성되지 않음 Content Engine 이나 게임에 대한 콘텐츠, 애셋 패키지와 맵 존재 (.uasset 타입) DerivedDataCache 참조된 콘텐츠에 대해 로드시 생성된 파생 데이터 파일이 존재하지 않으면 로드 시간이 엄청나게 길어짐 Intermediate - 엔진이나 게임 빌드 도중 생성된 임시 파일. 게임 디렉터리에서 셰이더는 Intermediate 디렉터리에 저장. - 프로젝트 작업 시 임시로 저장되는 파일들이 보관되는 장소로, “자동 저장, 스크린샷, 빌드 파일, 백업 임시 파일, 로그, SaveGames”등 많은 데이터가 저장. - 언리얼 에디터 사용 시 작업의 효율성을 높이거나 복구작업, 문제 확인 등의 활용성이 높은 폴더. 다만 작업이 길어지고 패키징까지 하면 용량을 꽤 많이 차지. Saved - 자동저장, 환경설정 (.ini), 로그 파일. - 추가적으로 Engine/Saved 디렉터리에는 크래시 로그, 하드웨어 정보, 스웜 옵션 및 데이터가 포함 Source - Engine 이나 게임은 물론 엔진 소스 코드, 툴, 게임플레이 클래스 등에 대한 모든 소스 파일. &lt;blockquote&gt; - Engine &lt;blockquote&gt;- Developer : 에디터와 엔진 둘 다에 쓰이는 파일. - Editor : 에디터에만 쓰이는 파일. - Programs : 엔진이나 에디터에 쓰이는 외부 툴. - Runtime : 엔진에만 쓰이는 파일. &lt;/blockquote&gt; - Game &lt;blockquote&gt;- Classes : 모든 게임플레이 클래스 헤더 (.h) 파일. - Private : 모든 .cpp 파일과 게임플레이 클래스 구현 파일, 모듈 구현 파일. - Public : 모듈 헤더 파일. 재빌드 과정 본인은 프로젝트에 문제가 발생하거나 재빌드하고 싶다면, “Binaries, Build, Intermediate, DerivaedDataCache, Save, Visual Studio 파일(.sin)”와 같은 파일들을 모두 지우고, 새로운 Visual Studio 파일(.sin)을 생성하고 컴파일 후 재빌딩한다. 하지만 이때, ‘DerivaedDataCache나 Saved’폴더는 삭제에 있어 유의해야한다. 상관은 없지만 DerivaedDataCache같은 경우에는 콘텐츠에 대해 캐시 파일이 존재하기에 로드 시간이 길어질 수 있다. Saved폴더 같은 경우에는 스크린샷이나 빌드 파일, 로그등등의 데이터가 축적되기 때문에 작업의 효율성을 높이거나 복구 작업, 문제 확인등에 활용하기 때문이다. 그래서 일부 개발자는 색상 정보를 저장하는 Saved/Config를 제외하고 삭제한다. 이는 상황에 맞게 사용하는 것을 추천한다. 협업시 관리 디렉터리 협업 상황에 있어 Git이나 언리얼에서 제공하는 SVN을 사용할때, 어떤 파일을 한정해서 관리해야 하는지에 대한 설명이다. 버전관리 툴로 디렉터리를 관리할 때는 빌드나 컴파일을 통해서 다시 생성되지 않는, 필수적인 파일들만 관리를 해야한다. 그렇기에 “Saved, Intermediate, Build, .vs파일, .sln파일”와 같은 디렉터리와 파일을 버전관리에 있어 제외해야한다. 이들은 빌드하면 다시 생성되는 정보들이기 때문이다. 이들을 제외한 “.uproject 파일, Binaried, Config, Contect, Source, Plugins”를 관리해주어야한다. 참고자료 공식 문서">
+<meta property="og:description" content="디렉터리 구조 언리얼 엔진이 설치된 엔진 디렉터리와 프로젝트 디렉터리로 구분되며, 두 디렉터리에는 ‘공통 디렉터리’가 포함되고, 추가로 엔진 디렉터리는 ‘루트와 엔진 전용 디렉터리’를 포함한다. 루트,엔진 전용 디렉터리 엔진 디렉터리에 포함된 내용들로, ‘루트, 엔진 전용’ 디렉터리의 파일들을 합친 것이다. 폴더 내용 Engine 엔진을 이루는 모든 소스 코드, 콘텐츠 등이 포함 Templates 새 프로젝트 생성시 사용할 수 있는 프로젝트 템플릿 모음 FeaturePacks, Samples 스타트 콘텐츠 모음 (추가 설치 필요) GenerateProjectFiles.bat Visual Studio 에서 엔진과 게임 작업시 필요한 UE4 솔루션 및 프로젝트 파일 생성시 사용 (추가 설치 필요) UE4Games.uprojectdirs 엔진이 하위 디렉터리의 프로젝트르 발견할 수 있도록 도와주는 헬퍼 파일 (추가 설치 필요) Documentation - 엔진 문서 소스와 퍼블리시된 파일. - HTML : 퍼블리시된 HTML 문서 파일. - Source : 소스 마크다운 문서 파일. Extras 부가 헬퍼, 유틸리티 파일. Visual Studio의 Custom Visualizer를 Eidtor에서 사용하기 위한 설정 값 저장 Plugins 엔진에 사용되는 플러그인 Programs - UE4 루트 디렉터리에 저장된 프로젝트와 “UnrealFrontend, UnrealHeaderTool” 등의 기타 언리얼 프로그램용 환경설정 파일과 로그 파일 존재. - 빌드툴과 헤더툴이 존재하며, 빌딩의 자동화를 위한 도구. (참조) Shaders 엔진에 대한 셰이더 소스 (.usf) 파일 ※ 본인은 “GenerateProjectFiles.bat, UE4Games.uprojectdirs”파일을 찾아볼 수 없었는데, 언리얼엔진 공식 깃허브에 가면 확인할 수 있다. 공통 디렉터리 폴더 내용 Binaries 컴파일 도중 생성되는 실행 파일이나 기타 파일이 포함 Build 엔진이나 게임을 빌드하는 데 필요한 파일, 플랫폼별 빌드를 만드는 데 필요한 파일 포함 Config - 엔진 행위를 제어하는 값 설정용 환경설정 파일. 게임 프로젝트 Config 파일에 설정된 값은 Engine\Config 디렉터리에 설정된 값을 덮어씀. - 에디터, 게임, 하드웨어등 기본 설정값들이 어떻게 사용되는지 유추 가능. - 지워도 상관없지만, 설정해둔 값들이 모두 삭제되고, 지우고 나서 실행해도 다시 생성되지 않음 Content Engine 이나 게임에 대한 콘텐츠, 애셋 패키지와 맵 존재 (.uasset 타입) DerivedDataCache 참조된 콘텐츠에 대해 로드시 생성된 파생 데이터 파일이 존재하지 않으면 로드 시간이 엄청나게 길어짐 Intermediate - 엔진이나 게임 빌드 도중 생성된 임시 파일. 게임 디렉터리에서 셰이더는 Intermediate 디렉터리에 저장. - 프로젝트 작업 시 임시로 저장되는 파일들이 보관되는 장소로, “자동 저장, 스크린샷, 빌드 파일, 백업 임시 파일, 로그, SaveGames”등 많은 데이터가 저장. - 언리얼 에디터 사용 시 작업의 효율성을 높이거나 복구작업, 문제 확인 등의 활용성이 높은 폴더. 다만 작업이 길어지고 패키징까지 하면 용량을 꽤 많이 차지. Saved - 자동저장, 환경설정 (.ini), 로그 파일. - 추가적으로 Engine/Saved 디렉터리에는 크래시 로그, 하드웨어 정보, 스웜 옵션 및 데이터가 포함 Source - Engine 이나 게임은 물론 엔진 소스 코드, 툴, 게임플레이 클래스 등에 대한 모든 소스 파일. &lt;blockquote&gt; - Engine &lt;blockquote&gt;- Developer : 에디터와 엔진 둘 다에 쓰이는 파일. - Editor : 에디터에만 쓰이는 파일. - Programs : 엔진이나 에디터에 쓰이는 외부 툴. - Runtime : 엔진에만 쓰이는 파일. &lt;/blockquote&gt; - Game &lt;blockquote&gt;- Classes : 모든 게임플레이 클래스 헤더 (.h) 파일. - Private : 모든 .cpp 파일과 게임플레이 클래스 구현 파일, 모듈 구현 파일. - Public : 모듈 헤더 파일. 재빌드 과정 본인은 프로젝트에 문제가 발생하거나 재빌드하고 싶다면, “Binaries, Build, Intermediate, DerivaedDataCache, Save, Visual Studio 파일(.sin)”와 같은 파일들을 모두 지우고, 새로운 Visual Studio 파일(.sin)을 생성하고 컴파일 후 재빌딩한다. 하지만 이때, ‘DerivaedDataCache나 Saved’폴더는 삭제에 있어 유의해야한다. 상관은 없지만 DerivaedDataCache같은 경우에는 콘텐츠에 대해 캐시 파일이 존재하기에 로드 시간이 길어질 수 있다. Saved폴더 같은 경우에는 스크린샷이나 빌드 파일, 로그등등의 데이터가 축적되기 때문에 작업의 효율성을 높이거나 복구 작업, 문제 확인등에 활용하기 때문이다. 그래서 일부 개발자는 색상 정보를 저장하는 Saved/Config를 제외하고 삭제한다. 이는 상황에 맞게 사용하는 것을 추천한다. 협업시 관리 디렉터리 협업 상황에 있어 Git이나 언리얼에서 제공하는 SVN을 사용할때, 어떤 파일을 한정해서 관리해야 하는지에 대한 설명이다. 버전관리 툴로 디렉터리를 관리할 때는 빌드나 컴파일을 통해서 다시 생성되지 않는, 필수적인 파일들만 관리를 해야한다. 그렇기에 “Saved, Intermediate, Build, .vs파일, .sln파일”와 같은 디렉터리와 파일을 버전관리에 있어 제외해야한다. 이들은 빌드하면 다시 생성되는 정보들이기 때문이다. 이들을 제외한 “.uproject 파일, Binaried, Config, Contect, Source, Plugins”를 관리해주어야한다. 참고자료 공식 문서">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/02/28/UE5-%EB%94%94%EB%A0%89%ED%84%B0%EB%A6%AC-%EA%B5%AC%EC%A1%B0.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/02/28/UE5-%EB%94%94%EB%A0%89%ED%84%B0%EB%A6%AC-%EA%B5%AC%EC%A1%B0.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2023-02-28T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="UE5 디렉터리 구조">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2023-02-28T00:00:00+00:00","datePublished":"2023-02-28T00:00:00+00:00","description":"디렉터리 구조 언리얼 엔진이 설치된 엔진 디렉터리와 프로젝트 디렉터리로 구분되며, 두 디렉터리에는 ‘공통 디렉터리’가 포함되고, 추가로 엔진 디렉터리는 ‘루트와 엔진 전용 디렉터리’를 포함한다. 루트,엔진 전용 디렉터리 엔진 디렉터리에 포함된 내용들로, ‘루트, 엔진 전용’ 디렉터리의 파일들을 합친 것이다. 폴더 내용 Engine 엔진을 이루는 모든 소스 코드, 콘텐츠 등이 포함 Templates 새 프로젝트 생성시 사용할 수 있는 프로젝트 템플릿 모음 FeaturePacks, Samples 스타트 콘텐츠 모음 (추가 설치 필요) GenerateProjectFiles.bat Visual Studio 에서 엔진과 게임 작업시 필요한 UE4 솔루션 및 프로젝트 파일 생성시 사용 (추가 설치 필요) UE4Games.uprojectdirs 엔진이 하위 디렉터리의 프로젝트르 발견할 수 있도록 도와주는 헬퍼 파일 (추가 설치 필요) Documentation - 엔진 문서 소스와 퍼블리시된 파일. - HTML : 퍼블리시된 HTML 문서 파일. - Source : 소스 마크다운 문서 파일. Extras 부가 헬퍼, 유틸리티 파일. Visual Studio의 Custom Visualizer를 Eidtor에서 사용하기 위한 설정 값 저장 Plugins 엔진에 사용되는 플러그인 Programs - UE4 루트 디렉터리에 저장된 프로젝트와 “UnrealFrontend, UnrealHeaderTool” 등의 기타 언리얼 프로그램용 환경설정 파일과 로그 파일 존재. - 빌드툴과 헤더툴이 존재하며, 빌딩의 자동화를 위한 도구. (참조) Shaders 엔진에 대한 셰이더 소스 (.usf) 파일 ※ 본인은 “GenerateProjectFiles.bat, UE4Games.uprojectdirs”파일을 찾아볼 수 없었는데, 언리얼엔진 공식 깃허브에 가면 확인할 수 있다. 공통 디렉터리 폴더 내용 Binaries 컴파일 도중 생성되는 실행 파일이나 기타 파일이 포함 Build 엔진이나 게임을 빌드하는 데 필요한 파일, 플랫폼별 빌드를 만드는 데 필요한 파일 포함 Config - 엔진 행위를 제어하는 값 설정용 환경설정 파일. 게임 프로젝트 Config 파일에 설정된 값은 Engine\\Config 디렉터리에 설정된 값을 덮어씀. - 에디터, 게임, 하드웨어등 기본 설정값들이 어떻게 사용되는지 유추 가능. - 지워도 상관없지만, 설정해둔 값들이 모두 삭제되고, 지우고 나서 실행해도 다시 생성되지 않음 Content Engine 이나 게임에 대한 콘텐츠, 애셋 패키지와 맵 존재 (.uasset 타입) DerivedDataCache 참조된 콘텐츠에 대해 로드시 생성된 파생 데이터 파일이 존재하지 않으면 로드 시간이 엄청나게 길어짐 Intermediate - 엔진이나 게임 빌드 도중 생성된 임시 파일. 게임 디렉터리에서 셰이더는 Intermediate 디렉터리에 저장. - 프로젝트 작업 시 임시로 저장되는 파일들이 보관되는 장소로, “자동 저장, 스크린샷, 빌드 파일, 백업 임시 파일, 로그, SaveGames”등 많은 데이터가 저장. - 언리얼 에디터 사용 시 작업의 효율성을 높이거나 복구작업, 문제 확인 등의 활용성이 높은 폴더. 다만 작업이 길어지고 패키징까지 하면 용량을 꽤 많이 차지. Saved - 자동저장, 환경설정 (.ini), 로그 파일. - 추가적으로 Engine/Saved 디렉터리에는 크래시 로그, 하드웨어 정보, 스웜 옵션 및 데이터가 포함 Source - Engine 이나 게임은 물론 엔진 소스 코드, 툴, 게임플레이 클래스 등에 대한 모든 소스 파일. &lt;blockquote&gt; - Engine &lt;blockquote&gt;- Developer : 에디터와 엔진 둘 다에 쓰이는 파일. - Editor : 에디터에만 쓰이는 파일. - Programs : 엔진이나 에디터에 쓰이는 외부 툴. - Runtime : 엔진에만 쓰이는 파일. &lt;/blockquote&gt; - Game &lt;blockquote&gt;- Classes : 모든 게임플레이 클래스 헤더 (.h) 파일. - Private : 모든 .cpp 파일과 게임플레이 클래스 구현 파일, 모듈 구현 파일. - Public : 모듈 헤더 파일. 재빌드 과정 본인은 프로젝트에 문제가 발생하거나 재빌드하고 싶다면, “Binaries, Build, Intermediate, DerivaedDataCache, Save, Visual Studio 파일(.sin)”와 같은 파일들을 모두 지우고, 새로운 Visual Studio 파일(.sin)을 생성하고 컴파일 후 재빌딩한다. 하지만 이때, ‘DerivaedDataCache나 Saved’폴더는 삭제에 있어 유의해야한다. 상관은 없지만 DerivaedDataCache같은 경우에는 콘텐츠에 대해 캐시 파일이 존재하기에 로드 시간이 길어질 수 있다. Saved폴더 같은 경우에는 스크린샷이나 빌드 파일, 로그등등의 데이터가 축적되기 때문에 작업의 효율성을 높이거나 복구 작업, 문제 확인등에 활용하기 때문이다. 그래서 일부 개발자는 색상 정보를 저장하는 Saved/Config를 제외하고 삭제한다. 이는 상황에 맞게 사용하는 것을 추천한다. 협업시 관리 디렉터리 협업 상황에 있어 Git이나 언리얼에서 제공하는 SVN을 사용할때, 어떤 파일을 한정해서 관리해야 하는지에 대한 설명이다. 버전관리 툴로 디렉터리를 관리할 때는 빌드나 컴파일을 통해서 다시 생성되지 않는, 필수적인 파일들만 관리를 해야한다. 그렇기에 “Saved, Intermediate, Build, .vs파일, .sln파일”와 같은 디렉터리와 파일을 버전관리에 있어 제외해야한다. 이들은 빌드하면 다시 생성되는 정보들이기 때문이다. 이들을 제외한 “.uproject 파일, Binaried, Config, Contect, Source, Plugins”를 관리해주어야한다. 참고자료 공식 문서","headline":"UE5 디렉터리 구조","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/02/28/UE5-%EB%94%94%EB%A0%89%ED%84%B0%EB%A6%AC-%EA%B5%AC%EC%A1%B0.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/02/28/UE5-%EB%94%94%EB%A0%89%ED%84%B0%EB%A6%AC-%EA%B5%AC%EC%A1%B0.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+
+
+  </head>
+  
+  <body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">UE5 | 디렉터리 구조</h1>
+  <h2 class="post-subtitle">Assert</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2023-02-28T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Feb 28, 2023
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 4 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#UE5">#UE5</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#UnrealEngine">#UnrealEngine</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#C++">#C++</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="디렉터리-구조">디렉터리 구조</h2>
+
+<p>언리얼 엔진이 설치된 <strong>엔진 디렉터리와 프로젝트 디렉터리로</strong> 구분되며, 두 디렉터리에는 <strong>‘공통 디렉터리’가</strong> 포함되고, 추가로 엔진 디렉터리는 <strong>‘루트와 엔진 전용 디렉터리’를</strong> 포함한다.</p>
+
+<h3 id="루트엔진-전용-디렉터리">루트,엔진 전용 디렉터리</h3>
+
+<p>엔진 디렉터리에 포함된 내용들로, ‘루트, 엔진 전용’ 디렉터리의 파일들을 합친 것이다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>폴더</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Engine</strong></td>
+      <td>엔진을 이루는 모든 소스 코드, 콘텐츠 등이 포함</td>
+    </tr>
+    <tr>
+      <td><strong>Templates</strong></td>
+      <td>새 프로젝트 생성시 사용할 수 있는 프로젝트 템플릿 모음</td>
+    </tr>
+    <tr>
+      <td><strong>FeaturePacks, Samples</strong></td>
+      <td>스타트 콘텐츠 모음 <em>(추가 설치 필요)</em>
+</td>
+    </tr>
+    <tr>
+      <td><strong>GenerateProjectFiles.bat</strong></td>
+      <td>Visual Studio 에서 엔진과 게임 작업시 필요한 UE4 솔루션 및 프로젝트 파일 생성시 사용 <em>(추가 설치 필요)</em>
+</td>
+    </tr>
+    <tr>
+      <td><strong>UE4Games.uprojectdirs</strong></td>
+      <td>엔진이 하위 디렉터리의 프로젝트르 발견할 수 있도록 도와주는 헬퍼 파일 <em>(추가 설치 필요)</em>
+</td>
+    </tr>
+    <tr>
+      <td><strong>Documentation</strong></td>
+      <td>
+<ul>
+  <li>엔진 문서 소스와 퍼블리시된 파일. <br> - HTML : 퍼블리시된 HTML 문서 파일.  <br>  - Source : 소스 마크다운 문서 파일.</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td><strong>Extras</strong></td>
+      <td>부가 헬퍼, 유틸리티 파일. Visual Studio의 Custom Visualizer를 Eidtor에서 사용하기 위한 설정 값 저장</td>
+    </tr>
+    <tr>
+      <td><strong>Plugins</strong></td>
+      <td>엔진에 사용되는 플러그인</td>
+    </tr>
+    <tr>
+      <td><strong>Programs</strong></td>
+      <td>
+<ul>
+  <li>UE4 루트 디렉터리에 저장된 프로젝트와 “UnrealFrontend, UnrealHeaderTool” 등의 기타 언리얼 프로그램용 환경설정 파일과 로그 파일 존재. <br> - 빌드툴과 헤더툴이 존재하며, 빌딩의 자동화를 위한 도구. (<a href="http://docs.unrealengine.com/en-us/Programming/BuildTools">참조</a>)</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td><strong>Shaders</strong></td>
+      <td>엔진에 대한 셰이더 소스 (.usf) 파일</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>※ 본인은 <strong>“GenerateProjectFiles.bat, UE4Games.uprojectdirs”파일을</strong> 찾아볼 수 없었는데, <a href="https://github.com/EpicGames/UnrealEngine/tree/5.1">언리얼엔진 공식 깃허브</a>에 가면 확인할 수 있다.</p>
+
+<h3 id="공통-디렉터리">공통 디렉터리</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>폴더</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Binaries</strong></td>
+      <td>컴파일 도중 생성되는 실행 파일이나 기타 파일이 포함</td>
+    </tr>
+    <tr>
+      <td><strong>Build</strong></td>
+      <td>엔진이나 게임을 빌드하는 데 필요한 파일, 플랫폼별 빌드를 만드는 데 필요한 파일 포함</td>
+    </tr>
+    <tr>
+      <td><strong>Config</strong></td>
+      <td>
+<ul>
+  <li>엔진 행위를 제어하는 값 설정용 환경설정 파일. 게임 프로젝트 Config 파일에 설정된 값은 Engine\Config 디렉터리에 설정된 값을 덮어씀. <br> - 에디터, 게임, 하드웨어등 기본 설정값들이 어떻게 사용되는지 유추 가능. <br> - 지워도 상관없지만, 설정해둔 값들이 모두 삭제되고, 지우고 나서 실행해도 다시 생성되지 않음</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td><strong>Content</strong></td>
+      <td>Engine 이나 게임에 대한 콘텐츠, 애셋 패키지와 맵 존재 (.uasset 타입)</td>
+    </tr>
+    <tr>
+      <td><strong>DerivedDataCache</strong></td>
+      <td>참조된 콘텐츠에 대해 로드시 생성된 파생 데이터 파일이 존재하지 않으면 로드 시간이 엄청나게 길어짐</td>
+    </tr>
+    <tr>
+      <td><strong>Intermediate</strong></td>
+      <td>
+<ul>
+  <li>엔진이나 게임 빌드 도중 생성된 임시 파일. 게임 디렉터리에서 셰이더는 Intermediate 디렉터리에 저장.  <br> - 프로젝트 작업 시 임시로 저장되는 파일들이 보관되는 장소로, “자동 저장, 스크린샷, 빌드 파일, 백업 임시 파일, 로그, SaveGames”등 많은 데이터가 저장. <br> - 언리얼 에디터 사용 시 작업의 효율성을 높이거나 복구작업, 문제 확인 등의 활용성이 높은 폴더. 다만 작업이 길어지고 패키징까지 하면 용량을 꽤 많이 차지.</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td><strong>Saved</strong></td>
+      <td>
+<ul>
+  <li>자동저장, 환경설정 (.ini), 로그 파일.  <br> - 추가적으로 Engine/Saved 디렉터리에는 크래시 로그, 하드웨어 정보, 스웜 옵션 및 데이터가 포함</li>
+</ul>
+</td>
+    </tr>
+    <tr>
+      <td><strong>Source</strong></td>
+      <td>
+<ul>
+  <li>Engine 이나 게임은 물론 엔진 소스 코드, 툴, 게임플레이 클래스 등에 대한 모든 소스 파일. <br>&lt;blockquote&gt; - <strong>Engine</strong>  <br>&lt;blockquote&gt;- <strong>Developer</strong> : 에디터와 엔진 둘 다에 쓰이는 파일. <br> - <strong>Editor</strong> : 에디터에만 쓰이는 파일. <br> - <strong>Programs</strong> : 엔진이나 에디터에 쓰이는 외부 툴.<br> - <strong>Runtime</strong> : 엔진에만 쓰이는 파일. &lt;/blockquote&gt; <br>  - <strong>Game</strong>  <br>&lt;blockquote&gt;- <strong>Classes</strong> : 모든 게임플레이 클래스 헤더 (.h) 파일. <br> - <strong>Private</strong> : 모든 .cpp 파일과 게임플레이 클래스 구현 파일, 모듈 구현 파일. <br> - <strong>Public</strong> : 모듈 헤더 파일.</li>
+</ul>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2 id="재빌드-과정">재빌드 과정</h2>
+
+<p>본인은 프로젝트에 문제가 발생하거나 재빌드하고 싶다면, “Binaries, Build, Intermediate, DerivaedDataCache, Save, Visual Studio 파일(.sin)”와 같은 파일들을 모두 지우고, 새로운 Visual Studio 파일(.sin)을 생성하고 컴파일 후 재빌딩한다.</p>
+
+<p>하지만 이때, ‘DerivaedDataCache나 Saved’폴더는 삭제에 있어 유의해야한다. 상관은 없지만 DerivaedDataCache같은 경우에는 콘텐츠에 대해 캐시 파일이 존재하기에 로드 시간이 길어질 수 있다.</p>
+
+<p>Saved폴더 같은 경우에는 스크린샷이나 빌드 파일, 로그등등의 데이터가 축적되기 때문에 작업의 효율성을 높이거나 복구 작업, 문제 확인등에 활용하기 때문이다. 그래서 일부 개발자는 색상 정보를 저장하는 Saved/Config를 제외하고 삭제한다. 이는 상황에 맞게 사용하는 것을 추천한다.</p>
+
+<hr>
+
+<h2 id="협업시-관리-디렉터리">협업시 관리 디렉터리</h2>
+
+<p>협업 상황에 있어 Git이나 언리얼에서 제공하는 SVN을 사용할때, 어떤 파일을 한정해서 관리해야 하는지에 대한 설명이다. 버전관리 툴로 디렉터리를 관리할 때는 빌드나 컴파일을 통해서 다시 생성되지 않는, 필수적인 파일들만 관리를 해야한다.</p>
+
+<p>그렇기에 <strong>“Saved, Intermediate, Build, .vs파일, .sln파일”와</strong> 같은 디렉터리와 파일을 버전관리에 있어 제외해야한다. 이들은 빌드하면 다시 생성되는 정보들이기 때문이다. 이들을 제외한 <strong>“.uproject 파일, Binaried, Config, Contect, Source, Plugins”를</strong> 관리해주어야한다.</p>
+
+<hr>
+
+<h2 id="참고자료">참고자료</h2>
+
+<ul>
+  <li><a href="https://docs.unrealengine.com/5.1/ko/unreal-engine-directory-structure/">공식 문서</a></li>
+</ul>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/algorithm/2023/02/17/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-CPP.html" title="알고리즘 | CPP">알고리즘 | CPP</a><a class="next" href="/jekyll-theme-yat/nothing/2023/08/13/%EC%A3%BC%EC%A0%88%EC%A3%BC%EC%A0%88-%EC%9D%B4%EA%B2%8C-%EB%B8%94%EB%A1%9C%EA%B7%B8%EB%83%90.html" title="블로그 개선하기">블로그 개선하기</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/ue5/2024/02/07/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-3%EB%B6%80.html" title="블로그 개선하기">초보자들을 위한 언리얼 네트워크 3부</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/07/11/UE5-Environment-Querying-System.html" title="블로그 개선하기">UE5 | Environment Querying System</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/effective_c++/2022/08/03/EffectiveC++-Effective-C++-4%EC%9E%A5.html" title="블로그 개선하기">Effective C++ | 4장</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2024/01/08/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-1%EB%B6%80.html" title="블로그 개선하기">초보자들을 위한 언리얼 네트워크 1부</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2024 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

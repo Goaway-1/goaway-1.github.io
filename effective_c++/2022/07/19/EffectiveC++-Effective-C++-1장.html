@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Effective C++ 1장 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.3.3">
+<meta property="og:title" content="Effective C++ 1장">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="항목 1 : c++를 언어들의 연합체로 바라보자. c++은 “C, 객체지향의 C++, 템플릿의 C++, STL”과 같이 4가지 언어들의 기능을 모두 포함하고 있는데, 이 언어 중 어떤 기능을 사용하냐에 따라 프로그램의 규칙이 달라진다. 만약 예를들어 “값 전달”과 “참조 전달” 중 한가지 전달방법을 선택할때 언어에 따라 효과적인 전달방법이 있으며 아래와 같다. 기능 전달 이유 C 값 전달 형식적인 이유 객체지향의 C++ 참조 전달 생성자/소멸자 개념이 생겼기에 템플릿의 C++ 참조 전달 객체 타입조차 알 수 없기에 STL 값 전달 C의 포인터를 본떠 만든 것이기에 잊지 말자 C++은 경우에 따라 효과적인 프로그래밍 규칙이 달라진다. 이때 경우는 위에서 설명하는 4가지 언어를 의미한다. 항목 2 : #define을 쓰려거든 const, enum, inline을 떠올리자. 매크로 #define A 1.6 매크로(선행처리자)로 위에서 선언된 A는 “기호식 이름”처럼 보이지만, 컴파일러에게 넘어가기 전에 선행처리자가 상수로 변환하기 때문에 A라는 이름은 “기호 테이블”에 들어가지 않는다. ※ 문제점 : 이는 에러발생 시, A는 “기호식 이름”으로 표시되지 않고 “상수”로 표시되기 때문에 혼란을 야기한다. 특히 다른 개발자가 매크로를 선언했을때는 오류를 찾을 수가 없다. 또한 선행처리자가 A를 찾아 모두 상수로 바꾸기 때문에 메모리 사용측면에서 비효율적이다. ※ 해결방법 : const double A = 1.6; 이를 해결하기 위해서는 매크로 대신 “상수”를 사용하는 것이다. 이는 기호 테이블에 들어가기 때문에 컴파일러에 표시되며, 여러번 쓰여도 사본은 1개만 생성되기 때문에 메모리 점유도 효율적이다. ※ 주의사항 : 상수 포인터를 정의하는 경우 const char* const A = &quot;~~&quot;; //구시대적 const string A(&quot;~~&quot;); 위와 같이 포인터와 포인터가 가르키는 대상까지 const로 선언해야 되며, C언어의 구시대적 char*보다는 string 방식을 쓰는 것을 추천한다. 클래스 멤버로 상수를 정의하는 경우 이는 즉 클래스 상수를 공유하는 “정적(Static)”멤버를 만들때를 의미하며, 이때 해결 방법은 2가지가 존재한다. ※ 1번 방안 //header class A{ private: static const int tmp = 5; //정의가 아닌 선언 int score[tmp]; }; //cpp const int A::tmp; //클래스 상수의 주소를 요구할때 이때 tmp는 선언시 초기화되며, 클래스 상수의 주소를 요구할 시, cpp에 정의해준다. 하지만 구 컴파일러의 경우 선언시점에 초기값 선언이 옳지 않다고 판단하게 될 수 있는데, 이는 아래와 같이 초기값을 정의 시점으로 옮겨서 해결한다. //header class A{ private: static const int tmp; //정의 }; //cpp const int A::tmp = 5; //선언 ※ 2번 방안 //header class A{ private: enum {tmp = 5;} int score[tmp]; }; 이는 만약 클래스 컴파일 도중 클래스의 상수값을 요구할때 나열자(enum)을 사용하여 해결한다. 이 나열자를 사용하면 수많은 장점이 존재하는데, 첫 번째로 선언한 정수 상수를 다른 개발자가 주소를 얻거나 참조하려할때 자물쇠역할을한다. 이를 통해서 접근을 제한한다. 두 번째로 1번 방안에서 const는 컴파일러의 오류로 혹시 모르는 메모리가 할당될 가능성이 있지만 나열자는 그런 가능성이 존재하지 않는다. 세 번재로 많은 개발자들이 이 방식을 사용하고 있으며, 이는 템플릿 메타프로그래밍의 핵심이다. 때문에 enum을 사용하는 것을 추천한다. 매크로 함수 //매크로 #define A(a,b) f((a) &gt; (b) ? (a) : (b) //오류 A(++a,b); 위와 같이 매크로 함수가 존재할때, ++a는 b와의 관계에 따라 2번 증가하거나 1번 증가하는 괴현상이 발생한다. ※ 해결방법 : template &lt;typename T&gt; inline void A(const T &amp;a, const T &amp;b){ f(a &gt; b ? a : b) } 위와같이 인라인함수에 대한 템플릿으로 구현한다. 이는 진짜 함수이기 때문에 유효범위와 접근규칙을 준수한다. 잊지 말자 단순 상수는 #define이 아닌 “const 객체”,”enum”을 우선 사용하고, 매크로 함수는 “인라인 함수”를 사용한다. 항목 3 : 낌새만 보이면 const를 들이대 보자! const의 대표적 예시 클래스 밖에서는 전역/네임스페이스 유효범위의 상수를 선언 파일, 함수, 블록 유효범위에서 static으로 선언한 객체에 사용 가능 클래스 내부에서는 정적/비정적 데이터 멤버 모두 상수 선언이 가능 포인터 자체 or 포인터가 가르키는 데이터를 상수로 지정 가능 const char * p; //상수 데이터 char * const p; //상수 포인터 STL의 반복자(iterator) 사용시 반복자는 자신이 가리키는 대상이 아닌 것을 가르키는 것도 가능하고, 대상 자체에 대해서도 변경이 가능하다. 하지만 변경을 불가능하게 하기 위해서 “const_iterator”를 사용한다. //이전 const vector&lt;int&gt;::iterator it = vec.begin(); *it = 10; // 가능 it++; // it는 상수이기에 불가능 //이후 vector&lt;int&gt;::const_iterator it = vec.begin(); *it = 10; // *it는 상수이기에 불가능 it++; // 가능 함수 선언 가장 강력한 용도로 사용되며, 반환 값/매개변수/멤버 함수 앞에 사용한다. 심지어는 함수 전체에도 선언하여 사용한다. 이를 통해 기본 제공 타입과의 쓸데없는 비호환성을 파하는 것과 같은 에러가 감소하는데 예시는 아래와 같다. class A {}; const A operator *(const A &amp;a, const A &amp;b); //Error A a,b,c; (a * b) = c; if(a * b = c); 멤버 함수가 상수 함수일때의 의미 개념 의미 비트 수준 상수성 (물리적) 정적 멤버를 제외한 어떤 데이터 멤버도 건들이지 않으며, 즉 객체를 구성하는 비트를 바꾸지 않는다. 논리적 상수성 비트 수준 상수성을 보완하는 개념으로 일부 몇 비트는 바꿀 수 있되, 사용자가 인지하지 못한다면 상관없다. 비트 수준 상수성 ‘제대로 const’로 동작하지 않는데도 검사를 통과하는 경우가 발생한다. 아래와 같은 경우로 부적절하지만 비트수준 상수성이 있어서 허용된 경우이다. 이는 pText의 내용을 수정할 수 있는 큰 문제를 야기할 수 있다. ```c++ char&amp; operator[](size_t t) const { return pText[t]; } //ERROR const A a(&quot;Hello&quot;); char *pc = &amp;a[0]; *pc = 'J'; //&quot;Jello&quot;로 값이 변한다. ``` 논리적 상수성 위의 문제를 보오나하기 위한 개념으로, 일부 몇 비트는 바꿀 수 있다. 아래와 같이 const로 선언된 상수 함수(length())가 있다고 가정할때, 이는 textLenght, lengthIsValid라는 변수에 대해서 값을 대입하고 있는 오류를 발생시킨다. ```cpp private: char *pText; size_t textlength; bool lengthIsValid; public: size_t length() const; //length() if(!lengthIsValid){ textLength = strlen(pText); //ERROR lengthIsValid = true; //ERROR } ``` 이를 해결 하기 위해서는 단순히 mutable을 사용하여 해결하면 되는데, 이는 비정적 데이터 멤버를 비트수준 상수성의 족쇄에서 풀어준다. private: char *pText; mutable size_t textlength; //해결 mutable bool lengthIsValid; //해결 상수/비상수 멤버 함수에서 코드 중복 배제하기 c++은 오버로딩을 지원하기 떄문에 만약 동일한 코드 내용인데 각각 상수와 비상수로 선언되어 있다면 이 코드 중복을 배제하기 위한 방안이 존재한다. 캐스팅이 필요하긴 하지만 안전성을 유지하고, 코드 중복을 피하는 방법은 operator[]가 상수 버전을 호출하도록 구현하는 것이다. //상수 함수 const char&amp; operator[](size_t postion) const { return text[postion]; } //비상수 함수 char&amp; operator[](size_t postion) { // op[]의 반환 타입에 캐스팅하여 const 제거 return const_cast&lt;char &amp;&gt;( // *this의 타입에 const를 붙이고, op[]의 상수 버전을 호출 static_cast&lt;const A&amp;&gt;(*this)[postion] ); } 잊지 말자 const를 붙여 선언하면 컴파일러가 에러를 잡아내는데 도움을 주며, 굉장히 많은 곳에 붙을 수 있다. 컴파일러 쪽에서는 비트수준 상수성을 지켜야 하지만, 개발자는 논리적인 상수성을 사용하여 프로그래밍해야한다. 상수/비상수 멤버 함수가 기능적으로 똑같게 구현되어 있는 경우에는 코드 중복을 피하기 위해서 비상수 버전이 상수 버전을 호출하도록 한다. 항목 4 : 객체를 사용하기 전에는 반드시 초기화하자! 초기화를 하지 않으면 무작위로 비트 값을 읽어들이기 때문에 많은 문제가 발생한다. 비멤버 객체의 경우 직접 초기화를 진행하지만 멤버 객체의 경우 생성자를 통해 초기화를 진행한다. //대입 A(a,b,c){ q = a; w = b; e = c; } //초기화 (멤버 초기화 리스트) A(a,b,c) :q(a),w(b),e(c) {} 위 코드의 경우 각각 대입과 초기화를 의미하는데, 대입은 기본 생성자 -&gt; 복사 대입 연산자의 순서로 총 2번 이루어지지만, 초기화는 복사 생성자 1번만 이루어진다. 그렇기 때문에 초기화가 더욱 효과적이다. // 기본 생성자로 구현된 멤버 초기화 리스트 A() : q(), w(), e() {} 기본 생성자로만 구현하고 싶더라도 멤버 초기화 리스트를 사용하는데, 이는 만약 어떤 멤버가 초기화 리스트에서 제외된 경우에는 기본 제공 타입이 되기 때문에 초기화가 되지 않을 수도 있다. 또한 상수, 참조자가 데이터 멤버인 경우에도 사용하는데, 이 데이터 멤버에는 대입 자체가 불가능하기 때문이다. 그렇기에 기본적으로 멤버 초기화 리스트를 사용하는 것이 좋다. 너무 코드가 지겹고 더럽게 느껴진다면, 대입으로 초기화가 가능한 데이터 멤버들을 리스트에서 빼내어 별도의 함수로 옮겨 이를 생성자에서 호출하는 방법이 있다. 이는 초기값을 파일이나 데이터베이스에서 읽는 경우 유용하다. 비지역 정적 객체의 초기화 개념 의미 비지역 정적 객체 전역 객체, 클래스/함수 내, 파일 유효범위 밖의 static 객체,네임스페이스 유효범위 객체 개별 번역 단위 컴파일을 통해 하나의 목적 파일을 만드는 바탕이 되는 소스 코드 비지역 정적 객체의 초기화 순서는 개별 번역 단위에서 지정되는데 이는 초기화 시 큰 문제를 야기할 수 있다. 예를 들어 2개의 컴파일된 소스 파일에 비지역 정적 객체가 1개 이상 존재하고, 한쪽에서 초기화를 진행할 때 다른쪽의 비지역 정적 객체를 사용하는데 초기화가 진행되어 있지 않다면 컴파일의 에러가 발생한다. //1번 소스파일 class FileSystem { ~~ } extern FileSystem tfs; //비지역 정적 객체 //2번 소스파일 class Directory { Directory() { a = tfs; } //ERROR } 이 문제를 해결하기 위해서는 비지역 정적 객체를 하나씩 맡는 함수를 준비하고, 이 안에 각 객체를 넣어 사용자 측면에서 비지역 정적 객체를 직접 참조하지 않고, 함수를 호출하는 것을 대신한다. 이때 비지역 정적 객체는 정적 객체로 바뀌며, 해당 객체 생성/소멸을 불가능하게 하여 비용이 안생기도록 처리한다. //1번 소스파일 class FileSystem { ~~ } FileSystem tfs(){ static FileSystem fs; return fs; } //2번 소스파일 class Directory { Directory() { a = tfs; } } Directory &amp;tempDir(){ static Directory td; return td; } 즉, 정적 객체 자체를 직접 사용하지 않고 그 객체에 대한 참조라를 반환하는 함수를 사용한다. 하지만 이는 내부적으로 정적 객체를 사용하기 때문에 다중스레드 환경에서는 동작에 문제가 생기는데, 이는 다중스레드 돌입전, 참조자 반환 함수를 손으로 호출하면 경쟁상황이 생기지 않는다. 잊지 말자 기본제공 타입의 객체는 직접 손으로 초기화한다. 생성자에서는 대입문을 사용하지 않고, “멤버 초기화 리스트”를 사용하고, 각 데이터 멤버가 선언된 순서와 똑같이 나열하자. 여러 번역 단위에 있는 비지역 정적 객체들의 초기화 순서 문제는 피해야하기에 비지역 정적 객체를 지역 정적 객체로 바꾸자 출처 ※ Effective C++ 책의 내용을 개인적으로 요약한 것입니다. 책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다. 지음 : 스콧 마이어스 옮김 : 곽용재 출판 : Addison Wesley">
+<meta property="og:description" content="항목 1 : c++를 언어들의 연합체로 바라보자. c++은 “C, 객체지향의 C++, 템플릿의 C++, STL”과 같이 4가지 언어들의 기능을 모두 포함하고 있는데, 이 언어 중 어떤 기능을 사용하냐에 따라 프로그램의 규칙이 달라진다. 만약 예를들어 “값 전달”과 “참조 전달” 중 한가지 전달방법을 선택할때 언어에 따라 효과적인 전달방법이 있으며 아래와 같다. 기능 전달 이유 C 값 전달 형식적인 이유 객체지향의 C++ 참조 전달 생성자/소멸자 개념이 생겼기에 템플릿의 C++ 참조 전달 객체 타입조차 알 수 없기에 STL 값 전달 C의 포인터를 본떠 만든 것이기에 잊지 말자 C++은 경우에 따라 효과적인 프로그래밍 규칙이 달라진다. 이때 경우는 위에서 설명하는 4가지 언어를 의미한다. 항목 2 : #define을 쓰려거든 const, enum, inline을 떠올리자. 매크로 #define A 1.6 매크로(선행처리자)로 위에서 선언된 A는 “기호식 이름”처럼 보이지만, 컴파일러에게 넘어가기 전에 선행처리자가 상수로 변환하기 때문에 A라는 이름은 “기호 테이블”에 들어가지 않는다. ※ 문제점 : 이는 에러발생 시, A는 “기호식 이름”으로 표시되지 않고 “상수”로 표시되기 때문에 혼란을 야기한다. 특히 다른 개발자가 매크로를 선언했을때는 오류를 찾을 수가 없다. 또한 선행처리자가 A를 찾아 모두 상수로 바꾸기 때문에 메모리 사용측면에서 비효율적이다. ※ 해결방법 : const double A = 1.6; 이를 해결하기 위해서는 매크로 대신 “상수”를 사용하는 것이다. 이는 기호 테이블에 들어가기 때문에 컴파일러에 표시되며, 여러번 쓰여도 사본은 1개만 생성되기 때문에 메모리 점유도 효율적이다. ※ 주의사항 : 상수 포인터를 정의하는 경우 const char* const A = &quot;~~&quot;; //구시대적 const string A(&quot;~~&quot;); 위와 같이 포인터와 포인터가 가르키는 대상까지 const로 선언해야 되며, C언어의 구시대적 char*보다는 string 방식을 쓰는 것을 추천한다. 클래스 멤버로 상수를 정의하는 경우 이는 즉 클래스 상수를 공유하는 “정적(Static)”멤버를 만들때를 의미하며, 이때 해결 방법은 2가지가 존재한다. ※ 1번 방안 //header class A{ private: static const int tmp = 5; //정의가 아닌 선언 int score[tmp]; }; //cpp const int A::tmp; //클래스 상수의 주소를 요구할때 이때 tmp는 선언시 초기화되며, 클래스 상수의 주소를 요구할 시, cpp에 정의해준다. 하지만 구 컴파일러의 경우 선언시점에 초기값 선언이 옳지 않다고 판단하게 될 수 있는데, 이는 아래와 같이 초기값을 정의 시점으로 옮겨서 해결한다. //header class A{ private: static const int tmp; //정의 }; //cpp const int A::tmp = 5; //선언 ※ 2번 방안 //header class A{ private: enum {tmp = 5;} int score[tmp]; }; 이는 만약 클래스 컴파일 도중 클래스의 상수값을 요구할때 나열자(enum)을 사용하여 해결한다. 이 나열자를 사용하면 수많은 장점이 존재하는데, 첫 번째로 선언한 정수 상수를 다른 개발자가 주소를 얻거나 참조하려할때 자물쇠역할을한다. 이를 통해서 접근을 제한한다. 두 번째로 1번 방안에서 const는 컴파일러의 오류로 혹시 모르는 메모리가 할당될 가능성이 있지만 나열자는 그런 가능성이 존재하지 않는다. 세 번재로 많은 개발자들이 이 방식을 사용하고 있으며, 이는 템플릿 메타프로그래밍의 핵심이다. 때문에 enum을 사용하는 것을 추천한다. 매크로 함수 //매크로 #define A(a,b) f((a) &gt; (b) ? (a) : (b) //오류 A(++a,b); 위와 같이 매크로 함수가 존재할때, ++a는 b와의 관계에 따라 2번 증가하거나 1번 증가하는 괴현상이 발생한다. ※ 해결방법 : template &lt;typename T&gt; inline void A(const T &amp;a, const T &amp;b){ f(a &gt; b ? a : b) } 위와같이 인라인함수에 대한 템플릿으로 구현한다. 이는 진짜 함수이기 때문에 유효범위와 접근규칙을 준수한다. 잊지 말자 단순 상수는 #define이 아닌 “const 객체”,”enum”을 우선 사용하고, 매크로 함수는 “인라인 함수”를 사용한다. 항목 3 : 낌새만 보이면 const를 들이대 보자! const의 대표적 예시 클래스 밖에서는 전역/네임스페이스 유효범위의 상수를 선언 파일, 함수, 블록 유효범위에서 static으로 선언한 객체에 사용 가능 클래스 내부에서는 정적/비정적 데이터 멤버 모두 상수 선언이 가능 포인터 자체 or 포인터가 가르키는 데이터를 상수로 지정 가능 const char * p; //상수 데이터 char * const p; //상수 포인터 STL의 반복자(iterator) 사용시 반복자는 자신이 가리키는 대상이 아닌 것을 가르키는 것도 가능하고, 대상 자체에 대해서도 변경이 가능하다. 하지만 변경을 불가능하게 하기 위해서 “const_iterator”를 사용한다. //이전 const vector&lt;int&gt;::iterator it = vec.begin(); *it = 10; // 가능 it++; // it는 상수이기에 불가능 //이후 vector&lt;int&gt;::const_iterator it = vec.begin(); *it = 10; // *it는 상수이기에 불가능 it++; // 가능 함수 선언 가장 강력한 용도로 사용되며, 반환 값/매개변수/멤버 함수 앞에 사용한다. 심지어는 함수 전체에도 선언하여 사용한다. 이를 통해 기본 제공 타입과의 쓸데없는 비호환성을 파하는 것과 같은 에러가 감소하는데 예시는 아래와 같다. class A {}; const A operator *(const A &amp;a, const A &amp;b); //Error A a,b,c; (a * b) = c; if(a * b = c); 멤버 함수가 상수 함수일때의 의미 개념 의미 비트 수준 상수성 (물리적) 정적 멤버를 제외한 어떤 데이터 멤버도 건들이지 않으며, 즉 객체를 구성하는 비트를 바꾸지 않는다. 논리적 상수성 비트 수준 상수성을 보완하는 개념으로 일부 몇 비트는 바꿀 수 있되, 사용자가 인지하지 못한다면 상관없다. 비트 수준 상수성 ‘제대로 const’로 동작하지 않는데도 검사를 통과하는 경우가 발생한다. 아래와 같은 경우로 부적절하지만 비트수준 상수성이 있어서 허용된 경우이다. 이는 pText의 내용을 수정할 수 있는 큰 문제를 야기할 수 있다. ```c++ char&amp; operator[](size_t t) const { return pText[t]; } //ERROR const A a(&quot;Hello&quot;); char *pc = &amp;a[0]; *pc = 'J'; //&quot;Jello&quot;로 값이 변한다. ``` 논리적 상수성 위의 문제를 보오나하기 위한 개념으로, 일부 몇 비트는 바꿀 수 있다. 아래와 같이 const로 선언된 상수 함수(length())가 있다고 가정할때, 이는 textLenght, lengthIsValid라는 변수에 대해서 값을 대입하고 있는 오류를 발생시킨다. ```cpp private: char *pText; size_t textlength; bool lengthIsValid; public: size_t length() const; //length() if(!lengthIsValid){ textLength = strlen(pText); //ERROR lengthIsValid = true; //ERROR } ``` 이를 해결 하기 위해서는 단순히 mutable을 사용하여 해결하면 되는데, 이는 비정적 데이터 멤버를 비트수준 상수성의 족쇄에서 풀어준다. private: char *pText; mutable size_t textlength; //해결 mutable bool lengthIsValid; //해결 상수/비상수 멤버 함수에서 코드 중복 배제하기 c++은 오버로딩을 지원하기 떄문에 만약 동일한 코드 내용인데 각각 상수와 비상수로 선언되어 있다면 이 코드 중복을 배제하기 위한 방안이 존재한다. 캐스팅이 필요하긴 하지만 안전성을 유지하고, 코드 중복을 피하는 방법은 operator[]가 상수 버전을 호출하도록 구현하는 것이다. //상수 함수 const char&amp; operator[](size_t postion) const { return text[postion]; } //비상수 함수 char&amp; operator[](size_t postion) { // op[]의 반환 타입에 캐스팅하여 const 제거 return const_cast&lt;char &amp;&gt;( // *this의 타입에 const를 붙이고, op[]의 상수 버전을 호출 static_cast&lt;const A&amp;&gt;(*this)[postion] ); } 잊지 말자 const를 붙여 선언하면 컴파일러가 에러를 잡아내는데 도움을 주며, 굉장히 많은 곳에 붙을 수 있다. 컴파일러 쪽에서는 비트수준 상수성을 지켜야 하지만, 개발자는 논리적인 상수성을 사용하여 프로그래밍해야한다. 상수/비상수 멤버 함수가 기능적으로 똑같게 구현되어 있는 경우에는 코드 중복을 피하기 위해서 비상수 버전이 상수 버전을 호출하도록 한다. 항목 4 : 객체를 사용하기 전에는 반드시 초기화하자! 초기화를 하지 않으면 무작위로 비트 값을 읽어들이기 때문에 많은 문제가 발생한다. 비멤버 객체의 경우 직접 초기화를 진행하지만 멤버 객체의 경우 생성자를 통해 초기화를 진행한다. //대입 A(a,b,c){ q = a; w = b; e = c; } //초기화 (멤버 초기화 리스트) A(a,b,c) :q(a),w(b),e(c) {} 위 코드의 경우 각각 대입과 초기화를 의미하는데, 대입은 기본 생성자 -&gt; 복사 대입 연산자의 순서로 총 2번 이루어지지만, 초기화는 복사 생성자 1번만 이루어진다. 그렇기 때문에 초기화가 더욱 효과적이다. // 기본 생성자로 구현된 멤버 초기화 리스트 A() : q(), w(), e() {} 기본 생성자로만 구현하고 싶더라도 멤버 초기화 리스트를 사용하는데, 이는 만약 어떤 멤버가 초기화 리스트에서 제외된 경우에는 기본 제공 타입이 되기 때문에 초기화가 되지 않을 수도 있다. 또한 상수, 참조자가 데이터 멤버인 경우에도 사용하는데, 이 데이터 멤버에는 대입 자체가 불가능하기 때문이다. 그렇기에 기본적으로 멤버 초기화 리스트를 사용하는 것이 좋다. 너무 코드가 지겹고 더럽게 느껴진다면, 대입으로 초기화가 가능한 데이터 멤버들을 리스트에서 빼내어 별도의 함수로 옮겨 이를 생성자에서 호출하는 방법이 있다. 이는 초기값을 파일이나 데이터베이스에서 읽는 경우 유용하다. 비지역 정적 객체의 초기화 개념 의미 비지역 정적 객체 전역 객체, 클래스/함수 내, 파일 유효범위 밖의 static 객체,네임스페이스 유효범위 객체 개별 번역 단위 컴파일을 통해 하나의 목적 파일을 만드는 바탕이 되는 소스 코드 비지역 정적 객체의 초기화 순서는 개별 번역 단위에서 지정되는데 이는 초기화 시 큰 문제를 야기할 수 있다. 예를 들어 2개의 컴파일된 소스 파일에 비지역 정적 객체가 1개 이상 존재하고, 한쪽에서 초기화를 진행할 때 다른쪽의 비지역 정적 객체를 사용하는데 초기화가 진행되어 있지 않다면 컴파일의 에러가 발생한다. //1번 소스파일 class FileSystem { ~~ } extern FileSystem tfs; //비지역 정적 객체 //2번 소스파일 class Directory { Directory() { a = tfs; } //ERROR } 이 문제를 해결하기 위해서는 비지역 정적 객체를 하나씩 맡는 함수를 준비하고, 이 안에 각 객체를 넣어 사용자 측면에서 비지역 정적 객체를 직접 참조하지 않고, 함수를 호출하는 것을 대신한다. 이때 비지역 정적 객체는 정적 객체로 바뀌며, 해당 객체 생성/소멸을 불가능하게 하여 비용이 안생기도록 처리한다. //1번 소스파일 class FileSystem { ~~ } FileSystem tfs(){ static FileSystem fs; return fs; } //2번 소스파일 class Directory { Directory() { a = tfs; } } Directory &amp;tempDir(){ static Directory td; return td; } 즉, 정적 객체 자체를 직접 사용하지 않고 그 객체에 대한 참조라를 반환하는 함수를 사용한다. 하지만 이는 내부적으로 정적 객체를 사용하기 때문에 다중스레드 환경에서는 동작에 문제가 생기는데, 이는 다중스레드 돌입전, 참조자 반환 함수를 손으로 호출하면 경쟁상황이 생기지 않는다. 잊지 말자 기본제공 타입의 객체는 직접 손으로 초기화한다. 생성자에서는 대입문을 사용하지 않고, “멤버 초기화 리스트”를 사용하고, 각 데이터 멤버가 선언된 순서와 똑같이 나열하자. 여러 번역 단위에 있는 비지역 정적 객체들의 초기화 순서 문제는 피해야하기에 비지역 정적 객체를 지역 정적 객체로 바꾸자 출처 ※ Effective C++ 책의 내용을 개인적으로 요약한 것입니다. 책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다. 지음 : 스콧 마이어스 옮김 : 곽용재 출판 : Addison Wesley">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/07/19/EffectiveC++-Effective-C++-1%EC%9E%A5.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/07/19/EffectiveC++-Effective-C++-1%EC%9E%A5.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2022-07-19T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="Effective C++ 1장">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2022-07-19T00:00:00+00:00","datePublished":"2022-07-19T00:00:00+00:00","description":"항목 1 : c++를 언어들의 연합체로 바라보자. c++은 “C, 객체지향의 C++, 템플릿의 C++, STL”과 같이 4가지 언어들의 기능을 모두 포함하고 있는데, 이 언어 중 어떤 기능을 사용하냐에 따라 프로그램의 규칙이 달라진다. 만약 예를들어 “값 전달”과 “참조 전달” 중 한가지 전달방법을 선택할때 언어에 따라 효과적인 전달방법이 있으며 아래와 같다. 기능 전달 이유 C 값 전달 형식적인 이유 객체지향의 C++ 참조 전달 생성자/소멸자 개념이 생겼기에 템플릿의 C++ 참조 전달 객체 타입조차 알 수 없기에 STL 값 전달 C의 포인터를 본떠 만든 것이기에 잊지 말자 C++은 경우에 따라 효과적인 프로그래밍 규칙이 달라진다. 이때 경우는 위에서 설명하는 4가지 언어를 의미한다. 항목 2 : #define을 쓰려거든 const, enum, inline을 떠올리자. 매크로 #define A 1.6 매크로(선행처리자)로 위에서 선언된 A는 “기호식 이름”처럼 보이지만, 컴파일러에게 넘어가기 전에 선행처리자가 상수로 변환하기 때문에 A라는 이름은 “기호 테이블”에 들어가지 않는다. ※ 문제점 : 이는 에러발생 시, A는 “기호식 이름”으로 표시되지 않고 “상수”로 표시되기 때문에 혼란을 야기한다. 특히 다른 개발자가 매크로를 선언했을때는 오류를 찾을 수가 없다. 또한 선행처리자가 A를 찾아 모두 상수로 바꾸기 때문에 메모리 사용측면에서 비효율적이다. ※ 해결방법 : const double A = 1.6; 이를 해결하기 위해서는 매크로 대신 “상수”를 사용하는 것이다. 이는 기호 테이블에 들어가기 때문에 컴파일러에 표시되며, 여러번 쓰여도 사본은 1개만 생성되기 때문에 메모리 점유도 효율적이다. ※ 주의사항 : 상수 포인터를 정의하는 경우 const char* const A = &quot;~~&quot;; //구시대적 const string A(&quot;~~&quot;); 위와 같이 포인터와 포인터가 가르키는 대상까지 const로 선언해야 되며, C언어의 구시대적 char*보다는 string 방식을 쓰는 것을 추천한다. 클래스 멤버로 상수를 정의하는 경우 이는 즉 클래스 상수를 공유하는 “정적(Static)”멤버를 만들때를 의미하며, 이때 해결 방법은 2가지가 존재한다. ※ 1번 방안 //header class A{ private: static const int tmp = 5; //정의가 아닌 선언 int score[tmp]; }; //cpp const int A::tmp; //클래스 상수의 주소를 요구할때 이때 tmp는 선언시 초기화되며, 클래스 상수의 주소를 요구할 시, cpp에 정의해준다. 하지만 구 컴파일러의 경우 선언시점에 초기값 선언이 옳지 않다고 판단하게 될 수 있는데, 이는 아래와 같이 초기값을 정의 시점으로 옮겨서 해결한다. //header class A{ private: static const int tmp; //정의 }; //cpp const int A::tmp = 5; //선언 ※ 2번 방안 //header class A{ private: enum {tmp = 5;} int score[tmp]; }; 이는 만약 클래스 컴파일 도중 클래스의 상수값을 요구할때 나열자(enum)을 사용하여 해결한다. 이 나열자를 사용하면 수많은 장점이 존재하는데, 첫 번째로 선언한 정수 상수를 다른 개발자가 주소를 얻거나 참조하려할때 자물쇠역할을한다. 이를 통해서 접근을 제한한다. 두 번째로 1번 방안에서 const는 컴파일러의 오류로 혹시 모르는 메모리가 할당될 가능성이 있지만 나열자는 그런 가능성이 존재하지 않는다. 세 번재로 많은 개발자들이 이 방식을 사용하고 있으며, 이는 템플릿 메타프로그래밍의 핵심이다. 때문에 enum을 사용하는 것을 추천한다. 매크로 함수 //매크로 #define A(a,b) f((a) &gt; (b) ? (a) : (b) //오류 A(++a,b); 위와 같이 매크로 함수가 존재할때, ++a는 b와의 관계에 따라 2번 증가하거나 1번 증가하는 괴현상이 발생한다. ※ 해결방법 : template &lt;typename T&gt; inline void A(const T &amp;a, const T &amp;b){ f(a &gt; b ? a : b) } 위와같이 인라인함수에 대한 템플릿으로 구현한다. 이는 진짜 함수이기 때문에 유효범위와 접근규칙을 준수한다. 잊지 말자 단순 상수는 #define이 아닌 “const 객체”,”enum”을 우선 사용하고, 매크로 함수는 “인라인 함수”를 사용한다. 항목 3 : 낌새만 보이면 const를 들이대 보자! const의 대표적 예시 클래스 밖에서는 전역/네임스페이스 유효범위의 상수를 선언 파일, 함수, 블록 유효범위에서 static으로 선언한 객체에 사용 가능 클래스 내부에서는 정적/비정적 데이터 멤버 모두 상수 선언이 가능 포인터 자체 or 포인터가 가르키는 데이터를 상수로 지정 가능 const char * p; //상수 데이터 char * const p; //상수 포인터 STL의 반복자(iterator) 사용시 반복자는 자신이 가리키는 대상이 아닌 것을 가르키는 것도 가능하고, 대상 자체에 대해서도 변경이 가능하다. 하지만 변경을 불가능하게 하기 위해서 “const_iterator”를 사용한다. //이전 const vector&lt;int&gt;::iterator it = vec.begin(); *it = 10; // 가능 it++; // it는 상수이기에 불가능 //이후 vector&lt;int&gt;::const_iterator it = vec.begin(); *it = 10; // *it는 상수이기에 불가능 it++; // 가능 함수 선언 가장 강력한 용도로 사용되며, 반환 값/매개변수/멤버 함수 앞에 사용한다. 심지어는 함수 전체에도 선언하여 사용한다. 이를 통해 기본 제공 타입과의 쓸데없는 비호환성을 파하는 것과 같은 에러가 감소하는데 예시는 아래와 같다. class A {}; const A operator *(const A &amp;a, const A &amp;b); //Error A a,b,c; (a * b) = c; if(a * b = c); 멤버 함수가 상수 함수일때의 의미 개념 의미 비트 수준 상수성 (물리적) 정적 멤버를 제외한 어떤 데이터 멤버도 건들이지 않으며, 즉 객체를 구성하는 비트를 바꾸지 않는다. 논리적 상수성 비트 수준 상수성을 보완하는 개념으로 일부 몇 비트는 바꿀 수 있되, 사용자가 인지하지 못한다면 상관없다. 비트 수준 상수성 ‘제대로 const’로 동작하지 않는데도 검사를 통과하는 경우가 발생한다. 아래와 같은 경우로 부적절하지만 비트수준 상수성이 있어서 허용된 경우이다. 이는 pText의 내용을 수정할 수 있는 큰 문제를 야기할 수 있다. ```c++ char&amp; operator[](size_t t) const { return pText[t]; } //ERROR const A a(&quot;Hello&quot;); char *pc = &amp;a[0]; *pc = &#39;J&#39;; //&quot;Jello&quot;로 값이 변한다. ``` 논리적 상수성 위의 문제를 보오나하기 위한 개념으로, 일부 몇 비트는 바꿀 수 있다. 아래와 같이 const로 선언된 상수 함수(length())가 있다고 가정할때, 이는 textLenght, lengthIsValid라는 변수에 대해서 값을 대입하고 있는 오류를 발생시킨다. ```cpp private: char *pText; size_t textlength; bool lengthIsValid; public: size_t length() const; //length() if(!lengthIsValid){ textLength = strlen(pText); //ERROR lengthIsValid = true; //ERROR } ``` 이를 해결 하기 위해서는 단순히 mutable을 사용하여 해결하면 되는데, 이는 비정적 데이터 멤버를 비트수준 상수성의 족쇄에서 풀어준다. private: char *pText; mutable size_t textlength; //해결 mutable bool lengthIsValid; //해결 상수/비상수 멤버 함수에서 코드 중복 배제하기 c++은 오버로딩을 지원하기 떄문에 만약 동일한 코드 내용인데 각각 상수와 비상수로 선언되어 있다면 이 코드 중복을 배제하기 위한 방안이 존재한다. 캐스팅이 필요하긴 하지만 안전성을 유지하고, 코드 중복을 피하는 방법은 operator[]가 상수 버전을 호출하도록 구현하는 것이다. //상수 함수 const char&amp; operator[](size_t postion) const { return text[postion]; } //비상수 함수 char&amp; operator[](size_t postion) { // op[]의 반환 타입에 캐스팅하여 const 제거 return const_cast&lt;char &amp;&gt;( // *this의 타입에 const를 붙이고, op[]의 상수 버전을 호출 static_cast&lt;const A&amp;&gt;(*this)[postion] ); } 잊지 말자 const를 붙여 선언하면 컴파일러가 에러를 잡아내는데 도움을 주며, 굉장히 많은 곳에 붙을 수 있다. 컴파일러 쪽에서는 비트수준 상수성을 지켜야 하지만, 개발자는 논리적인 상수성을 사용하여 프로그래밍해야한다. 상수/비상수 멤버 함수가 기능적으로 똑같게 구현되어 있는 경우에는 코드 중복을 피하기 위해서 비상수 버전이 상수 버전을 호출하도록 한다. 항목 4 : 객체를 사용하기 전에는 반드시 초기화하자! 초기화를 하지 않으면 무작위로 비트 값을 읽어들이기 때문에 많은 문제가 발생한다. 비멤버 객체의 경우 직접 초기화를 진행하지만 멤버 객체의 경우 생성자를 통해 초기화를 진행한다. //대입 A(a,b,c){ q = a; w = b; e = c; } //초기화 (멤버 초기화 리스트) A(a,b,c) :q(a),w(b),e(c) {} 위 코드의 경우 각각 대입과 초기화를 의미하는데, 대입은 기본 생성자 -&gt; 복사 대입 연산자의 순서로 총 2번 이루어지지만, 초기화는 복사 생성자 1번만 이루어진다. 그렇기 때문에 초기화가 더욱 효과적이다. // 기본 생성자로 구현된 멤버 초기화 리스트 A() : q(), w(), e() {} 기본 생성자로만 구현하고 싶더라도 멤버 초기화 리스트를 사용하는데, 이는 만약 어떤 멤버가 초기화 리스트에서 제외된 경우에는 기본 제공 타입이 되기 때문에 초기화가 되지 않을 수도 있다. 또한 상수, 참조자가 데이터 멤버인 경우에도 사용하는데, 이 데이터 멤버에는 대입 자체가 불가능하기 때문이다. 그렇기에 기본적으로 멤버 초기화 리스트를 사용하는 것이 좋다. 너무 코드가 지겹고 더럽게 느껴진다면, 대입으로 초기화가 가능한 데이터 멤버들을 리스트에서 빼내어 별도의 함수로 옮겨 이를 생성자에서 호출하는 방법이 있다. 이는 초기값을 파일이나 데이터베이스에서 읽는 경우 유용하다. 비지역 정적 객체의 초기화 개념 의미 비지역 정적 객체 전역 객체, 클래스/함수 내, 파일 유효범위 밖의 static 객체,네임스페이스 유효범위 객체 개별 번역 단위 컴파일을 통해 하나의 목적 파일을 만드는 바탕이 되는 소스 코드 비지역 정적 객체의 초기화 순서는 개별 번역 단위에서 지정되는데 이는 초기화 시 큰 문제를 야기할 수 있다. 예를 들어 2개의 컴파일된 소스 파일에 비지역 정적 객체가 1개 이상 존재하고, 한쪽에서 초기화를 진행할 때 다른쪽의 비지역 정적 객체를 사용하는데 초기화가 진행되어 있지 않다면 컴파일의 에러가 발생한다. //1번 소스파일 class FileSystem { ~~ } extern FileSystem tfs; //비지역 정적 객체 //2번 소스파일 class Directory { Directory() { a = tfs; } //ERROR } 이 문제를 해결하기 위해서는 비지역 정적 객체를 하나씩 맡는 함수를 준비하고, 이 안에 각 객체를 넣어 사용자 측면에서 비지역 정적 객체를 직접 참조하지 않고, 함수를 호출하는 것을 대신한다. 이때 비지역 정적 객체는 정적 객체로 바뀌며, 해당 객체 생성/소멸을 불가능하게 하여 비용이 안생기도록 처리한다. //1번 소스파일 class FileSystem { ~~ } FileSystem tfs(){ static FileSystem fs; return fs; } //2번 소스파일 class Directory { Directory() { a = tfs; } } Directory &amp;tempDir(){ static Directory td; return td; } 즉, 정적 객체 자체를 직접 사용하지 않고 그 객체에 대한 참조라를 반환하는 함수를 사용한다. 하지만 이는 내부적으로 정적 객체를 사용하기 때문에 다중스레드 환경에서는 동작에 문제가 생기는데, 이는 다중스레드 돌입전, 참조자 반환 함수를 손으로 호출하면 경쟁상황이 생기지 않는다. 잊지 말자 기본제공 타입의 객체는 직접 손으로 초기화한다. 생성자에서는 대입문을 사용하지 않고, “멤버 초기화 리스트”를 사용하고, 각 데이터 멤버가 선언된 순서와 똑같이 나열하자. 여러 번역 단위에 있는 비지역 정적 객체들의 초기화 순서 문제는 피해야하기에 비지역 정적 객체를 지역 정적 객체로 바꾸자 출처 ※ Effective C++ 책의 내용을 개인적으로 요약한 것입니다. 책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다. 지음 : 스콧 마이어스 옮김 : 곽용재 출판 : Addison Wesley","headline":"Effective C++ 1장","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/07/19/EffectiveC++-Effective-C++-1%EC%9E%A5.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/effective_c++/2022/07/19/EffectiveC++-Effective-C++-1%EC%9E%A5.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+
+
+  </head>
+  
+  <body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">Effective C++ | 1장</h1>
+  <h2 class="post-subtitle">c++에 왔으면 c++의 법을 따릅시다.</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2022-07-19T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Jul 19, 2022
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 13 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#Effective_C++">#Effective_C++</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#C++">#C++</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="항목-1--c를-언어들의-연합체로-바라보자">항목 1 : c++를 언어들의 연합체로 바라보자.</h2>
+
+<p>c++은 <strong>“C, 객체지향의 C++, 템플릿의 C++, STL”과</strong> 같이 4가지 언어들의 기능을 모두 포함하고 있는데, 이 언어 중 어떤 기능을 사용하냐에 따라 프로그램의 규칙이 달라진다.</p>
+
+<p>만약 예를들어 “값 전달”과 “참조 전달” 중 한가지 전달방법을 선택할때 언어에 따라 효과적인 전달방법이 있으며 아래와 같다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">기능</th>
+      <th style="text-align: center">전달</th>
+      <th style="text-align: center">이유</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">C</td>
+      <td style="text-align: center">값 전달</td>
+      <td style="text-align: center">형식적인 이유</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">객체지향의 C++</td>
+      <td style="text-align: center">참조 전달</td>
+      <td style="text-align: center">생성자/소멸자 개념이 생겼기에</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">템플릿의 C++</td>
+      <td style="text-align: center">참조 전달</td>
+      <td style="text-align: center">객체 타입조차 알 수 없기에</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">STL</td>
+      <td style="text-align: center">값 전달</td>
+      <td style="text-align: center">C의 포인터를 본떠 만든 것이기에</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="잊지-말자">잊지 말자</h3>
+
+<ul>
+  <li>C++은 경우에 따라 효과적인 프로그래밍 규칙이 달라진다. 이때 경우는 위에서 설명하는 4가지 언어를 의미한다.</li>
+</ul>
+
+<h2 id="항목-2--define을-쓰려거든-const-enum-inline을-떠올리자">항목 2 : #define을 쓰려거든 const, enum, inline을 떠올리자.</h2>
+
+<h3 id="매크로"><strong>매크로</strong></h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="cp">#define A 1.6
+</span></code></pre></div></div>
+
+<p>매크로(선행처리자)로 위에서 선언된 A는 “기호식 이름”처럼 보이지만, 컴파일러에게 넘어가기 전에 선행처리자가 상수로 변환하기 때문에 A라는 이름은 “기호 테이블”에 들어가지 않는다.</p>
+
+<p><strong>※ 문제점 :</strong></p>
+
+<p>이는 에러발생 시, A는 “기호식 이름”으로 표시되지 않고 “상수”로 표시되기 때문에 혼란을 야기한다. 특히 다른 개발자가 매크로를 선언했을때는 오류를 찾을 수가 없다. 또한 선행처리자가 A를 찾아 모두 상수로 바꾸기 때문에 메모리 사용측면에서 비효율적이다.</p>
+
+<p><strong>※ 해결방법 :</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">const</span> <span class="kt">double</span> <span class="n">A</span> <span class="o">=</span> <span class="mf">1.6</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>이를 해결하기 위해서는 매크로 대신 <strong>“상수”를</strong> 사용하는 것이다. 이는 기호 테이블에 들어가기 때문에 컴파일러에 표시되며, 여러번 쓰여도 사본은 1개만 생성되기 때문에 메모리 점유도 효율적이다.</p>
+
+<p><strong>※ 주의사항 :</strong></p>
+
+<blockquote>
+  <p>상수  포인터를 정의하는 경우</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="n">A</span> <span class="o">=</span> <span class="s">"~~"</span><span class="p">;</span>   <span class="c1">//구시대적</span>
+  <span class="k">const</span> <span class="n">string</span> <span class="nf">A</span><span class="p">(</span><span class="s">"~~"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<ul>
+  <li>위와 같이 포인터와 포인터가 가르키는 대상까지 const로 선언해야 되며, C언어의 구시대적 char*보다는 string 방식을 쓰는 것을 추천한다.</li>
+</ul>
+
+<blockquote>
+  <p>클래스 멤버로 상수를 정의하는 경우</p>
+</blockquote>
+
+<p>이는 즉 클래스 상수를 공유하는 “정적(Static)”멤버를 만들때를 의미하며, 이때 해결 방법은 2가지가 존재한다.</p>
+
+<p>※ 1번 방안</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//header</span>
+  <span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="nl">private:</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">tmp</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>   <span class="c1">//정의가 아닌 선언</span>
+    <span class="kt">int</span> <span class="n">score</span><span class="p">[</span><span class="n">tmp</span><span class="p">];</span>
+  <span class="p">};</span>
+  <span class="c1">//cpp</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">A</span><span class="o">::</span><span class="n">tmp</span><span class="p">;</span>             <span class="c1">//클래스 상수의 주소를 요구할때</span>
+</code></pre></div></div>
+<p>이때 tmp는 선언시 초기화되며, 클래스 상수의 주소를 요구할 시, cpp에 정의해준다.</p>
+
+<p>하지만 구 컴파일러의 경우 선언시점에 초기값 선언이 옳지 않다고 판단하게 될 수 있는데, 이는 아래와 같이 초기값을 정의 시점으로 옮겨서 해결한다.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//header</span>
+  <span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="nl">private:</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">tmp</span><span class="p">;</span>           <span class="c1">//정의</span>
+  <span class="p">};</span>
+  <span class="c1">//cpp</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">A</span><span class="o">::</span><span class="n">tmp</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>             <span class="c1">//선언</span>
+</code></pre></div></div>
+
+<p>※ 2번 방안</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//header</span>
+  <span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+  <span class="nl">private:</span>
+    <span class="k">enum</span> <span class="p">{</span><span class="n">tmp</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;}</span>
+    <span class="kt">int</span> <span class="n">score</span><span class="p">[</span><span class="n">tmp</span><span class="p">];</span>
+  <span class="p">};</span>
+</code></pre></div></div>
+<p>이는 만약 클래스 컴파일 도중 클래스의 상수값을 요구할때 <strong>나열자(enum)을</strong> 사용하여 해결한다.</p>
+
+<p>이 나열자를 사용하면 수많은 장점이 존재하는데, 첫 번째로 선언한 정수 상수를 다른 개발자가 주소를 얻거나 참조하려할때 자물쇠역할을한다. 이를 통해서 접근을 제한한다.</p>
+
+<p>두 번째로 1번 방안에서 const는 컴파일러의 오류로 혹시 모르는 메모리가 할당될 가능성이 있지만 나열자는 그런 가능성이 존재하지 않는다.</p>
+
+<p>세 번재로 많은 개발자들이 이 방식을 사용하고 있으며, 이는 템플릿 메타프로그래밍의 핵심이다.</p>
+
+<p>때문에 enum을 사용하는 것을 추천한다.</p>
+
+<h3 id="매크로-함수"><strong>매크로 함수</strong></h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//매크로</span>
+  <span class="cp">#define A(a,b) f((a) &gt; (b) ? (a) : (b)
+</span>
+  <span class="c1">//오류</span>
+  <span class="n">A</span><span class="p">(</span><span class="o">++</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>위와 같이 매크로 함수가 존재할때, ++a는 b와의 관계에 따라 2번 증가하거나 1번 증가하는 괴현상이 발생한다.</p>
+
+<p><strong>※ 해결방법 :</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+  <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">A</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">){</span>
+    <span class="n">f</span><span class="p">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span> <span class="o">?</span> <span class="n">a</span> <span class="o">:</span> <span class="n">b</span><span class="p">)</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<p>위와같이 인라인함수에 대한 템플릿으로 구현한다. 이는 진짜 함수이기 때문에 유효범위와 접근규칙을 준수한다.</p>
+
+<h3 id="잊지-말자-1">잊지 말자</h3>
+
+<ul>
+  <li>단순 상수는 #define이 아닌 “const 객체”,”enum”을 우선 사용하고, 매크로 함수는 “인라인 함수”를 사용한다.</li>
+</ul>
+
+<h2 id="항목-3--낌새만-보이면-const를-들이대-보자">항목 3 : 낌새만 보이면 const를 들이대 보자!</h2>
+
+<h3 id="const의-대표적-예시"><strong>const의 대표적 예시</strong></h3>
+
+<ol>
+  <li>클래스 밖에서는 전역/네임스페이스 유효범위의 상수를 선언</li>
+  <li>파일, 함수, 블록 유효범위에서 static으로 선언한 객체에 사용 가능</li>
+  <li>클래스 내부에서는 정적/비정적 데이터 멤버 모두 상수 선언이 가능</li>
+  <li>포인터 자체 or 포인터가 가르키는 데이터를 상수로 지정 가능
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">p</span><span class="p">;</span>         <span class="c1">//상수 데이터 </span>
+ <span class="kt">char</span> <span class="o">*</span> <span class="k">const</span> <span class="n">p</span><span class="p">;</span>         <span class="c1">//상수 포인터</span>
+</code></pre></div>    </div>
+  </li>
+  <li>STL의 반복자(iterator) 사용시
+    <ul>
+      <li>반복자는 자신이 가리키는 대상이 아닌 것을 가르키는 것도 가능하고, 대상 자체에 대해서도 변경이 가능하다.</li>
+      <li>하지만 변경을 불가능하게 하기 위해서 “const_iterator”를 사용한다.
+        <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code> <span class="c1">//이전</span>
+ <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">vec</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+ <span class="o">*</span><span class="n">it</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>     <span class="c1">// 가능</span>
+ <span class="n">it</span><span class="o">++</span><span class="p">;</span>         <span class="c1">// it는 상수이기에 불가능</span>
+</code></pre></div>        </div>
+        <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code> <span class="c1">//이후</span>
+ <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">vec</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+ <span class="o">*</span><span class="n">it</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>     <span class="c1">// *it는 상수이기에 불가능</span>
+ <span class="n">it</span><span class="o">++</span><span class="p">;</span>         <span class="c1">// 가능</span>
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+  <li>함수 선언
+    <ul>
+      <li>가장 강력한 용도로 사용되며, 반환 값/매개변수/멤버 함수 앞에 사용한다. 심지어는 함수 전체에도 선언하여 사용한다.</li>
+      <li>이를 통해 기본 제공 타입과의 쓸데없는 비호환성을 파하는 것과 같은 에러가 감소하는데 예시는 아래와 같다.</li>
+    </ul>
+
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code> <span class="k">class</span> <span class="nc">A</span> <span class="p">{};</span>
+ <span class="k">const</span> <span class="n">A</span> <span class="k">operator</span> <span class="o">*</span><span class="p">(</span><span class="k">const</span> <span class="n">A</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">A</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">);</span>
+
+ <span class="c1">//Error</span>
+ <span class="n">A</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">;</span>
+ <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>
+ <span class="k">if</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">=</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="멤버-함수가-상수-함수일때의-의미"><strong>멤버 함수가 상수 함수일때의 의미</strong></h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">개념</th>
+      <th style="text-align: left">의미</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><strong>비트 수준 상수성 (물리적)</strong></td>
+      <td style="text-align: left">정적 멤버를 제외한 어떤 데이터 멤버도 건들이지 않으며, 즉 객체를 구성하는 비트를 바꾸지 않는다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>논리적 상수성</strong></td>
+      <td style="text-align: left">비트 수준 상수성을 보완하는 개념으로 일부 몇 비트는 바꿀 수 있되, 사용자가 인지하지 못한다면 상관없다.</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>비트 수준 상수성</p>
+  <ul>
+    <li>‘제대로 const’로 동작하지 않는데도 검사를 통과하는 경우가 발생한다.</li>
+    <li>아래와 같은 경우로 부적절하지만 비트수준 상수성이 있어서 허용된 경우이다. 이는 pText의 내용을 수정할 수 있는 큰 문제를 야기할 수 있다.</li>
+  </ul>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>```c++
+char&amp; operator[](size_t t) const {
+  return pText[t];                  
+}
+
+//ERROR
+const A a("Hello");
+char *pc = &amp;a[0];
+*pc = 'J';            //"Jello"로 값이 변한다.   
+```
+</code></pre></div></div>
+
+<blockquote>
+  <p>논리적 상수성</p>
+  <ul>
+    <li>위의 문제를 보오나하기 위한 개념으로, 일부 몇 비트는 바꿀 수 있다.</li>
+    <li>아래와 같이 const로 선언된 상수 함수(length())가 있다고 가정할때, 이는 textLenght, lengthIsValid라는 변수에 대해서 값을 대입하고 있는 오류를 발생시킨다.</li>
+  </ul>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>```cpp
+private:
+  char *pText;
+  size_t textlength;
+  bool lengthIsValid;
+public:
+  size_t length() const;
+
+//length()
+if(!lengthIsValid){
+  textLength = strlen(pText);   //ERROR
+  lengthIsValid = true;         //ERROR
+}
+```
+</code></pre></div></div>
+
+<ul>
+  <li>이를 해결 하기 위해서는 단순히 <strong>mutable을</strong> 사용하여 해결하면 되는데, 이는 비정적 데이터 멤버를 비트수준 상수성의 족쇄에서 풀어준다.
+    <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="nl">private:</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">pText</span><span class="p">;</span>
+  <span class="k">mutable</span> <span class="kt">size_t</span> <span class="n">textlength</span><span class="p">;</span>    <span class="c1">//해결</span>
+  <span class="k">mutable</span> <span class="kt">bool</span> <span class="n">lengthIsValid</span><span class="p">;</span>   <span class="c1">//해결</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="상수비상수-멤버-함수에서-코드-중복-배제하기">상수/비상수 멤버 함수에서 코드 중복 배제하기</h3>
+
+<p>c++은 오버로딩을 지원하기 떄문에 만약 동일한 코드 내용인데 각각 상수와 비상수로 선언되어 있다면 이 코드 중복을 배제하기 위한 방안이 존재한다.</p>
+
+<p>캐스팅이 필요하긴 하지만 안전성을 유지하고, 코드 중복을 피하는 방법은 operator[]가 <strong>상수 버전을 호출하도록 구현하는 것이다.</strong></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//상수 함수</span>
+<span class="k">const</span> <span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="kt">size_t</span> <span class="n">postion</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">postion</span><span class="p">];</span> <span class="p">}</span>
+
+<span class="c1">//비상수 함수</span>
+<span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="kt">size_t</span> <span class="n">postion</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// op[]의 반환 타입에 캐스팅하여 const 제거</span>
+  <span class="k">return</span> <span class="k">const_cast</span><span class="o">&lt;</span><span class="kt">char</span> <span class="o">&amp;&gt;</span><span class="p">(</span>                
+    <span class="c1">// *this의 타입에 const를 붙이고, op[]의 상수 버전을 호출</span>
+    <span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">A</span><span class="o">&amp;&gt;</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">postion</span><span class="p">]</span>
+  <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="잊지-말자-2"><strong>잊지 말자</strong></h3>
+
+<ul>
+  <li>const를 붙여 선언하면 컴파일러가 에러를 잡아내는데 도움을 주며, 굉장히 많은 곳에 붙을 수 있다.</li>
+  <li>컴파일러 쪽에서는 비트수준 상수성을 지켜야 하지만, 개발자는 논리적인 상수성을 사용하여 프로그래밍해야한다.</li>
+  <li>상수/비상수 멤버 함수가 기능적으로 똑같게 구현되어 있는 경우에는 코드 중복을 피하기 위해서 비상수 버전이 상수 버전을 호출하도록 한다.</li>
+</ul>
+
+<h2 id="항목-4--객체를-사용하기-전에는-반드시-초기화하자">항목 4 : 객체를 사용하기 전에는 반드시 초기화하자!</h2>
+
+<p>초기화를 하지 않으면 무작위로 비트 값을 읽어들이기 때문에 많은 문제가 발생한다.</p>
+
+<p>비멤버 객체의 경우 직접 초기화를 진행하지만 멤버 객체의 경우 생성자를 통해 초기화를 진행한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//대입</span>
+<span class="n">A</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">){</span>
+  <span class="n">q</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
+  <span class="n">w</span> <span class="o">=</span> <span class="n">b</span><span class="p">;</span>
+  <span class="n">e</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//초기화 (멤버 초기화 리스트)</span>
+<span class="n">A</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="o">:</span><span class="n">q</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="n">w</span><span class="p">(</span><span class="n">b</span><span class="p">),</span><span class="n">e</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<p>위 코드의 경우 각각 대입과 초기화를 의미하는데, <strong>대입은</strong> 기본 생성자 -&gt; 복사 대입 연산자의 순서로 총 2번 이루어지지만, <strong>초기화는</strong> 복사 생성자 1번만 이루어진다. 그렇기 때문에 초기화가 더욱 효과적이다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 기본 생성자로 구현된 멤버 초기화 리스트</span>
+<span class="n">A</span><span class="p">()</span> <span class="o">:</span> <span class="n">q</span><span class="p">(),</span> <span class="n">w</span><span class="p">(),</span> <span class="n">e</span><span class="p">()</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<p>기본 생성자로만 구현하고 싶더라도 <strong>멤버 초기화 리스트를</strong> 사용하는데, 이는 만약 어떤 멤버가 초기화 리스트에서 제외된 경우에는 기본 제공 타입이 되기 때문에 초기화가 되지 않을 수도 있다.</p>
+
+<p>또한 상수, 참조자가 데이터 멤버인 경우에도 사용하는데, 이 데이터 멤버에는 대입 자체가 불가능하기 때문이다.</p>
+
+<p>그렇기에 기본적으로 <strong>멤버 초기화 리스트를</strong> 사용하는 것이 좋다.</p>
+
+<p>너무 코드가 지겹고 더럽게 느껴진다면, 대입으로 초기화가 가능한 데이터 멤버들을 리스트에서 빼내어 별도의 함수로 옮겨 이를 생성자에서 호출하는 방법이 있다. 이는 초기값을 파일이나 데이터베이스에서 읽는 경우 유용하다.</p>
+
+<h3 id="비지역-정적-객체의-초기화">비지역 정적 객체의 초기화</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">개념</th>
+      <th>의미</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">비지역 정적 객체</td>
+      <td>전역 객체, 클래스/함수 내, 파일 유효범위 밖의 static 객체,네임스페이스 유효범위 객체</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">개별 번역 단위</td>
+      <td>컴파일을 통해 하나의 목적 파일을 만드는 바탕이 되는 소스 코드</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>비지역 정적 객체의 초기화 순서는 개별 번역 단위에서 지정되는데 이는 초기화 시 큰 문제를 야기할 수 있다.</p>
+
+<p>예를 들어 2개의 컴파일된 소스 파일에 비지역 정적 객체가 1개 이상 존재하고, 한쪽에서 초기화를 진행할 때 다른쪽의 비지역 정적 객체를 사용하는데 초기화가 진행되어 있지 않다면 컴파일의 에러가 발생한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//1번 소스파일</span>
+<span class="k">class</span> <span class="nc">FileSystem</span> <span class="p">{</span> <span class="o">~~</span> <span class="p">}</span>
+<span class="k">extern</span> <span class="n">FileSystem</span> <span class="n">tfs</span><span class="p">;</span>    <span class="c1">//비지역 정적 객체</span>
+
+<span class="c1">//2번 소스파일</span>
+<span class="k">class</span> <span class="nc">Directory</span> <span class="p">{</span> 
+  <span class="n">Directory</span><span class="p">()</span> <span class="p">{</span> <span class="n">a</span> <span class="o">=</span> <span class="n">tfs</span><span class="p">;</span> <span class="p">}</span>    <span class="c1">//ERROR</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>이 문제를 해결하기 위해서는 비지역 정적 객체를 하나씩 맡는 함수를 준비하고, 이 안에 각 객체를 넣어 사용자 측면에서 비지역 정적 객체를 직접 참조하지 않고, 함수를 호출하는 것을 대신한다.</p>
+
+<p>이때 비지역 정적 객체는 정적 객체로 바뀌며, 해당 객체 생성/소멸을 불가능하게 하여 비용이 안생기도록 처리한다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//1번 소스파일</span>
+<span class="k">class</span> <span class="nc">FileSystem</span> <span class="p">{</span> <span class="o">~~</span> <span class="p">}</span>
+<span class="n">FileSystem</span> <span class="nf">tfs</span><span class="p">(){</span>
+  <span class="k">static</span> <span class="n">FileSystem</span> <span class="n">fs</span><span class="p">;</span>
+  <span class="k">return</span> <span class="n">fs</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//2번 소스파일</span>
+<span class="k">class</span> <span class="nc">Directory</span> <span class="p">{</span> 
+  <span class="n">Directory</span><span class="p">()</span> <span class="p">{</span> <span class="n">a</span> <span class="o">=</span> <span class="n">tfs</span><span class="p">;</span> <span class="p">}</span>    
+<span class="p">}</span>
+
+<span class="n">Directory</span> <span class="o">&amp;</span><span class="n">tempDir</span><span class="p">(){</span>
+  <span class="k">static</span> <span class="n">Directory</span> <span class="n">td</span><span class="p">;</span>
+  <span class="k">return</span> <span class="n">td</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>즉, 정적 객체 자체를 직접 사용하지 않고 그 객체에 대한 참조라를 반환하는 함수를 사용한다.</p>
+
+<p>하지만 이는 내부적으로 정적 객체를 사용하기 때문에 다중스레드 환경에서는 동작에 문제가 생기는데, 이는 다중스레드 돌입전, 참조자 반환 함수를 손으로 호출하면 경쟁상황이 생기지 않는다.</p>
+
+<h3 id="잊지-말자-3"><strong>잊지 말자</strong></h3>
+<ul>
+  <li>기본제공 타입의 객체는 직접 손으로 초기화한다.</li>
+  <li>생성자에서는 대입문을 사용하지 않고, “멤버 초기화 리스트”를 사용하고, 각 데이터 멤버가 선언된 순서와 똑같이 나열하자.</li>
+  <li>여러 번역 단위에 있는 비지역 정적 객체들의 초기화 순서 문제는 피해야하기에 비지역 정적 객체를 지역 정적 객체로 바꾸자</li>
+</ul>
+
+<h2 id="출처">출처</h2>
+<p>※ Effective C++ 책의 내용을 개인적으로 요약한 것입니다.
+  책의 저작권 및 각종 권한은 출판사, 지은이/옮긴이에게 있음을 알립니다.</p>
+<ul>
+  <li>지음 : 스콧 마이어스</li>
+  <li>옮김 : 곽용재</li>
+  <li>출판 : Addison Wesley</li>
+</ul>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/ue5/2022/07/13/UE5-Assert.html" title="UE5 | Assert">UE5 | Assert</a><a class="next" href="/jekyll-theme-yat/effective_c++/2022/07/25/EffectiveC++-Effective-C++-2%EC%9E%A5.html" title="Effective C++ | 2장">Effective C++ | 2장</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/08/10/UE5-Network-Compendium.html" title="Effective C++ | 2장">UE5 | Network Compendium</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/14/UE5-%EB%AA%A8%EB%93%88.html" title="Effective C++ | 2장">UE5 | Moudel</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2024/01/16/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-2%EB%B6%80.html" title="Effective C++ | 2장">초보자들을 위한 언리얼 네트워크 2부</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/algorithm/2022/09/12/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%95%8C%EC%93%B8%EC%8B%A0%EC%95%8C.html" title="Effective C++ | 2장">알고리즘 | 알쓸신알</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2024 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

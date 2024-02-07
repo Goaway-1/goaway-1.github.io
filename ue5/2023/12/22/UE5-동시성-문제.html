@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>동시성 문제 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.3.3">
+<meta property="og:title" content="동시성 문제">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="개요">
+<meta property="og:description" content="개요">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/12/22/UE5-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/12/22/UE5-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2023-12-22T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="동시성 문제">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2023-12-22T00:00:00+00:00","datePublished":"2023-12-22T00:00:00+00:00","description":"개요","headline":"동시성 문제","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/12/22/UE5-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2023/12/22/UE5-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+
+
+  </head>
+  
+  <body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">동시성 문제</h1>
+  <h2 class="post-subtitle">동기</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2023-12-22T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Dec 22, 2023
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 5 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#UE5">#UE5</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#UnrealEngine">#UnrealEngine</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="개요">개요</h2>
+
+<p>개발하다 보면, 엔진이나 프로그래밍 차원에서 발생할 수 있는 문제들이 존재합니다. 이번에는 프로그래밍에서의 ‘동기’라는 개념에 대해서 알아보고, 언리얼 스레드 환경에서 발생할 수 있는 동시성 문제에 대해서 설명해 보겠습니다.</p>
+
+<h2 id="프로그래밍에서의-동기--비동기">프로그래밍에서의 동기 &amp; 비동기</h2>
+
+<p>‘서버와 로컬관계’에서의 동기는 데이터를 동일하게 맞추는 것을 동기화라고 부릅니다. 하지만 ‘프로그래밍’에서의 동기란 대기하는 작업들에 대해서 순차적으로 처리되는 것을 의미하죠. 반대로 비동기는 순차적으로 발생하는 것이 아닌, 스레드를 사용하여 여러 가지 일이 동시에 처리되는 것을 의미합니다.</p>
+
+<h2 id="언리얼-스레드">언리얼 스레드</h2>
+
+<p>언리얼 엔진은 기본적으로 메인/게임 스레드와 여러 개의 작업 스레드를 사용합니다. 이전 “<a href="https://goaway-1.github.io/ue5/2023/02/13/UE5-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC%EB%A7%81.html#h-%EC%96%B8%EB%A6%AC%EC%96%BC-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC%EB%A7%81">언리얼 프로파일링</a>”이라는 포스트에서도 작성한 적이 있는데요. 언리얼 엔진은 작업 스레드를 사용하여 다양한 작업을 병렬로 처리함으로써 성능을 향상시키고 멀티코어 시스템에서 효과적으로 작동할 수 있도록 설계되어 있습니다. 하지만 스레드의 정확한 개수는 엔진의 버전 및 구성, 사용 중인 플랫폼에 따라 다를 수 있고, 엔진의 설정 파일에서 스레드 관련 설정을 변경할 수 있으므로, 프로젝트에 따라 다르게 조정될 수 있습니다.</p>
+
+<ol>
+  <li>
+<strong>메인/게임 스레드 (Main/Game Thread):</strong> 게임 로직, 렌더링 및 사용자 입력 처리 등의 주된 작업을 담당하는 스레드입니다.</li>
+  <li>
+<strong>렌더 스레드 (Render Thread):</strong> 렌더링 작업을 처리하는 스레드입니다. 그래픽스 API 호출 및 렌더링 명령을 실행합니다.</li>
+  <li>
+<strong>비동기 로딩 스레드 (Async Loading Thread):</strong> 언리얼 엔진은 비동기 로딩을 지원하기 위해 별도의 스레드를 사용합니다. 이 스레드는 애셋을 비동기적으로 로드하고 언로딩하는 작업을 처리합니다.</li>
+  <li>
+<strong>특정 작업을 위한 추가 스레드:</strong> 언리얼 엔진은 특정 작업을 병렬로 처리하기 위해 추가적인 스레드를 생성할 수 있습니다. 예를 들어, 빌드 라이트맵이나 네트워크 통신을 담당하는 스레드 등이 여기에 속합니다.</li>
+</ol>
+
+<h2 id="동시성-문제">동시성 문제</h2>
+
+<p>언리얼 엔진의 스레드는 이전 설명했던 것과 같이 여러 개가 있고, 사용자가 직접 스레드를 추가할 수도 있습니다. 즉, 다양한 작업을 병렬로 처리하는 비동기 방식으로 동작한다는 것이죠. 이렇게 되면 어떤 문제가 발생할 수 있을까요? 바로 “동시성”이라는 골치 아픈 상황에 직면할 수 있습니다.</p>
+
+<p>동시성이란 쉽게 말해서 동일한 자원에 대해 여러 스레드가 동시에 접근하면서 발생하는 문제입니다. 물론 무조건 동시에 접근한다고 해서 문제가 발생하는 것이 아닌, 값은 누군가가 변경할 때 발생하게 됩니다. 이렇게 문제가 발생해서 예상했던 결과가 달라질 수 있는 상황을 경쟁 조건(Race Condition)이라고 합니다.</p>
+
+<p>이는 언리얼 엔진의 게임 스레드에서 발생할 수 있을 것 같은데요. 비록 하나의 게임 스레드에서 모든 로직이 실행되기는 하지만, 여러 이벤트와 함수 호출이 동시에 발생할 수 있고, 그중 일부가 상태를 변경하거나 공유 데이터에 접근할 때 동시성 문제가 발생할 수 있습니다. 동시성 문제의 주요 원인은 다음과 같습니다:</p>
+
+<ol>
+  <li>
+<strong>이벤트 및 비동기 호출:</strong> 여러 이벤트 또는 비동기 호출이 동시에 발생할 때, 이들이 동일한 데이터를 변경하거나 접근할 경우 문제가 발생할 수 있습니다.</li>
+  <li>
+<strong>다중 스레드 접근:</strong> 게임 스레드 외에도 다른 스레드에서 공유 데이터에 접근하면 문제가 발생할 수 있습니다. 예를 들어, 비동기 로딩 스레드가 로딩된 애셋과 관련된 데이터를 변경하고 게임 스레드에서 이를 사용하려 할 때 문제가 발생할 수 있습니다.</li>
+</ol>
+
+<h2 id="해결-방법">해결 방법</h2>
+
+<p>동시성 문제를 해결하기 위해 언리얼 엔진은 다양한 기능을 제공합니다. <strong><code class="language-plaintext highlighter-rouge">FCriticalSection</code></strong> 클래스를 사용하여 크리티컬 섹션을 정의하고, 이를 이용해 특정 부분에 대한 상호 배제를 구현할 수 있습니다. 또한, 액터의 상태 변경 등에 대한 작업을 <strong><code class="language-plaintext highlighter-rouge">FQueuedThreadPool</code></strong>을 사용하여 백그라운드 스레드에서 처리할 수 있습니다.</p>
+
+<p>이번에는 <strong><code class="language-plaintext highlighter-rouge">FCriticalSection</code></strong> 클래스를 사용하는 방법에 대해서만 설명해 보겠습니다. 이는 스레드에서 안전하게 액세스할 수 있도록 필요한 작업을 완료할 때까지 하나의 스레드 잠금으로 처리하는 방식을 취합니다. 잠금/해제 로직을 처리하는 방법에는 스레드를 직접 잠그거나 RAII 기술을 사용하는 2가지 방법이 존재합니다.</p>
+
+<h3 id="수동">수동</h3>
+
+<p>스레드를 직접 잠구거나 해제하는 방식인데, 이는 데드락이 발생할 수 있습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">AnyClass</span>
+<span class="p">{</span>
+	<span class="n">FString</span> <span class="n">StringToEdit</span><span class="p">;</span>
+
+	<span class="c1">// Marked as mutable as it's often warranted by design</span>
+	<span class="k">mutable</span> <span class="n">FCriticalSection</span> <span class="n">DataGuard</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+	<span class="kt">void</span> <span class="n">SetString</span><span class="p">(</span><span class="k">const</span> <span class="n">FString</span><span class="o">&amp;</span> <span class="n">NewString</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">DataGuard</span><span class="p">.</span><span class="n">Lock</span><span class="p">();</span>
+		<span class="n">StringToEdit</span> <span class="o">=</span> <span class="n">NewString</span><span class="p">;</span>
+		<span class="n">DataGuard</span><span class="p">.</span><span class="n">Unlock</span><span class="p">();</span>
+	<span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h3 id="raii">RAII</h3>
+
+<p>이는 특정 범위 내에서 자동으로 처리해주기 때문에 훨씬 안전하게 사용할 수 있습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">AnyClass</span>
+<span class="p">{</span>
+	<span class="n">FString</span> <span class="n">StringToEdit</span><span class="p">;</span>
+
+	<span class="c1">// Marked as mutable as it's often warranted by design</span>
+	<span class="k">mutable</span> <span class="n">FCriticalSection</span> <span class="n">DataGuard</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+    <span class="kt">void</span> <span class="n">SetString</span><span class="p">(</span><span class="k">const</span> <span class="n">FString</span><span class="o">&amp;</span> <span class="n">NewString</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">FScopeLock</span> <span class="n">Lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DataGuard</span><span class="p">);</span>
+		<span class="n">StringToEdit</span> <span class="o">=</span> <span class="n">NewString</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>이외에도 C++ 11에 추가된 <code class="language-plaintext highlighter-rouge">std::atomic</code> 라는 템플릿이 존재하는데, 이는 메모리 순서화 기능이 포함되어 있어 스레드 안정성을 보장합니다. 데이터를 안전하게 공유하기 위한 작업에서 사용하며, 동시 접근 시 발생할 수 있는 경합 조건을 방지할 수 있죠. 다만 언리얼 엔진 5부터는 사용하지 말라고 하네요. ㅠㅠ</p>
+
+<h2 id="추천-해결-방법">추천 해결 방법</h2>
+
+<p>위와 같은 방법으로 해결할 수 있지만, 가장 좋은 방법은 애초에 상호 배제를 최소화하고 데이터 공유를 피하는 등의 방법을 사용하여 동시성 문제를 최소화하는 것이 최고입니다….!</p>
+
+<p>저도 실제로 게임을 개발하며, 발생했던 이슈가 있었는데요. 캐릭터의 공격 상태나 아이템에 의한 효과 등 여러 개의 스탯에 따라 이동속도에 영향을 받도록 구현한 적이 있습니다. 하나의 스탯이 변경되면 그 즉시 이동속도가 변경되도록 구현했었는데, 이때 2개 이상의 스탯이 동시에 변경되어 각각 이동속도를 변경하게 된다면, 이동속도를 수정하기 위해서 동시에 접근하는 문제가 발생해 값이 꼬이는 문제가 발생할 겁니다.</p>
+
+<p>이를 해결하기 위해 멘토님이 말씀해 주신 가장 간단한 방법은 즉시 적용하지 않고, “스레드, 타이머, 틱”을 사용하여 유연하게 각 스탯의 값 변경을 체크하고 이동속도를 변경하는 방식이었습니다. 이렇게 하면, 동시에 접근하는 문제가 발생하지 않겠죠?</p>
+
+<h2 id="마무리">마무리</h2>
+
+<p>게임 개발하며 발생할 수 있는 동시성 문제에 대해서 작성해 보았는데요. 제가 알려드린 방법은 극히 일부이고, 상황에 따른 문제해결 방법은 정말 수 없이 많을 겁니다. 항상 정형화된 방법은 없는 거니까요. 그럼 오늘도 즐거운 개발되세요!</p>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/ue5/2023/08/16/UE5-Custom-PlayerState.html" title="Custom PlayerState">Custom PlayerState</a><a class="next" href="/jekyll-theme-yat/ue5/2024/01/06/UE5-Reflection-System.html" title="Reflection System">Reflection System</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/algorithm/2023/02/15/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%A3%BC%EC%9A%94-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88.html" title="Reflection System">알고리즘 | 주요 컨테이너</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/algorithm/2022/09/12/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%EC%95%8C%EC%93%B8%EC%8B%A0%EC%95%8C.html" title="Reflection System">알고리즘 | 알쓸신알</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2023/12/22/UE5-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C.html" title="Reflection System">동시성 문제</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2023/02/13/UE5-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC%EB%A7%81.html" title="Reflection System">UE5 | 프로파일링 (UE Insights)</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2024 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

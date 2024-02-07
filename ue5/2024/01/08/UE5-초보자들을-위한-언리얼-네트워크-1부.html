@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>초보자들을 위한 언리얼 네트워크 1부 | Namaan 개발일지</title>
+<meta name="generator" content="Jekyll v4.3.3">
+<meta property="og:title" content="초보자들을 위한 언리얼 네트워크 1부">
+<meta name="author" content="Namaan">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="주인장의 말">
+<meta property="og:description" content="주인장의 말">
+<link rel="canonical" href="https://goaway-1.github.io/jekyll-theme-yat/ue5/2024/01/08/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-1%EB%B6%80.html">
+<meta property="og:url" content="https://goaway-1.github.io/jekyll-theme-yat/ue5/2024/01/08/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-1%EB%B6%80.html">
+<meta property="og:site_name" content="Namaan 개발일지">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2024-01-08T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="초보자들을 위한 언리얼 네트워크 1부">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Namaan"},"dateModified":"2024-01-08T00:00:00+00:00","datePublished":"2024-01-08T00:00:00+00:00","description":"주인장의 말","headline":"초보자들을 위한 언리얼 네트워크 1부","mainEntityOfPage":{"@type":"WebPage","@id":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2024/01/08/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-1%EB%B6%80.html"},"url":"https://goaway-1.github.io/jekyll-theme-yat/ue5/2024/01/08/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-1%EB%B6%80.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="shortcut icon" href="/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://goaway-1.github.io/jekyll-theme-yat/feed.xml" title="Namaan 개발일지">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+
+
+  </head>
+  
+  <body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner">
+<span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="Namaan 개발일지" src="/logo.png" onerror="this.style.display='none'">
+  Namaan 개발일지
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger">
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewbox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger">
+<a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</span>
+</div>
+        </nav>
+</div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">초보자들을 위한 언리얼 네트워크 1부</h1>
+  <h2 class="post-subtitle">Unreal Engine Network Framework</h2>
+
+  <p class="post-meta">
+    <time class="dt-published" datetime="2024-01-08T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Jan 08, 2024
+    </time>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 8 mins</span>
+  </p>
+<div class="post-tags">
+<a class="post-tag" href="/jekyll-theme-yat/tags.html#UE5">#UE5</a><a class="post-tag" href="/jekyll-theme-yat/tags.html#UnrealEngine">#UnrealEngine</a>
+</div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h2 id="주인장의-말">주인장의 말</h2>
+
+<p>게임 개발을 시작한 지 얼마 안 된 초보자분들은 싱글플레이가 아닌 멀티플레이 게임을 개발하기에는 조금 두려운 마음이 있으실 겁니다. 네트워크에 대한 기본적인 개념도 알고 있어야 하고, 언리얼 네트워크의 프레임워크등 언리얼에서의 사용법 또한 알고 있어야 하기 때문이죠.</p>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network-1/Udemy.png" alt="※ Udemy 언리얼 강의"></p>
+
+<p>저도 막 게임 개발을 시작했을 때에는 공식 문서를 봐도 하나도 이해가 안돼서 ‘Udemy’와 같은 강의 사이트에서 네트워크 강의를 결제하고 공부했던 기억이 있네요…. 근데 문제는 제가 멍청이라는 겁니다. 잘 이해가 안 되더라고요. 결국에는 몸으로 때워서 이해할 수 있었습니다. 여러분은 제가 설명하는 것을 쉽게 이해하실 수 있을 것이라고 믿어 의심치 않습니다.</p>
+
+<h2 id="언리얼-네트워크-프레임워크">언리얼 네트워크 프레임워크</h2>
+
+<p>플레이에 있어 싱글과 달리 멀티에서 가장 중요한 것은 무엇일까요? 바로 <strong><em>정보를 공유</em></strong>하는 것입니다. 싱글에서는 모든 정보가 하나의 클라이언트에 저장되면 끝이지만, 멀티플레이의 경우 플레이어 간에 정보를 공유해서 각 클라이언트의 정보가 모두 일치해야 합니다. 이 과정은 매우 복잡하지만, 언리얼 엔진에서 제공하는 네트워크 프레임워크를 통해서 비교적 편리하게 사용할 수 있어요.</p>
+
+<h3 id="네트워크-모델">네트워크 모델</h3>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network-1/ServerClass.png" alt="※ 클래스의 구분"></p>
+
+<p>위에 존재하는 이름들이 익숙하죠? 바로 언리얼에서 게임을 구성하기 위해 필요한 기초적인 클래스들입니다. 이 클래스들은 네트워크 모델에서 구분되어 존재합니다.</p>
+
+<ol>
+  <li>‘<strong><em>AGameMode</em></strong>’는 서버에만 존재하며, 레벨 내의 게임 룰이나 정보 같은 것을 저장하는 중요한 역할입니다. 서버에만 존재하니 클라이언트에서는 직접 접근할 수 없죠.</li>
+  <li>‘<strong><em>AGameState, APlayerState, APawn, ACharacter</em></strong>’ 클래스들은 서버와 클라이언트 모두에서 접근이 가능합니다. 위에서 ‘<strong><em>AGameMode</em></strong>’에 클라이언트가 직접 접근할 수 없다고 했죠? 그래서 각 클라이언트는 ‘<strong><em>AGameState</em></strong>’에 접근하여 정보를 제공하거나 받고, 업데이트하는 식으로 사용하고는 합니다.</li>
+  <li>‘<strong><em>APlayerController</em></strong>’는 서버와 소유 클라이언트에만 존재하며, 컨트롤러는 캐릭터를 조종하는 즉, 사용자의 입력을 받는 곳이죠. 그렇기 때문에 다른 클라이언트에 복제될 필요가 없습니다. 입력은 나만 하니까요.</li>
+  <li>‘<strong><em>AHUD, UUSerWidget</em></strong>’는 소유 클라이언트에만 존재하며, 플레이어의 디스플레이에 표시되는 ‘체력, 시간’등의 정보를 표현하는 곳이죠. 그러니 역시 서버에 존재할 필요도, 복제될 필요도 없습니다.</li>
+</ol>
+
+<h2 id="서버-클라이언트-모델">서버-클라이언트 모델</h2>
+
+<p><img src="https://raw.githubusercontent.com/Goaway-1/goaway-1.github.io/master/_posts/images/UE5/Network-1/Server-Client.png" alt="※ 서버-클라이언트 모델"></p>
+
+<p>언리얼 엔진은 “서버-클라이언트” 아키텍처를 사용하는데요. 이는 서버가 권한을 가지고 있으며, 모든 데이터를 서버에서 우선시되어야 한다는 것입니다. 그런 다음 서버에서 데이터를 확인하고 각 클라이언트에서 반응하는 것이죠. 쉬운 예를 들자면, 클라이언트에서 캐릭터를 이동할 때, 직접 이동하는 게 아니라 서버에서 이동하고 이를 각 클라이언트에서 복제하는 것이죠. (기능에 따라 아닌 경우도 있습니다.)</p>
+
+<p>싱글플레이에서는 하나의 컴퓨터에서 입력과 액터들을 제어하지만, 멀티플레이에서는 네트워크에 있는 한 대의 컴퓨터가 서버 역할을 하여 세션을 호스팅 합니다. 나머지는 클라이언트로 서버 컴퓨터에 연결되며, 이때 서버는 호스팅뿐만 아니라 게임이 실제로 진행되는 곳이고, 각 클라이언트들에게 복제해 주기 위해서 동기화 통신을 제공합니다. 위 그림과 같이 서버에서 생성된 것들을 각 클라이언트에 복제하며, 이 서버로부터 복제된 허상을 ‘<strong><em>Proxy</em></strong>’라고 합니다.</p>
+
+<p>게임플레이에 영향을 미치는 모든 것을 진행한다고 서버에서 생각하면 되겠습니다. 아까 말씀드린 것처럼 개인 HUD에 보이는 것은 클라이언트에서 진행해도 상관없지만, 움직임이나 투사체의 이동 등은 게임에 큰 영향을 미치기 때문에 서버에서 진행되어야만 하죠. 물론 프로그래머의 선택에 따라 모든 것이 달라질 수 있습니다만, 네트워크 대역폭을 최대한 적게 사용하는 것이 좋은 퀄리티를 제공할 수 있겠죠.</p>
+
+<h3 id="원격-액터의-초기화">원격 액터의 초기화</h3>
+
+<p>그렇다면 서버에 존재하는 허상을 물려받는 클라이언트의 액터에서는 어떤 작업이 진행될까요? 기존 액터의 초기화 과정에서는 ‘<strong><em>PostInitializeComponents</em></strong>’ 함수에서 게임 플레이와 무관한 설정을 초기화해 주고, ‘<strong><em>BeginPlay</em></strong>’에서는 게임 플레이와 관련된 것들을 초기화해 줍니다. 하지만 원격 액터는 ‘<strong><em>PostInitializeComponents</em></strong>’를 통해 설정된 값들이 클라이언트에게 전달되지 않습니다. 이때 사용되는 함수가 바로 ‘<strong><em>PostNetInit</em></strong>’인데요. 원격 클라이언트에게 네트워크 관련된 설정을 초기화해 줍니다.</p>
+
+<p>아래 코드를 보면 클라이언트가 아니라면 경고를 띄워주고, 해당 액터가 ‘<strong><em>BeginPlay</em></strong>’를 호출하지 않았다면 추가로 네트워크 관련 작업과 ‘<strong><em>BeginPlay</em></strong>’를 호출하는 것을 볼 수 있습니다.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">AActor</span><span class="o">::</span><span class="n">PostNetInit</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">RemoteRole</span> <span class="o">!=</span> <span class="n">ROLE_Authority</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">UE_LOG</span><span class="p">(</span><span class="n">LogActor</span><span class="p">,</span> <span class="n">Warning</span><span class="p">,</span> <span class="n">TEXT</span><span class="p">(</span><span class="s">"AActor::PostNetInit %s Remoterole: %d"</span><span class="p">),</span> <span class="o">*</span><span class="n">GetName</span><span class="p">(),</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">RemoteRole</span><span class="p">);</span>
+	<span class="p">}</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">HasActorBegunPlay</span><span class="p">())</span>
+    <span class="p">{</span>
+    	<span class="k">const</span> <span class="n">UWorld</span><span class="o">*</span> <span class="n">MyWorld</span> <span class="o">=</span> <span class="n">GetWorld</span><span class="p">();</span>
+    	<span class="k">if</span> <span class="p">(</span><span class="n">MyWorld</span> <span class="o">&amp;&amp;</span> <span class="n">MyWorld</span><span class="o">-&gt;</span><span class="n">HasBegunPlay</span><span class="p">())</span>
+    	<span class="p">{</span>
+    		<span class="n">SCOPE_CYCLE_COUNTER</span><span class="p">(</span><span class="n">STAT_ActorBeginPlay</span><span class="p">);</span>
+    		<span class="n">DispatchBeginPlay</span><span class="p">();</span>
+    	<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+    
+<span class="kt">void</span> <span class="n">AActor</span><span class="o">::</span><span class="n">DispatchBeginPlay</span><span class="p">(</span><span class="kt">bool</span> <span class="n">bFromLevelStreaming</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">UWorld</span><span class="o">*</span> <span class="n">World</span> <span class="o">=</span> <span class="p">(</span><span class="o">!</span><span class="n">HasActorBegunPlay</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">IsValidChecked</span><span class="p">(</span><span class="k">this</span><span class="p">)</span> <span class="o">?</span> <span class="n">GetWorld</span><span class="p">()</span> <span class="o">:</span> <span class="nb">nullptr</span><span class="p">);</span>
+    
+	<span class="k">if</span> <span class="p">(</span><span class="n">World</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">ensureMsgf</span><span class="p">(</span><span class="n">ActorHasBegunPlay</span> <span class="o">==</span> <span class="n">EActorBeginPlayState</span><span class="o">::</span><span class="n">HasNotBegunPlay</span><span class="p">,</span> <span class="n">TEXT</span><span class="p">(</span><span class="s">"BeginPlay was called on actor %s which was in state %d"</span><span class="p">),</span> <span class="o">*</span><span class="n">GetPathName</span><span class="p">(),</span> <span class="p">(</span><span class="n">int32</span><span class="p">)</span><span class="n">ActorHasBegunPlay</span><span class="p">);</span>
+    	<span class="k">const</span> <span class="n">uint32</span> <span class="n">CurrentCallDepth</span> <span class="o">=</span> <span class="n">BeginPlayCallDepth</span><span class="o">++</span><span class="p">;</span>
+    
+    	<span class="n">bActorBeginningPlayFromLevelStreaming</span> <span class="o">=</span> <span class="n">bFromLevelStreaming</span><span class="p">;</span>
+    	<span class="n">ActorHasBegunPlay</span> <span class="o">=</span> <span class="n">EActorBeginPlayState</span><span class="o">::</span><span class="n">BeginningPlay</span><span class="p">;</span>
+    
+    	<span class="n">BuildReplicatedComponentsInfo</span><span class="p">();</span>
+    
+    <span class="cp">#if UE_WITH_IRIS
+</span>		<span class="n">BeginReplication</span><span class="p">();</span>
+    <span class="cp">#endif // UE_WITH_IRIS
+</span>    
+    	<span class="n">BeginPlay</span><span class="p">();</span>
+    
+    	<span class="n">ensure</span><span class="p">(</span><span class="n">BeginPlayCallDepth</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">CurrentCallDepth</span><span class="p">);</span>
+    	<span class="n">BeginPlayCallDepth</span> <span class="o">=</span> <span class="n">CurrentCallDepth</span><span class="p">;</span>
+    
+    	<span class="k">if</span> <span class="p">(</span><span class="n">bActorWantsDestroyDuringBeginPlay</span><span class="p">)</span>
+    	<span class="p">{</span>
+    		<span class="c1">// Pass true for bNetForce as either it doesn't matter or it was true the first time to even </span>
+    		<span class="c1">// get to the point we set bActorWantsDestroyDuringBeginPlay to true</span>
+    		<span class="n">World</span><span class="o">-&gt;</span><span class="n">DestroyActor</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nb">true</span><span class="p">);</span> 
+    	<span class="p">}</span>
+    		
+    	<span class="k">if</span> <span class="p">(</span><span class="n">IsValidChecked</span><span class="p">(</span><span class="k">this</span><span class="p">))</span>
+    	<span class="p">{</span>
+    		<span class="c1">// Initialize overlap state</span>
+    		<span class="n">UpdateInitialOverlaps</span><span class="p">(</span><span class="n">bFromLevelStreaming</span><span class="p">);</span>
+    	<span class="p">}</span>
+    
+    	<span class="n">bActorBeginningPlayFromLevelStreaming</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>※ 처음에는 중요하지 않지만, 개발하다 보면 가끔 문제가 생기더라고요. 알고만 있다가 생각나면 찾아보시는 것도 나쁘지 않습니다.</p>
+
+<h3 id="액터의-역할-및-종류">액터의 역할 및 종류</h3>
+
+<p>멀티플레이에서의 액터는 현재 네트워크 상태에 따라 역할이 구분됩니다. 위에서 설명했듯이 서버에 존재하는 액터를 각 클라이언트에 복제한 것을 ‘<strong><em>Proxy</em></strong>’라고 했는데요. 그렇다면 서버 액터는 뭐라고 할까요? 바로 ‘<strong>Authority</strong>’라고 부릅니다. 쉽게 지휘자, 대리자라고 생각하면 되겠네요. 종류에는 무엇이 있을까요?</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>종류</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>None</td>
+      <td>액터가 존재하지 않음</td>
+    </tr>
+    <tr>
+      <td>Authority</td>
+      <td>서비스를 대표하는 신뢰할 수 있는 역할로 게임의 로직을 수행</td>
+    </tr>
+    <tr>
+      <td>AutonomousProxy</td>
+      <td>Authority를 가지는 오브젝트의 복제품으로 일부 게임 로직을 수행. 클라이언트의 입력 정보를 서버에 보낼 수 있기 때문에 ‘폰, 컨트롤러’가 적합</td>
+    </tr>
+    <tr>
+      <td>SimulatedProxy</td>
+      <td>Authority를 가지는 오브젝트의 복제품으로 게임 로직을 수행하지 않음. 일방적으로 서버로부터 데이터를 수신하고 반영하는 배경에 적합</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>이처럼 액터를 신뢰할 수 있는지 없는지 아니면, 단방향 통신이 가능한지등의 역할들을 구분하기 위해서 언리얼 엔진은 ‘<strong><em>AActor::HasAuthority</em></strong>’를 통해서 ‘<strong><em>Authority</em></strong>’의 소유권을 판단할 수 있고, ‘<strong><em>AController::IsLocalController, APawn::IsLocallyControlled</em></strong>’등의 함수를 통해서 ‘<strong><em>AutonomousProxy</em></strong>’를 판단할 수 있습니다. 이를 구분할 수 있어야만, 각 상황에 따른 액터의 코드 실행을 분리할 수 있겠죠? 특히 리슨서버에서 동작하는 게임을 만든다면 특히나 필요할 것입니다.</p>
+
+<p>※ 추가로 리슨서버에서 현재 동작하는 게임의 역할을 ‘Local Role’이라고 하고, 연결된 게임의 역할을 ‘Remote Role’이라고 합니다.</p>
+
+<h2 id="네트워크-모드">네트워크 모드</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Net Mode</th>
+      <th>Desciption</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Standalone</td>
+      <td>싱글플레이 또는 로컬 멀티플레이 게임에서 사용되며, 하나의 컴퓨터에서 진행</td>
+    </tr>
+    <tr>
+      <td>Client</td>
+      <td>네트워크 멀티플레이 세션에서 서버에 연결된 클라이언트로 실행</td>
+    </tr>
+    <tr>
+      <td>Listen Server</td>
+      <td>네트워크 멀티플레이 세션을 호스팅하는 서버로 클라이언트들의 연결을 수락</td>
+    </tr>
+    <tr>
+      <td>Dedicated Server</td>
+      <td>Listen Server와 동일하게 클라이언트들의 연결을 허용하지만, 로컬 플레이어는 없이 오직 서버의 역할만 진행</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>게임을 플레이할 때, 네트워크 상황에 따른 모드는 총 4가지로 구분되며, 네트워크 멀티플레이어 세션의 관계를 설정합니다. Listen Server와 Dedicated Server에 대해서는 조금 더 설명을 드리겠습니다.</p>
+
+<p>먼저 ‘Listen Server’는게임 사본이 있는 사용자라면, 누구나 리슨 서버를 시작하고 호스팅하여 플레이할 수 있습니다. 하지만 호스트는 서버에서 직접 플레이를 진행하기 때문에 네트워크 지연에 있어 문제가 없고, 공정성 및 부정행위를 할 수 있는 우려가 존재하죠. 그렇기에 경쟁이 치열하거나 네트워크 부하가 높은 게임에는 적합하지 않습니다.</p>
+
+<p>다음으로 ‘Dedicated Server’는 자체 네트워크가 필요하기 때문에 비싸고 구성에 있어 어려움이 존재합니다. 하지만 모든 플레이어에게 동일한 연결 및 동기화를 지원하기 때문에 공정성이 보장되고, 해당 서버에서는 시각적인 렌더링이나 로직을 수행하지 않기 때문에 네트워크를 효율적으로 사용할 수 있다는 장점이 있습니다.</p>
+
+<h3 id="주요-함수">주요 함수</h3>
+
+<p>이 네트워크 접속 과정에서 중요한 함수가 몇가지 있는데요. 바로 GameMode와 GameState에서의 함수입니다. 하나씩 보시면서 이해하시면, 개발에 있어 도움이 될거 같네요.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>GameMode 함수</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>PreLogin</td>
+      <td>클라이언트의 접속 요청을 처리하는 함수 (받아드리는 여부로 서버에서는 진행 X)</td>
+    </tr>
+    <tr>
+      <td>Login</td>
+      <td>접속을 허용한 클라이언트에 대응하는 플레이어 컨트롤러를 만드는 함수</td>
+    </tr>
+    <tr>
+      <td>PostLogin</td>
+      <td>플레이어 입장을 위해 플레이어에 필요한 기본 설정을 모두 마무리하는 함수 (캐릭터 세팅)</td>
+    </tr>
+    <tr>
+      <td>StartPlay</td>
+      <td>게임의 시작을 지시하는 함수</td>
+    </tr>
+    <tr>
+      <td>BeginPlay</td>
+      <td>게임 모드의 StartPlay를 통해 모든 액터에서 호출되는 함수</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>GameState 함수</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>HandleBeginPlay</td>
+      <td>월드에 있는 모든 액터들에게 BeginPlay를 진행하도록하는 함수 (서버)</td>
+    </tr>
+    <tr>
+      <td>OnRep_ReplicatedHasBegunPlay</td>
+      <td>위와 동일하게 특정 프로퍼티가 변경되면, 클라이언트에게 알려줌</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="마무리">마무리</h2>
+
+<p>여기까지 기본적인 프레임워크나 클라이언트-서버 모델에 대해서 설명해봤는데요. 내용을 외우기 보다는 엔진 내부의 코드를 살펴보거나 로그를 찍어보는 등의 실습을 해보면서 학습하셨으면 좋겠습니다!</p>
+
+
+    </div>
+
+</article>
+<div class="post-nav">
+<a class="previous" href="/jekyll-theme-yat/ue5/2024/01/06/UE5-Reflection-System.html" title="Reflection System">Reflection System</a><a class="next" href="/jekyll-theme-yat/ue5/2024/01/16/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-2%EB%B6%80.html" title="초보자들을 위한 언리얼 네트워크 2부">초보자들을 위한 언리얼 네트워크 2부</a>
+</div>
+<div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li><a class="post-link" href="/jekyll-theme-yat/ue5/2024/02/07/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-3%EB%B6%80.html" title="초보자들을 위한 언리얼 네트워크 2부">초보자들을 위한 언리얼 네트워크 3부</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/13/UE5-%EC%96%B8%EB%A6%AC%EC%96%BC-%EC%84%9C%EB%B2%84-%EA%B3%B5%EB%B6%80.html" title="초보자들을 위한 언리얼 네트워크 2부">UE5 | UE5 서버 공부</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2022/06/28/UE5-%EB%A9%80%ED%8B%B0%ED%94%8C%EB%A0%88%EC%9D%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8.html" title="초보자들을 위한 언리얼 네트워크 2부">UE5 | 멀티플레이의 기본</a></li>
+<li><a class="post-link" href="/jekyll-theme-yat/ue5/2024/01/08/UE5-%EC%B4%88%EB%B3%B4%EC%9E%90%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%96%B8%EB%A6%AC%EC%96%BC-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-1%EB%B6%80.html" title="초보자들을 위한 언리얼 네트워크 2부">초보자들을 위한 언리얼 네트워크 1부</a></li>
+</ul>
+    </div>
+<div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner">
+<div>Unpublished Work <span class="copyleft">©</span> 2017-2024 Namaan</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a>
+</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
