@@ -57,7 +57,7 @@ FVector ForwardVector;
 
 ### Category
 
-![Category](https://wrongbaud.github.io/assets/img/post/UPROPERTY_Macro/Category.png){: width="390" height="316" .w-60 .left}좌측 그림과 같이 블루프린트 디테일 패널에서 아래 프로퍼티 `Distance`에 대해서 찾아볼 수 있는데요. 카테고리 매크로를 추가하면 변수 이름이 아닌, 카테고리를 통해서도 검색이 가능해집니다. 형식은 `Category="MainCategory | SubCategory"` 이런식으로 작성할 수 있는데, Sub는 꼭 작성하지 않아도 됩니다. 
+좌측 그림과 같이 블루프린트 디테일 패널에서 아래 프로퍼티 `Distance`에 대해서 찾아볼 수 있는데요. 카테고리 매크로를 추가하면 변수 이름이 아닌, 카테고리를 통해서도 검색이 가능해집니다. 형식은 `Category="MainCategory | SubCategory"` 이런식으로 작성할 수 있는데, Sub는 꼭 작성하지 않아도 됩니다. 
 
 ```cpp
 UPROPERTY(VisibleAnywhere, Category="Main | Sub")
@@ -85,7 +85,7 @@ private:
 
 #### ClampMin / ClampMax
 
-![Clamp](https://wrongbaud.github.io/assets/img/post/UPROPERTY_Macro/Clamp.png){: width="986" height="110"} 좌측 그림과 같이 `float`, `int`형식의 멤버 변수에 대해서 값의 최소/최대 범위를 제한합니다. 협업에 있어 나름 정말 유용한 기능이라고 생각하는데요. 기획자나 제 3자가 해당 프로퍼티의 값을 에디터에서 수정할 때, 개발자가 지정된 값을 넘지 않게 되기 때문에 제한이 어느정도인지 제 3자가 직관적으로 보기 쉽고, 최대 값을 넘어가는 등의 예외상황이 발생하지 않게 되죠.
+좌측 그림과 같이 `float`, `int`형식의 멤버 변수에 대해서 값의 최소/최대 범위를 제한합니다. 협업에 있어 나름 정말 유용한 기능이라고 생각하는데요. 기획자나 제 3자가 해당 프로퍼티의 값을 에디터에서 수정할 때, 개발자가 지정된 값을 넘지 않게 되기 때문에 제한이 어느정도인지 제 3자가 직관적으로 보기 쉽고, 최대 값을 넘어가는 등의 예외상황이 발생하지 않게 되죠.
   
 ```cpp
 UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "100.0"))
@@ -94,7 +94,7 @@ float MaxDistance;
 
 #### EditCondition
 
-![EditCondition](https://wrongbaud.github.io/assets/img/post/UPROPERTY_Macro/EditCondition.png){: width="866" height="134"} 특정 조건에 따라 에디터에서 해당 프로퍼티의 활성화 여부를 제어합니다. 아래에서는 bEnableFeature가 true인 경우에만 해당 프로퍼티가 수정가능하도록 변경됩니다. 프로퍼티들끼리 엮여있는 경우에 유용하게 사용할 수 있겠죠? 
+특정 조건에 따라 에디터에서 해당 프로퍼티의 활성화 여부를 제어합니다. 아래에서는 bEnableFeature가 true인 경우에만 해당 프로퍼티가 수정가능하도록 변경됩니다. 프로퍼티들끼리 엮여있는 경우에 유용하게 사용할 수 있겠죠? 
   
 예를 들어 공중에서의 이동 여부를 불리언으로 만들어 두고, 해당 불리언이 참일 때만, "속도, 중력"와 같은 속성들을 변경할 수 있게끔 할 수 있을 겁니다.
 
