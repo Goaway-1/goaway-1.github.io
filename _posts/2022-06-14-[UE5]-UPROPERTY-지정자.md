@@ -1,7 +1,6 @@
 ---
 title: UPROPERTY 매크로
 description: UPROPERTY 매크로의 사용 이유에 대해서 공유하고, 프로퍼티 지정자를 통한 기능들에 대해서 살펴봅니다.
-author: JoKoo
 date: 2022-06-14 16:44:20 +0900
 categories: [UnrealEngine, Analysis]
 tags: [UnrealEngine]
@@ -24,9 +23,13 @@ float DistanceValue;
 > 네이티브 C++가 아닌, `언리얼 스크립트`로 작성된 것이나, `포인터 변수`들은 매크로를 추가하여 GC를 통해 생명주기가 관리되는 것이 좋습니다.
 {: .prompt-tip }
 
+<br>
+
 ## 기능
 
 해당 매크로는 다양한 기능들을 제공하는데요. 제 경험을 바탕으로 대표적으로 사용하는 `변수 공개/수정 권한`, `블루프린트 공개/수정 권한`, `카테고리`, `메타 데이터` 총 4가지에 대해서 간단하게 설명해보겠습니다.
+
+<br>
 
 ### 변수 공개/수정 권한
  
@@ -44,6 +47,8 @@ UPROPERTY(EditDefaultOnly)
 FVector ForwardVector;
 ```
 
+<br>
+
 ### 블루프린트 공개/수정 권한
   
 이는 C++ 멤버 변수에 대해서 블루프린트에게 접근 권한을 설정하는 매크로입니다. 오직 C++로만 작성하겠다면, 필요없지만, 블루프린트로 로직을 작성하는 경우에 대해서는 필요하죠? 아니면, 간단하게 접근 권한 열어두고 BP에서 로그 찍을 때도 많이 사용하긴 합니다.
@@ -55,14 +60,20 @@ FVector ForwardVector;
 |BlueprintGetter|해당 변수에 접근 가능한 함수를 지정하고 이를 통해 접근 (get을 커스텀)|
 |BlueprintSetter|해당 변수에 수정 가능한 함수를 지정하고 이를 통해 수정 (set을 커스텀)|
 
+<br>
+
 ### Category
 
-좌측 그림과 같이 블루프린트 디테일 패널에서 아래 프로퍼티 `Distance`에 대해서 찾아볼 수 있는데요. 카테고리 매크로를 추가하면 변수 이름이 아닌, 카테고리를 통해서도 검색이 가능해집니다. 형식은 `Category="MainCategory | SubCategory"` 이런식으로 작성할 수 있는데, Sub는 꼭 작성하지 않아도 됩니다. 
+![Category](/assets/img/post/UPROPERTY_Macro/Category.png){: width="434" height="352"}
+
+위 그림과 같이 블루프린트 디테일 패널에서 아래 프로퍼티 `Distance`에 대해서 찾아볼 수 있는데요. 카테고리 매크로를 추가하면 변수 이름이 아닌, 카테고리를 통해서도 검색이 가능해집니다. 형식은 `Category="MainCategory | SubCategory"` 이런식으로 작성할 수 있는데, Sub는 꼭 작성하지 않아도 됩니다. 
 
 ```cpp
 UPROPERTY(VisibleAnywhere, Category="Main | Sub")
 float Distance;	
 ```
+
+<br>
 
 ### Meta  
   
@@ -83,18 +94,22 @@ private:
 > private을 BP에서 수정할 수 있게 된다면, 객체 구조 프로그래밍의 캡슐화에 위배되는 행위가 될 수 있으니, `Visible`만 지정하는 것이 좋겠네요.
 {: .prompt-warning }
 
+<br>
+
 #### ClampMin / ClampMax
 
-좌측 그림과 같이 `float`, `int`형식의 멤버 변수에 대해서 값의 최소/최대 범위를 제한합니다. 협업에 있어 나름 정말 유용한 기능이라고 생각하는데요. 기획자나 제 3자가 해당 프로퍼티의 값을 에디터에서 수정할 때, 개발자가 지정된 값을 넘지 않게 되기 때문에 제한이 어느정도인지 제 3자가 직관적으로 보기 쉽고, 최대 값을 넘어가는 등의 예외상황이 발생하지 않게 되죠.
+![Clamp](/assets/img/post/UPROPERTY_Macro/Clamp.png){: width="986" height="110"} 좌측 그림과 같이 `float`, `int`형식의 멤버 변수에 대해서 값의 최소/최대 범위를 제한합니다. 협업에 있어 나름 정말 유용한 기능이라고 생각하는데요. 기획자나 제 3자가 해당 프로퍼티의 값을 에디터에서 수정할 때, 개발자가 지정된 값을 넘지 않게 되기 때문에 제한이 어느정도인지 제 3자가 직관적으로 보기 쉽고, 최대 값을 넘어가는 등의 예외상황이 발생하지 않게 되죠.
   
 ```cpp
 UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "100.0"))
 float MaxDistance;
 ```
 
+<br>
+
 #### EditCondition
 
-특정 조건에 따라 에디터에서 해당 프로퍼티의 활성화 여부를 제어합니다. 아래에서는 bEnableFeature가 true인 경우에만 해당 프로퍼티가 수정가능하도록 변경됩니다. 프로퍼티들끼리 엮여있는 경우에 유용하게 사용할 수 있겠죠? 
+![EditCondition](/assets/img/post/UPROPERTY_Macro/EditCondition.png){: width="866" height="134"} 특정 조건에 따라 에디터에서 해당 프로퍼티의 활성화 여부를 제어합니다. 아래에서는 bEnableFeature가 true인 경우에만 해당 프로퍼티가 수정가능하도록 변경됩니다. 프로퍼티들끼리 엮여있는 경우에 유용하게 사용할 수 있겠죠? 
   
 예를 들어 공중에서의 이동 여부를 불리언으로 만들어 두고, 해당 불리언이 참일 때만, "속도, 중력"와 같은 속성들을 변경할 수 있게끔 할 수 있을 겁니다.
 
@@ -105,6 +120,8 @@ bool bEnableFeature;
 UPROPERTY(EditAnywhere, meta = (EditCondition = "bEnableFeature"))
 float FeatureIntensity;
 ```
+
+<br>
 
 ## 참조
 

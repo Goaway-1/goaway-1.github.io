@@ -42,11 +42,11 @@ social:
     - https://github.com/Goaway-1 # change to your GitHub homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
-    - https://www.linkedin.com/in/username
+    - https://www.linkedin.com/in/jokoo98
 
 # Site Verification Settings
 webmaster_verifications:
-  google: # fill in your Google verification code
+  google: 7OvHVr3y9c-pkkWCM8KnEwfVY7idYzi8MfIDgiToAoQ
   bing: # fill in your Bing verification code
   alexa: # fill in your Alexa verification code
   yandex: # fill in your Yandex verification code
