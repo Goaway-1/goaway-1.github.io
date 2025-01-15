@@ -28,8 +28,8 @@ url: "https://goaway-1.github.io"
 github:
   username: Goaway-1 # change to your GitHub username
 
-twitter:
-  username: twitter_username # change to your Twitter username
+#twitter:
+#  username: twitter_username # change to your Twitter username
 
 social:
   # Change to your full name.
@@ -42,7 +42,7 @@ social:
     - https://github.com/Goaway-1 # change to your GitHub homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
-    # - https://www.linkedin.com/in/username
+    - https://www.linkedin.com/in/username
 
 # Site Verification Settings
 webmaster_verifications:
