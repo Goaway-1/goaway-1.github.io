@@ -2,6 +2,7 @@
 layout: post
 title: "[UE5][VR] Oculus 개발 환경 구축 가이드"
 description: Meta Quest 게임 개발을 위한 개발 환경 세팅 가이드
+date: 2025-07-01 09:00:00 +0900
 categories: [Unreal Engine, VR]
 tags: [Unreal Engine, VR, XR, Oculus, MetaQuest]
 ---

@@ -2,6 +2,7 @@
 layout: post
 title: "[UE5] C++ vs BP BeginPlay 호출 순서의 차이"
 description: C++와 BP에서의 BeginPlay의 호출에 대해서 발생할 수 있는 이슈에 대해서 분석
+date: 2025-07-27 09:00:00 +0900
 categories: [Unreal Engine]
 tags: [Unreal Engine, Blueprint, C++, BeginPlay]
 ---
