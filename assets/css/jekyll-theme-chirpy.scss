@@ -8,3 +8,9 @@
 ';
 
 /* append your custom style below */
+
+/* 코드 블록 탭 크기 수정 */
+pre, code {
+  tab-size: 2;
+  -moz-tab-size: 2;
+}
