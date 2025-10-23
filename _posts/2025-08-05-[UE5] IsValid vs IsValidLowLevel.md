@@ -3,7 +3,7 @@ layout: post
 title: "[UE5] IsValid vs IsValidLowLevel"
 description: 유효성 검사에 사용하는 함수들의 차이 구분
 date: 2025-08-05 09:00:00 +0900
-categories: [Unreal Engine]
+categories: [Unreal Engine, Analysis]
 tags: [Unreal Engine, IsValid, IsValidLowLevel]
 ---
 

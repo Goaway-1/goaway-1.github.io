@@ -20,13 +20,9 @@ Oculus 환경에서 VR 게임을 개발하기 위해 필요한 엔진 설치부�
 Oculus 기기에서 제대로 동작하는 기능들(SDK 및 전용 모듈 포함)을 사용하려면, 일반적으로 Epic Games Launcher에서 설치하는 기본 UE 버전이 아닌 [**Oculus 커스텀 버전**](https://github.com/oculus-VR/UnrealEngine/)의 언리얼 엔진이 필요합니다. 물론 플러그인 설치하고 하면 되긴 하는데, 그냥 이거 받는게 편하기도 하고, 제공하는 기능이 더 많습니다.
 
 
+![feature compatibility](/assets/img/post/Oculus_Dev_Guide/UE_Installation_By_feature_compatibility.png){: width="538" height="303"}
+*feature compatibility*
 
-<p style="text-align: center;">
-  <img src="./assets/img/post/Oculus_Dev_Guide/UE_Installation_By_feature_compatibility.png" alt="feature compatibility">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-    feature compatibility
-  </figcaption>
-</p>
 
 [Meta  공식 홈페이지](https://developers.meta.com/horizon/documentation/unreal/unreal-compatibility-matrix/)를 살펴보면 설치 엔진에 따른 특징에 대해서 나와있는데, Git Fork를 통해서 받는 경우 기본적으로 'PSO 캐시, Fast Build'와 같은 기능이 추가되어 있고, 이 외의 Depth API등을 사용할 수 있다고 하네요. 쓰시는걸 추천 드립니다..!
 
@@ -54,12 +50,8 @@ Oculus 기기에서 제대로 동작하는 기능들(SDK 및 전용 모듈 포�
 ### 2. Androd Studio
 Meta Quest 기기는 안드로이드 기반이기 때문에, **APK 빌드 및 배포를 위한 Android SDK/NDK** 설정이 필요합니다.
 
-<p style="text-align: center;">
-  <img src="./assets/img/post/Oculus_Dev_Guide/Meta_Horizon_Guide.png" alt="Meta Horizon Guide">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-    Meta Horizon Guide
-  </figcaption>
-</p>
+![Meta Horizon Guide](/assets/img/post/Oculus_Dev_Guide/Meta_Horizon_Guide.png){: width="636" height="282"}
+*Meta Horizon Guide*
 
 Meta Horizon Develop 페이지에 가면 위와 같은 가이드를 볼 수 있는데요. 아래 버전을 지켜가면서 설치해주면 되겠습니다.
 
@@ -87,12 +79,8 @@ Meta Quest Developer Hub는 아래와 같은 주요 기능들을 제공합니다
 - Meta 스토어 업로드 연동
 
 #### 개발자 모드 활성화
-<p style="text-align: center;">
-  <img src="./assets/img/post/Oculus_Dev_Guide/Horizon_App.jpg" alt="Category">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-    Dev Mode
-  </figcaption>
-</p>
+![Dev Mode](/assets/img/post/Oculus_Dev_Guide/Horizon_App.jpg){: width="663" height="340"}
+*Dev Mode*
 
 설치 이후에 Meta Horizon 어플을 통해서 기기에 대한 개발자 모드를 활성화해주어야 하는데요. 어플을 켜고, 위 그림과 같은 순서로 개발자 모드에 접근해서 활성화주면 됩니다. 
 
@@ -110,22 +98,16 @@ Meta Quest Developer Hub는 아래와 같은 주요 기능들을 제공합니다
 ### 4. Meta Quest Link
 매번 APK를 빌드해서 기기에 넣는 건 굉장히 비효율적이죠. 그래서 사용하는 것이 [**Meta Quest Link**](https://www.meta.com/ko-kr/help/quest/1517439565442928/?srsltid=AfmBOopC3YtFxf5ky1OssNxDR2uxBJfHoedO34L05XP3h8vNE_yVRF3w)입니다.  케이블 또는 Air Link를 통해 헤드셋을 PC와 연결하고, 언리얼의 **VR Preview** 기능으로 바로 테스트할 수 있다는 장점이 있죠.
 
-<p style="text-align: center;">
-  <img src="./assets/img/post/Oculus_Dev_Guide/Meta_Link.png" alt="Category">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-    Meta_Link
-  </figcaption>
-</p>
+![Meta Link](/assets/img/post/Oculus_Dev_Guide/Meta_Link.png){: width="531" height="322"}
+*Meta Link*
+
 기기 연결 후, '설정 → 일반 → 알 수 없는 출처 허용' 옵션과 '개발자 런타임' 활성화해 주어야 사용 가능합니다!
 
 <br>
 
-<p style="text-align: center;">
-  <img src="./assets/img/post/Oculus_Dev_Guide/VRPreview.png" alt="Category">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-    VRPreview
-  </figcaption>
-</p>
+![VRPreview](/assets/img/post/Oculus_Dev_Guide/VRPreview.png){: width="589" height="326"}
+*VRPreview*
+
 기기와 연결된 상태에서 Link를 활성화하고, `VR Preview`를 실행하면, 기기로 플레이가 가능해집니다. 이외에도 Meta Simulator를 사용한 더욱 편리한 방법이 있는데, 요건 나중에 따로 포스팅 해보겠습니다!
 
 <br>

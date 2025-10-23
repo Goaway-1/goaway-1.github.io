@@ -27,12 +27,8 @@ tags: [Unreal Engine, VR, XR, Oculus, MetaQuest, WidgetComponent, UI]
 
 하지만 Meta Quest와 같은 VR 기기들은 보통 컨트롤러가 2개 존재하기 때문에 버튼과 상호작용 했을 때, 어떤 컨트롤러가 상호작용했는지 알 수 없습니다. 버튼을 누른 경우에는 입력을 통해서 어찌저찌 구분할 수 있겠지만, Hover와 같은 이벤트는 글쎄요... 쉽게 구분할 수 없을 듯하네요. 
 
-<p>
-	<img src="./assets/img/post/WidgetInteractionComponent/Button_Events.png" alt="Floor" style="width:550px;">
-	<figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-		파라미터가 없는 Button의 Event들
-	</figcaption>
-</p>
+![파라미터가 없는 Button의 Event들](/assets/img/post/WidgetInteractionComponent/Button_Events.png){: width="556" height="356"}
+*파라미터가 없는 Button의 Event들*
 
 위는 버튼 위젯의 이벤트들인데요. 모두 전달되는 파라미터가 없는 것을 볼 수 있죠.
 
@@ -241,12 +237,8 @@ FReply ExtendedButton::SlateHandleClicked(EControllerHand HandType)
 
 
 #### 5. 결과
-<p>
-	<img src="./assets/img/post/WidgetInteractionComponent/ExtendedButton_Events.png" alt="Floor" style="width:550px;">
-	<figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-		확장한 ExtendedButton의 Event들
-	</figcaption>
-</p>
+![확장한 ExtendedButton의 Event들](/assets/img/post/WidgetInteractionComponent/ExtendedButton_Events.png){: width="583" height="439"}
+*확장한 ExtendedButton의 Event들*
 
 이제 기존 `Button`이 아닌, `ExtendedButton`을 사용하면 이벤트를 받는 부분에서 컨트롤러를 구분할 수 있습니다. 이렇게 사용하면, 각 버튼마다 원하는 컨트롤러에 대해서 피드백을 잘 전달할 수 있죠.
 

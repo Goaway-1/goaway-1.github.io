@@ -9,12 +9,8 @@ tags: [Unreal Engine, VR, XR, Oculus, MetaQuest, WidgetComponent, UI, Slate]
 ## VR에서의 위젯
 PC에서는 마우스와 키보드를 통해 UI를 조작합니다. "옵션 창, 메인 화면, 캐릭터 선택 창" 등 대부분은 마우스로 클릭하는 방식이죠. 그렇다면 VR에서는 어떻게 UI를 조작할까요?
 
-<p>
-	<img src="./assets/img/post/WidgetInteractionComponent/MetaQuest_Lobby.jpg" alt="Floor" style="width:500px;">
-	<figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-		Meta Quest의 UI
-	</figcaption>
-</p>
+![Meta Quest의 UI](/assets/img/post/WidgetInteractionComponent/MetaQuest_Lobby.jpg){: width="499" height="280"}
+*Meta Quest의 UI*
 
 PC에서는 UI를 화면 평면에 그리지만, VR에서는 보통 UI를 월드 공간에 배치합니다. 눈 바로 앞에 고정된 UI는 컨트롤러로 조작하기 불편하고, HMD를 쓰고 고개를 돌릴 때 UI가 계속 눈앞을 따라오면 시야가 가려져 답답함을 느끼게 됩니다. Meta Quest의 인터페이스처럼, 일정 거리 앞의 월드 공간에 UI를 띄우는 방식은 이런 불편을 줄이기 위해 고안된 설계이지 않을까 싶습니다.
 

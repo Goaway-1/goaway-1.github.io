@@ -3,19 +3,15 @@ layout: post
 title: "[UE5] C++ vs BP BeginPlay 호출 순서의 차이"
 description: C++와 BP에서의 BeginPlay의 호출에 대해서 발생할 수 있는 이슈에 대해서 분석
 date: 2025-07-27 09:00:00 +0900
-categories: [Unreal Engine]
+categories: [Unreal Engine, Analysis]
 tags: [Unreal Engine, Blueprint, C++, BeginPlay]
 ---
 
 ## BeginPlay란
 `BeginPlay`는 게임이 실행될 때, Actor, Component와 같은 클래스들이 생명주기를 시작할 때 호출되는 함수입니다. `시작` 이라는 키워드와 연관이 있다 보니, 보통 초기화나 설정 작업을 수행하는 시점으로 사용됩니다.
 
-<p>
-  <img src="./assets/img/post/BP_Beginplay/Image.png" alt="C++ 과 BP의 BeginPlay">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-     C++ 과 BP의 BeginPlay
-  </figcaption>
-</p>
+![C++ 과 BP의 BeginPlay](/assets/img/post/BP_Beginplay/Image.png){: width="529" height="258"}
+*C++ 과 BP의 BeginPlay*
 
 <br>
 
@@ -30,12 +26,8 @@ tags: [Unreal Engine, Blueprint, C++, BeginPlay]
 ## BeginPlay의 호출
 일단 엔진에서의 `BeginPlay`가 언제, 어떤 흐름으로 호출되는지 살펴봅시다. 단순히 `Actor`가 알아서 호출되는 거라고 생각할 수 있는데, 실제로는 게임 전체 시스템의 흐름에 따라 순차적으로 호출됩니다.
 
-<p style="text-align: center;">
-  <img src="./assets/img/post/BP_Beginplay/Actor_BeginPlay.png" alt="Actor::BeginPlay">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-    Actor::BeginPlay
-  </figcaption>
-</p>
+![Actor::BeginPlay](/assets/img/post/BP_Beginplay/Actor_BeginPlay.png){: width="580" height="264"}
+*Actor::BeginPlay*
 
 `BeginPlay` 에 중단점을 걸고, 콜 스택을 확인해 봅시다. 모두 확인할 필요는 없고, 핵심은 `UWorld::BeginPlay` 부터 시작된다는 점입니다. 월드에서 시작해서 게임모드, 액터의 순서로 호출되는 것을 볼 수 있습니다. 
 이 흐름은 언리얼에서 대부분의 생명주기 로직이 월드를 중심으로 흘러간다는 걸 보여주는 대표적인 예죠.
@@ -46,12 +38,8 @@ tags: [Unreal Engine, Blueprint, C++, BeginPlay]
 
 ## 상속 구조에서의 BeginPlay 호출 순서
 
-<p>
-  <img src="./assets/img/post/BP_Beginplay/BeginPlay_Flow.png" alt="BeginPlay_Flow" style="width: 600px;">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-    BeginPlay에 대한 흐름도
-  </figcaption>
-</p>
+![BeginPlay 대한 흐름도](/assets/img/post/BP_Beginplay/BeginPlay_Flow.png){: width="543" height="331"}
+*BeginPlay 대한 흐름도*
 
 상속 구조에서 `BeginPlay`의 호출 순서는 어떻게 될까요? 예시를 들어봅시다. `Actor` 클래스를 상속받은 `FirstActor`라는 C++ 클래스, `FirstActor`를 상속받은 `SecondActor`라는 C++ 클래스가 있고, 마지막으로 `SecondActor`를 상속받은 Blueprint인 `ThirdActor` 클래스가 있다고 가정해봅시다.
 
@@ -69,12 +57,8 @@ ThirdActor::BeginPlay (BP)
 
 <br>
 
-<p style="text-align: center;">
-  <img src="./assets/img/post/BP_Beginplay/BeginPlayFlowTest.png" alt="실제 호출 순서">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-    실제 호출 순서
-  </figcaption>
-</p>
+![실제 호출 순서](/assets/img/post/BP_Beginplay/BeginPlayFlowTest.png){: width="526" height="43"}
+*실제 호출 순서*
 
 모든 함수에서 `Super`를 먼저 호출하도록 하고 실제 로그를 찍어보면, 전혀 다른 호출 순서가 나타나는 것을 볼 수 있습니다. 블루프린트의 `Beingplay`의 모든 로직이 완료되고, 이후에 상위 클래스에 대한 `BeginPlay`가 호출됩니다. 왜 일까요?
 
@@ -124,13 +108,8 @@ void AActor::BeginPlay()
 <br>
 
 #### 해결 방법 1 : `DelayUntilNextTick` 응용
-<p style="text-align: center;">
-  <img src="./assets/img/post/BP_Beginplay/Delay.png" alt="Delay">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-    방법 1 : Delay
-  </figcaption>
-</p>
-
+![방법 1 : Delay](/assets/img/post/BP_Beginplay/Delay.png){: width="561" height="159"}
+*방법 1 : Delay*
 
 가장 단순한 방식입니다. BP의 `BeginPlay` 내부에서 `DelayUntilNextTick`을 사용해서 실행 시점을 다음 프레임으로 미루는 거죠. 이렇게 하면 C++의 BeginPlay가 우선적으로 실행되고, 그 다음에 BP 로직이 실행되게 됩니다.
 하지만, **이건 어디까지나 임시 방편일 뿐, 근복적인 해결책은 절대로 아닙니다. 계산을 시간에게 맡긴다는 건 프로그래머로써 불확실성을 코드에 적용한다는 것이죠.**
@@ -162,12 +141,8 @@ C++ 클래스에 BP용 Hook 함수를 명시적으로 만들어주는 방식이 
 
 <br>
 
-<p style="text-align: center;">
-  <img src="./assets/img/post/BP_Beginplay/CorrectWay.png" alt="올바른 호출 순서">
-  <figcaption style="text-align: center; font-size: 0.8em; color: #555;">
-    올바른 호출 순서
-  </figcaption>
-</p>
+![올바른 호출 순서](/assets/img/post/BP_Beginplay/CorrectWay.png){: width="536" height="49"}
+*올바른 호출 순서*
 
 이러면 상위 C++ `BeginPlay` 이 모두 종료된 이후에 BP에 해당하는`BlueprintBeginPlay` 작업이 진행되겠죠. 기존 BP에서 `BeginPlay`에 사용하던 로직을 `BlueprintBeginPlay` 로 이전해주면 되겠습니다.
 
