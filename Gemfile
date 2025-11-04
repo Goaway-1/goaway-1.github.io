@@ -1,15 +1,11 @@
+@@ -1,14 +1,16 @@
 # frozen_string_literal: true
+
 source "https://rubygems.org"
 
-gem "csv"
-gem "base64"
-gem "bigdecimal"
-gem "jekyll", "~> 4.3.2"
-gem "webrick", "~> 1.8"
-gem "jekyll-seo-tag"
-gem "jekyll-sitemap"
-gem "jekyll-feed"
-gem "jekyll-archives"
+gemspec
+
+gem "html-proofer", "~> 5.0", group: :test
 
 platforms :mingw, :x64_mingw, :mswin, :jruby do
   gem "tzinfo", ">= 1", "< 3"
