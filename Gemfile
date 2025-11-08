@@ -1,4 +1,3 @@
-@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 source "https://rubygems.org"
