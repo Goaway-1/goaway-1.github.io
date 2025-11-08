@@ -14,7 +14,7 @@ timezone: Asia/Seoul
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: JoKoo # the main title
+title: JoKooo # the main title
 
 tagline: 이제 할 일을 하자 # it will display as the subtitle
 
@@ -23,11 +23,11 @@ description: >- # used by seo meta and the atom feed
 
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.
-url: "https://goaway-1.github.io"
+url: "https://j0kooo.github.io"
 
 github:
-  username: Goaway-1 # change to your GitHub username
-
+  username: j0kooo # change to your GitHub username
+ 
 #twitter:
 #  username: twitter_username # change to your Twitter username
 
@@ -39,7 +39,7 @@ social:
   links:
     # The first element serves as the copyright owner's link
     #- https://twitter.com/username # change to your Twitter homepage
-    - https://github.com/Goaway-1 # change to your GitHub homepage
+    - https://github.com/j0kooo # change to your GitHub homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
     - https://www.linkedin.com/in/jokoo98
